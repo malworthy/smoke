@@ -26,6 +26,25 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line)
     chunk->count++;
 }
 
+void writeConstant(Chunk* chunk, Value value, int line) 
+{
+    int constant = addConstant(chunk, value);
+
+    if (constant >= 256)
+    {
+        // do something new, need to convert int into 2 bytes, below wip.
+        uint16_t bytes = (uint16_t)constant;
+        writeChunk(chunk, OP_CONSTANT_16, line);
+        //writeChunk(chunk, *bytes[0], line);
+        //writeChunk(chunk, *bytes[1], line);
+    }
+    else
+    {
+        writeChunk(chunk, OP_CONSTANT, line);
+        writeChunk(chunk, constant, line);
+    }
+}
+
 void freeChunk(Chunk* chunk)
 {
     FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);
@@ -40,3 +59,5 @@ int addConstant(Chunk* chunk, Value value)
 
     return chunk->constants.count-1;
 }
+
+
