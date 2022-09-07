@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0.0)
 project(mal VERSION 0.1.0)
 
 include(CTest)
+add_executable(test_table src/test_table.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c)
 enable_testing()
+add_test(NAME test_table COMMAND test_table)
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c)
 
