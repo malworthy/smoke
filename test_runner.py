@@ -12,7 +12,8 @@ def test_file(interpreter, script_to_test, expect):
         return 1
 
     result = subprocess.run([interpreter, script_to_test], capture_output=True)
-    actual = result.stdout.decode().split()
+    actual = result.stdout.decode().split('\n')
+    actual = [x.strip() for x in actual if x != '']
 
     if len(actual) != len(expected):
         print(f"FAIL: Expect: {expected}, Actual: {actual}")
