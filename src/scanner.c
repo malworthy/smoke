@@ -124,7 +124,7 @@ static TokenType identifierType()
     switch (scanner.start[0]) 
     {
         case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
-        //case 'c': return checkKeyword(1, 4, "lass", TOKEN_THING);
+        //case 'c': return checkKeyword(1, 4, "onst", TOKEN_CONST);
         case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
         case 'f':
             if (scanner.current - scanner.start > 1) {
@@ -145,7 +145,7 @@ static TokenType identifierType()
         case 't':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
-                    case 'h': return checkKeyword(2, 2, "ing", TOKEN_THING);
+                    case 'h': return checkKeyword(2, 3, "ing", TOKEN_THING);
                     case 'r': return checkKeyword(2, 2, "ue", TOKEN_TRUE);
                 }
             }
@@ -193,7 +193,7 @@ static bool isAlpha(char c)
 {
       return (c >= 'a' && c <= 'z') ||
              (c >= 'A' && c <= 'Z') ||
-              c == '_';
+              c == '_' || c == '@';
 }
 
 static Token identifier() 
