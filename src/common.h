@@ -5,6 +5,7 @@
 //#define DEBUG_PRINT_CODE
 
 #define UINT8_COUNT (255 + 1)
+#define UINT16_T_MAX 0xFFFF
 
 #include <stdbool.h>
 #include <stddef.h>

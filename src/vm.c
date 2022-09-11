@@ -98,6 +98,8 @@ static InterpretResult run()
             push(valueType(a op b)); \
         } while (false)
     #define READ_STRING() AS_STRING(READ_CONSTANT())
+    #define READ_SHORT() \
+        (vm.ip += 2, (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]))
 
     for (;;) 
     {
@@ -204,6 +206,21 @@ static InterpretResult run()
                 }
                 break;
             }
+            case OP_JUMP_IF_FALSE: {
+                uint16_t offset = READ_SHORT();
+                if (isFalsey(peek(0))) vm.ip += offset;
+                break;
+            }
+            case OP_JUMP: {
+                uint16_t offset = READ_SHORT();
+                vm.ip += offset;
+                break;
+            }
+            case OP_LOOP: {
+                uint16_t offset = READ_SHORT();
+                vm.ip -= offset;
+                break;
+            }
             case OP_RETURN: {
                 return INTERPRET_OK;
             }
@@ -214,6 +231,7 @@ static InterpretResult run()
     #undef READ_CONSTANT
     #undef BINARY_OP
     #undef READ_STRING
+    #undef READ_SHORT
 }
 
 InterpretResult interpret(const char* source) 
