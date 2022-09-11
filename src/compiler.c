@@ -43,6 +43,7 @@ typedef struct {
 typedef struct {
     Token name;
     int depth;
+    bool constant;
 } Local;
 
 typedef struct {
@@ -265,7 +266,7 @@ static bool identifiersEqual(Token* a, Token* b)
     return memcmp(a->start, b->start, a->length) == 0;
 }
 
-static int resolveLocal(Compiler* compiler, Token* name) 
+static int resolveLocal(Compiler* compiler, Token* name, bool* isConst) 
 {
     for (int i = compiler->localCount - 1; i >= 0; i--) 
     {
@@ -274,15 +275,15 @@ static int resolveLocal(Compiler* compiler, Token* name)
         {
             if (local->depth == -1) 
                 error("Can't read local variable in its own initializer.");
-      
+            *isConst = local->constant;
             return i;
         }
     }
-
+    *isConst = false;
     return -1;
 }
 
-static void addLocal(Token name) 
+static void addLocal(Token name, bool isConst) 
 {
     if (current->localCount == UINT8_COUNT) 
     {
@@ -292,9 +293,10 @@ static void addLocal(Token name)
     Local* local = &current->locals[current->localCount++];
     local->name = name;
     local->depth = -1;
+    local->constant = isConst;
 }
 
-static void declareVariable() 
+static void declareVariable(bool isConst) 
 {
     if (current->scopeDepth == 0) return;
 
@@ -314,13 +316,14 @@ static void declareVariable()
         }
     }
 
-    addLocal(*name);
+    addLocal(*name, isConst);
 }
 
 static void namedVariable(Token name, bool canAssign) 
 {
     uint8_t getOp, setOp;
-    int arg = resolveLocal(current, &name);
+    bool isConst;
+    int arg = resolveLocal(current, &name, &isConst);
     if (arg != -1) 
     {
         getOp = OP_GET_LOCAL;
@@ -331,9 +334,11 @@ static void namedVariable(Token name, bool canAssign)
         arg = identifierConstant(&name);
         getOp = OP_GET_GLOBAL;
         setOp = OP_SET_GLOBAL;
+
+        canAssign = false; //globals are immutable
     }
 
-    if(*name.start == '@')
+    if(isConst)
         canAssign = false;
 
     if (canAssign && match(TOKEN_EQUAL)) 
@@ -457,12 +462,16 @@ static void block()
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
-static uint8_t parseVariable(const char* errorMessage) 
+static uint8_t parseVariable(const char* errorMessage, bool isConst) 
 {
     consume(TOKEN_IDENTIFIER, errorMessage);
 
-    declareVariable();
+    declareVariable(isConst);
     if (current->scopeDepth > 0) return 0;
+
+    // Mal's rule: global variables are immutable
+    if (!isConst)
+        errorAtCurrent("Global variables must be marked 'const'");
 
     return identifierConstant(&parser.previous);
 }
@@ -480,14 +489,13 @@ static void defineVariable(uint8_t global)
         markInitialized();
         return;
     }
-        
     
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
-static void varDeclaration() 
+static void varDeclaration(bool isConst) 
 {
-    uint8_t global = parseVariable("Expect variable name.");
+    uint8_t global = parseVariable("Expect variable name.", isConst);
 
     if (match(TOKEN_EQUAL)) 
         expression();
@@ -541,8 +549,9 @@ static void synchronize()
 
 static void declaration() 
 {
-    if (match(TOKEN_VAR)) 
-        varDeclaration();
+    bool isConst = match(TOKEN_CONST);
+    if (isConst || match(TOKEN_VAR)) 
+        varDeclaration(isConst);
     else 
         statement();
 

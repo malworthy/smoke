@@ -1,6 +1,11 @@
-var breakfast = "beignets";
-var beverage = "cafe au lait";
-breakfast = "beignets with " + beverage;
-
-print breakfast;
+{
+    var breakfast = "beignets";
+    var beverage = "cafe au lait";
+    breakfast = "beignets with " + beverage;
+    print breakfast;
+}
+const global = "global variable";
+const global2 = " two";
+print global + global2;
 //expect:beignets with cafe au lait
+//expect:global variable two
