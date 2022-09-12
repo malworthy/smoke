@@ -651,13 +651,47 @@ static void loopStatement()
 {
     //varDeclaration(false);
     beginScope();
+
+    //First declare a variable called i and set it to zero
     loopVarDeclaration();
+    emitConstant(NUMBER_VAL(0));
+    //loop starts here
+    int loopStart = currentChunk()->count;
+
+
+    //Then compare i to the expression after "loop"
+    char* variableName = "i";
+    Token name;
+    name.length = 1;
+    name.line = parser.previous.line;
+    name.start = variableName;
+    name.type = TOKEN_IDENTIFIER;
+
+    bool isConst;
+    int arg = resolveLocal(current, &name, &isConst);
+    emitBytes(OP_GET_LOCAL,(uint8_t)arg);
     expression();
+
+    emitByte(OP_LESS); 
+    
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);    
     consume(TOKEN_TIMES, "Expect 'times' after loop.");
+    
     statement();
 
+    //Now increase i by 1
+    emitBytes(OP_GET_LOCAL,(uint8_t)arg);
+    emitConstant(NUMBER_VAL(1));
+    emitByte(OP_ADD);
+    emitBytes(OP_SET_LOCAL, (uint8_t)arg); 
+    emitByte(OP_POP);
+    emitLoop(loopStart);
+    patchJump(exitJump);
+    emitByte(OP_POP);
+    
     endScope();
-
+    //patchJump(exitJump);
     //consume(TOKEN_TIMES, "Expect 'times' after loop.");
 
     //declareLoopVariable();
