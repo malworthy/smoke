@@ -1,0 +1,52 @@
+// loop is my own custom instruction.  so needs insane testing
+
+loop 5 times print i;
+//expect:0
+//expect:1
+//expect:2
+//expect:3
+//expect:4
+
+loop 5 times print i;
+//expect:0
+//expect:1
+//expect:2
+//expect:3
+//expect:4
+
+{
+    var x = 0;
+    loop 500 times x = x + 1;
+    print x;
+}
+//expect:500
+
+loop 3 times
+{
+    print "hello";
+    print "again";
+}
+//expect:hello
+//expect:again
+//expect:hello
+//expect:again
+//expect:hello
+//expect:again
+
+const x = 2;
+const y = 3;
+loop x * y times print i;
+//expect:0
+//expect:1
+//expect:2
+//expect:3
+//expect:4
+//expect:5
+
+const i = 100;
+loop 1 times print i;
+//expect:0
+print i;
+//expect:100
+
+

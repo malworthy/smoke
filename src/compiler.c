@@ -323,8 +323,6 @@ static bool identifiersEqual(Token* a, Token* b)
 
 static int resolveLocal(Compiler* compiler, Token* name, bool* isConst) 
 {
-    printf("local count %d", compiler->localCount);
-
     for (int i = compiler->localCount - 1; i >= 0; i--) 
     {
         Local* local = &compiler->locals[i];
@@ -351,8 +349,6 @@ static void addLocal(Token name, bool isConst)
     local->name = name;
     local->depth = -1;
     local->constant = isConst;
-
-    printf("in add local.  localcount: %d\n", current->localCount);
 }
 
 // loop statement declares a variable called 'i' to use as a counter
@@ -366,25 +362,7 @@ static void declareLoopVariable()
     name.start = variableName;
     name.type = TOKEN_IDENTIFIER;
 
-    //parser.current = name;
-    /*
-    for (int i = current->localCount - 1; i >= 0; i--) 
-    {
-        Local* local = &current->locals[i];
-        if (local->depth != -1 && local->depth < current->scopeDepth) 
-        {
-            break; 
-        }
-
-        if (identifiersEqual(&name, &local->name)) 
-        {
-            // code should never get here
-            error("i already exists in loop scope - there is a bug in your code!.");
-        }
-    }*/
-
     addLocal(name, false);
-
 }
 
 static void declareVariable(bool isConst) 
@@ -464,8 +442,6 @@ static void unary(bool canAssign)
     }
 }
 
-
-
 ParseRule rules[] = 
 {
     [TOKEN_LEFT_PAREN]    = {grouping, NULL,   PREC_NONE},
@@ -516,7 +492,7 @@ static void parsePrecedence(Precedence precedence)
 {
     advance();
     ParseFn prefixRule = getRule(parser.previous.type)->prefix;
-    printf("token type: %d", parser.previous.type);
+    
     if (prefixRule == NULL) 
     {
         error("Expect expression.");
@@ -595,33 +571,6 @@ static void loopVarDeclaration()
     uint8_t global = 0; 
     declareLoopVariable();
 
-    // add equals
-    /*
-    Token equals;
-    equals.length = 1;
-    equals.start = "=";
-    equals.type = TOKEN_EQUAL;
-    equals.line = parser.previous.line;
-    parser.current = equals;
-    */
-
-   
-    // add const zero
-    //ParseFn prefixRule = getRule(TOKEN_NUMBER)->prefix;
-    //prefixRule(canAssign);
-
-    
-
-    //emitConstant(NUMBER_VAL(0));
-
-    //if (match(TOKEN_EQUAL)) 
-    //    expression();
-    //else 
-    //    errorAtCurrent("All variables must be initialised.");
-    
-    //consume(TOKEN_SEMICOLON,
-    //        "Expect ';' after variable declaration.");
-
     defineVariable(global);
 }
 
@@ -649,15 +598,14 @@ static void expressionStatement()
 
 static void loopStatement()
 {
-    //varDeclaration(false);
     beginScope();
 
     //First declare a variable called i and set it to zero
     loopVarDeclaration();
     emitConstant(NUMBER_VAL(0));
+
     //loop starts here
     int loopStart = currentChunk()->count;
-
 
     //Then compare i to the expression after "loop"
     char* variableName = "i";
@@ -691,24 +639,6 @@ static void loopStatement()
     emitByte(OP_POP);
     
     endScope();
-    //patchJump(exitJump);
-    //consume(TOKEN_TIMES, "Expect 'times' after loop.");
-
-    //declareLoopVariable();
-/*
-    int loopStart = currentChunk()->count;
-    expression();
-    consume(TOKEN_TIMES, "Expect 'times' after loop.");
-
-    int exitJump = emitJump(OP_JUMP_IF_FALSE);
-    emitByte(OP_POP);
-    statement();
-
-    emitLoop(loopStart);
-
-    patchJump(exitJump);
-    emitByte(OP_POP);
-*/
 }
 
 static void ifStatement() 
