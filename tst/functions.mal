@@ -1,0 +1,6 @@
+fn test()
+{
+    print "hi";
+}
+print test;
+//expect:<fn test>

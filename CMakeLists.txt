@@ -10,6 +10,7 @@ add_test(NAME scope COMMAND python ../test_runner.py "mal.exe" "../tst/scope.mal
 add_test(NAME if COMMAND python ../test_runner.py "mal.exe" "../tst/if.mal" "//expect:")
 add_test(NAME while COMMAND python ../test_runner.py "mal.exe" "../tst/while.mal" "//expect:")
 add_test(NAME loop COMMAND python ../test_runner.py "mal.exe" "../tst/loop.mal" "//expect:")
+add_test(NAME functions COMMAND python ../test_runner.py "mal.exe" "../tst/functions.mal" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c)
 
