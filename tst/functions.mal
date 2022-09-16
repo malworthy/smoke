@@ -4,3 +4,34 @@ fn test()
 }
 print test;
 //expect:<fn test>
+
+test();
+//expect:hi
+
+fn test2(a,b,c,d)
+{
+    print a;
+    print b;
+    print c;
+    print d;
+
+    return c + d;
+}
+
+print test2(1,2,3,4);
+//expect:1
+//expect:2
+//expect:3
+//expect:4
+//expect:7
+
+fn fib(n) {
+    if n < 2 then return n;
+    return fib(n - 2) + fib(n - 1);
+}
+print(fib(10));
+//expect:55
+
+const x = clock();
+if x >= 0 then print "clock worked";
+//expect:clock worked
