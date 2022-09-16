@@ -9,11 +9,13 @@
 #include "compiler.h"
 #include "memory.h"
 #include "object.h"
+#include "native/console.h"
 
 VM vm; 
 
-static Value clockNative(int argCount, Value* args) {
-  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+static bool clockNative(int argCount, Value* args) {
+  args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+  return true;
 }
 
 void resetStack()
@@ -51,10 +53,10 @@ static void runtimeError(const char* format, ...)
     resetStack();
 }
 
-static void defineNative(const char* name, NativeFn function) 
+static void defineNative(const char* name, NativeFn function, int arity) 
 {
     push(OBJ_VAL(copyString(name, (int)strlen(name))));
-    push(OBJ_VAL(newNative(function)));
+    push(OBJ_VAL(newNative(function, arity)));
     tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
     pop();
     pop();
@@ -68,7 +70,8 @@ void initVM()
     initTable(&vm.globals);
 
     // Native Functions
-    defineNative("clock", clockNative);
+    defineNative("clock", clockNative, 0);
+    defineNative("write", writeNative, 1);
 }
 
 void freeVM() 
@@ -128,11 +131,23 @@ static bool callValue(Value callee, int argCount)
             case OBJ_FUNCTION: 
                 return call(AS_FUNCTION(callee), argCount);
             case OBJ_NATIVE: {
-                NativeFn native = AS_NATIVE(callee);
-                Value result = native(argCount, vm.stackTop - argCount);
-                vm.stackTop -= argCount + 1;
-                push(result);
-                return true;
+                ObjNative* native = AS_NATIVE(callee);
+                if (native->arity != argCount)
+                {
+                    runtimeError("Expected %d arguments but got %d.", native->arity, argCount);
+                    return false;
+                }
+                
+                if (native->function(argCount, vm.stackTop - argCount)) 
+                {
+                    vm.stackTop -= argCount;
+                    return true;
+                } 
+                else 
+                {
+                    runtimeError(AS_STRING(vm.stackTop[-argCount - 1])->chars);
+                    return false;
+                }
             }
             default:
                 break; // Non-callable object type.

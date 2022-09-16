@@ -1,8 +1,11 @@
+// simple benchmark
+// 25 secs as at 17/9/2022./
+
 fn fib(n) {
     if n < 2 then return n;
     return fib(n - 2) + fib(n - 1);
 }
 
 const start = clock();
-print fib(10);
+print fib(40);
 print clock() - start;
