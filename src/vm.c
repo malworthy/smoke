@@ -70,8 +70,16 @@ void initVM()
     initTable(&vm.globals);
 
     // Native Functions
+
     defineNative("clock", clockNative, 0);
+
+    // CONSOLE
     defineNative("write", writeNative, 1);
+    defineNative("locate", locateNative, 2);
+    defineNative("clear", clearNative, 0);
+    defineNative("textColor", textColorNative, 1);
+    defineNative("backColor", backColorNative, 1);
+    defineNative("input", inputNative, 0);
 }
 
 void freeVM() 

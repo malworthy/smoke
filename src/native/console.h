@@ -6,5 +6,10 @@
 #include "../object.h"
 
 bool writeNative(int argCount, Value* args);
+bool locateNative(int argCount, Value* args);
+bool clearNative(int argCount, Value* args);
+bool textColorNative(int argCount, Value* args);
+bool backColorNative(int argCount, Value* args);
+bool inputNative(int argCount, Value* args);
 
 #endif
