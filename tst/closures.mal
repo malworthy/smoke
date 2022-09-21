@@ -1,0 +1,54 @@
+fn outer() {
+  var x = "outside";
+  fn inner() {
+    print x;
+  }
+  inner();
+}
+outer();
+//expect:outside
+
+fn outer() {
+  var x = "value";
+  fn middle() {
+    fn inner() {
+      print x;
+    }
+
+    print "create inner closure";
+    return inner;
+  }
+
+  print "return from outer";
+  return middle;
+}
+
+const mid = outer();
+const in = mid();
+in();
+
+//expect:return from outer
+//expect:create inner closure
+//expect:value
+
+fn main()
+{
+  var y = 0;
+  fn doit(x)
+  {
+    print x;
+    y = y + 1;
+    print y;
+  }
+  return doit;
+}
+
+const z = main();
+
+z("hi");
+//expect:hi
+//expect:1
+
+z("bye");
+//expect:bye
+//expect:2
