@@ -87,7 +87,59 @@ ObjString* takeString(char* chars, int length)
     return allocateString(chars, length, hash);
 }
 
+
+
 ObjString* copyString(const char* chars, int length) 
+{
+    char processedString[length];
+    int charCount = 0;
+    for(int i = 0; i < length; i++)
+    {
+        if(*(chars + i) == '\\' && i < length -1)
+        {
+            i++;
+            switch (*(chars + i))
+            {
+            case 'n':
+                processedString[charCount++] = '\n';
+                break;
+            case 'r':
+                processedString[charCount++] = '\r';
+                break;
+            case 't':
+                processedString[charCount++] = '\t';
+                break;
+            case '\\':
+                processedString[charCount++] = '\\';
+                break;
+            case '"':
+                processedString[charCount++] = '"';
+                break;            
+            default: // no valid escape sequence, so just treat as backslash
+                i--;
+                processedString[charCount++] = '\\';
+                break;
+            }
+        }
+        else
+        {
+            processedString[charCount++] = *(chars+i);
+        }
+    }
+    
+    uint32_t hash = hashString(processedString, charCount);
+    ObjString* interned = tableFindString(&vm.strings, processedString, charCount,
+                                          hash);
+    if (interned != NULL) return interned;
+
+    char* heapChars = ALLOCATE(char, charCount + 1);
+    memcpy(heapChars, processedString, charCount);
+    heapChars[charCount] = '\0';
+    
+    return allocateString(heapChars, charCount, hash);
+}
+
+ObjString* copyStringRaw(const char* chars, int length)
 {
     uint32_t hash = hashString(chars, length);
     ObjString* interned = tableFindString(&vm.strings, chars, length,
@@ -99,7 +151,7 @@ ObjString* copyString(const char* chars, int length)
     heapChars[length] = '\0';
     
     return allocateString(heapChars, length, hash);
-}
+} 
 
 ObjUpvalue* newUpvalue(Value* slot) 
 {

@@ -56,7 +56,7 @@ static void runtimeError(const char* format, ...)
 
 static void defineNative(const char* name, NativeFn function, int arity) 
 {
-    push(OBJ_VAL(copyString(name, (int)strlen(name))));
+    push(OBJ_VAL(copyStringRaw(name, (int)strlen(name))));
     push(OBJ_VAL(newNative(function, arity)));
     tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
     pop();

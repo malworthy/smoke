@@ -161,9 +161,11 @@ static TokenType identifierType()
 
 static Token string() 
 {
-    while (peek() != '"' && !isAtEnd()) 
+    bool escaped = false;
+    while ((peek() != '"' || escaped) && !isAtEnd()) 
     {
         if (peek() == '\n') scanner.line++;
+        escaped = (peek() == '\\');
         advance();
     }
 
@@ -174,22 +176,24 @@ static Token string()
     return makeToken(TOKEN_STRING);
 }
 
-static bool isDigit(char c) {
-  return c >= '0' && c <= '9';
+static bool isDigit(char c) 
+{
+    return c >= '0' && c <= '9';
 }
 
-static Token number() {
-  while (isDigit(peek())) advance();
-
-  // Look for a fractional part.
-  if (peek() == '.' && isDigit(peekNext())) {
-    // Consume the ".".
-    advance();
-
+static Token number() 
+{
     while (isDigit(peek())) advance();
-  }
 
-  return makeToken(TOKEN_NUMBER);
+    // Look for a fractional part.
+    if (peek() == '.' && isDigit(peekNext())) {
+        // Consume the ".".
+        advance();
+
+        while (isDigit(peek())) advance();
+    }
+
+    return makeToken(TOKEN_NUMBER);
 }
 
 static bool isAlpha(char c) 

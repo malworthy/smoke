@@ -125,7 +125,7 @@ bool inputNative(int argCount, Value* args)
         }
     }
 
-    args[-1] = OBJ_VAL(copyString(line, (int)strlen(line)));
+    args[-1] = OBJ_VAL(copyStringRaw(line, (int)strlen(line)));
 
     return true;
 }

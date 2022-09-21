@@ -1,0 +1,8 @@
+const s1 = "This is\na test";
+print s1;
+//expect:This is
+//expect:a test
+print "\\backslash\"";
+//expect:\backslash"
+print "\ttab";
+//expect:   tab

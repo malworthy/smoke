@@ -228,7 +228,7 @@ static void initCompiler(Compiler* compiler, FunctionType type)
 
     if (type != TYPE_SCRIPT) 
     {
-        current->function->name = copyString(parser.previous.start,
+        current->function->name = copyStringRaw(parser.previous.start,
                                             parser.previous.length);
     }
 
@@ -363,7 +363,7 @@ static void string(bool canAssign)
 
 static uint8_t identifierConstant(Token* name) 
 {
-    return makeConstant(OBJ_VAL(copyString(name->start,
+    return makeConstant(OBJ_VAL(copyStringRaw(name->start,
                                            name->length)));
 }
 
