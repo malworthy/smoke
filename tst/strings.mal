@@ -6,3 +6,6 @@ print "\\backslash\"";
 //expect:\backslash"
 print "\ttab";
 //expect:   tab
+
+{ var s = "hi"; loop 10 times s = s + "bye"; print s; }
+//expect:hibyebyebyebyebyebyebyebyebyebye
