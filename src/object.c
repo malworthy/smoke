@@ -58,6 +58,19 @@ ObjNative* newNative(NativeFn function, int arity)
     return native;
 }
 
+ObjList* newList()
+{
+    // Allocate this before the list object in case it triggers a GC which would
+    // free the list.
+    ValueArray elements;;
+    initValueArray(&elements);
+    
+    ObjList* list = ALLOCATE_OBJ(ObjList, OBJ_LIST);
+    list->elements = elements;
+    
+    return list;
+}
+
 static ObjString* allocateString(char* chars, int length, uint32_t hash) 
 {
     ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
@@ -201,6 +214,9 @@ void printObject(Value value)
             break;
         case OBJ_UPVALUE:
             printf("upvalue");
+            break;
+        case OBJ_LIST:
+            printf("List");
             break;
     }
 }

@@ -1,0 +1,7 @@
+const list = ["hello",true, 20];
+print list[0];
+//expect:hello
+print list[1];
+//expect:true
+print list[2];
+//expect:20

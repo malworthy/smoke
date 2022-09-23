@@ -193,9 +193,12 @@ static uint8_t makeConstant(Value value)
     return (uint8_t)constant;
 }
 
-static void emitConstant(Value value) 
+static uint8_t emitConstant(Value value) 
 {
-    emitBytes(OP_CONSTANT, makeConstant(value));
+    uint8_t constant = makeConstant(value);
+    emitBytes(OP_CONSTANT, constant);
+
+    return constant;
 }
 
 static void emitReturn() 
@@ -366,6 +369,11 @@ static uint8_t identifierConstant(Token* name)
 {
     return makeConstant(OBJ_VAL(copyStringRaw(name->start,
                                            name->length)));
+}
+
+static uint8_t stringConstant(char* name) 
+{
+    return makeConstant(OBJ_VAL(copyStringRaw(name,strlen(name))));
 }
 
 static bool identifiersEqual(Token* a, Token* b) 
@@ -543,50 +551,110 @@ static void unary(bool canAssign)
     }
 }
 
+static void list(bool canAssign)
+{
+    //printf("In List\n");
+    //TODO: Create a new list here
+    ObjList* list = newList();
+    uint8_t listVariable = emitConstant(OBJ_VAL(list));
+    do
+    {
+        // Stop if we hit the end of the list.
+        if (check(TOKEN_RIGHT_BRACKET)) 
+        {
+            //printf("consuming ]\n");
+            consume(TOKEN_RIGHT_BRACKET,"");
+            return;
+        }
+
+        // Get function name
+        char* fnName = "add";
+        int arg = stringConstant(fnName);
+		emitBytes(OP_GET_GLOBAL, (uint8_t)arg);
+
+        // parameter 1 - list variable
+        //emitBytes(OP_GET_GLOBAL, listVariable);
+        emitConstant(OBJ_VAL(list));
+
+        // parameter 2 - value adding to the list
+        expression();
+
+        // call the function
+        emitBytes(OP_CALL, 2);
+        emitByte(OP_POP);
+
+        //printf("add element\n");
+    
+    } while (match(TOKEN_COMMA));
+
+    consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
+}
+
+static void subscript(bool canAssign)
+{
+    //printf("in subscript\n");
+     
+    // Get function name
+    char* fnName = "get";
+    int arg = stringConstant(fnName);
+    emitBytes(OP_SUBSCRIPT, (uint8_t)arg); //hacky op code to insert into previous slot
+
+    // get the index of the array
+    expression();
+    
+    // call the function
+    emitBytes(OP_CALL, 2);
+    //emitByte(OP_POP);
+
+    consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
+}
+
 ParseRule rules[] = 
 {
-    [TOKEN_LEFT_PAREN]    = {grouping, call,   PREC_CALL},
-    [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE}, 
-    [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_COMMA]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_DOT]           = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_MINUS]         = {unary,    binary, PREC_TERM},
-    [TOKEN_PLUS]          = {NULL,     binary, PREC_TERM},
-    [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
-    [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
-    [TOKEN_BANG]          = {unary,    NULL,   PREC_NONE},
-    [TOKEN_BANG_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
-    [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_EQUAL_EQUAL]   = {NULL,     binary, PREC_EQUALITY},
-    [TOKEN_GREATER]       = {NULL,     binary, PREC_COMPARISON},
-    [TOKEN_GREATER_EQUAL] = {NULL,     binary, PREC_COMPARISON},
-    [TOKEN_LESS]          = {NULL,     binary, PREC_COMPARISON},
-    [TOKEN_LESS_EQUAL]    = {NULL,     binary, PREC_COMPARISON},
-    [TOKEN_IDENTIFIER]    = {variable, NULL,   PREC_NONE},
-    [TOKEN_STRING]        = {string,   NULL,   PREC_NONE},
-    [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
-    [TOKEN_AND]           = {NULL,     and_,   PREC_AND},
-    [TOKEN_THEN]          = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_DO]            = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_ELSE]          = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
-    [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_FN]            = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_LEFT_PAREN]    = {grouping, call,        PREC_CALL},
+    [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_LEFT_BRACKET]  = {list,     subscript,   PREC_CALL},
+    [TOKEN_RIGHT_BRACKET] = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_LEFT_BRACE]    = {NULL,     NULL,        PREC_NONE}, 
+    [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_COMMA]         = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_DOT]           = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_MINUS]         = {unary,    binary,      PREC_TERM},
+    [TOKEN_PLUS]          = {NULL,     binary,      PREC_TERM},
+    [TOKEN_SEMICOLON]     = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_SLASH]         = {NULL,     binary,      PREC_FACTOR},
+    [TOKEN_STAR]          = {NULL,     binary,      PREC_FACTOR},
+    [TOKEN_BANG]          = {unary,    NULL,        PREC_NONE},
+    [TOKEN_BANG_EQUAL]    = {NULL,     binary,      PREC_EQUALITY},
+    [TOKEN_EQUAL]         = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_EQUAL_EQUAL]   = {NULL,     binary,      PREC_EQUALITY},
+    [TOKEN_GREATER]       = {NULL,     binary,      PREC_COMPARISON},
+    [TOKEN_GREATER_EQUAL] = {NULL,     binary,      PREC_COMPARISON},
+    [TOKEN_LESS]          = {NULL,     binary,      PREC_COMPARISON},
+    [TOKEN_LESS_EQUAL]    = {NULL,     binary,      PREC_COMPARISON},
+    [TOKEN_IDENTIFIER]    = {variable, NULL,        PREC_NONE},
+    [TOKEN_STRING]        = {string,   NULL,        PREC_NONE},
+    [TOKEN_NUMBER]        = {number,   NULL,        PREC_NONE},
+    [TOKEN_AND]           = {NULL,     and_,        PREC_AND},
+    [TOKEN_THEN]          = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_DO]            = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_ELSE]          = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_FALSE]         = {literal,  NULL,        PREC_NONE},
+    [TOKEN_FOR]           = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_FN]            = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_IF]            = {NULL,     NULL,        PREC_NONE},
     //[TOKEN_NIL]           = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
-    [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_OR]            = {NULL,     or_,         PREC_OR},
+    [TOKEN_PRINT]         = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_RETURN]        = {NULL,     NULL,        PREC_NONE},
     //[TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_ME]            = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},
-    [TOKEN_VAR]           = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_CONST]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_ME]            = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_TRUE]          = {literal,  NULL,        PREC_NONE},
+    [TOKEN_VAR]           = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_CONST]         = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_WHILE]         = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_ERROR]         = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_EOF]           = {NULL,     NULL,        PREC_NONE},
 };
 
 static void parsePrecedence(Precedence precedence) 

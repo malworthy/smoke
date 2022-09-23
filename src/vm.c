@@ -10,6 +10,7 @@
 #include "memory.h"
 #include "object.h"
 #include "native/console.h"
+#include "native/list.h"
 
 VM vm; 
 
@@ -86,6 +87,10 @@ void initVM()
     defineNative("textColor", textColorNative, 1);
     defineNative("backColor", backColorNative, 1);
     defineNative("input", inputNative, 0);
+
+    // LISTS
+    defineNative("add", addNative, 2);
+    defineNative("get", getNative, 2);
 }
 
 void freeVM() 
@@ -352,6 +357,20 @@ static InterpretResult run()
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(value);
+                break;
+            }
+            // This is used for subscripts (eg x[2]).  It inserts the function 
+            case OP_SUBSCRIPT: {
+                Value prev = pop();
+                ObjString* name = READ_STRING();
+                Value value;
+                if (!tableGet(&vm.globals, name, &value)) 
+                {
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(value);
+                push(prev);
                 break;
             }
             case OP_SET_GLOBAL: {
