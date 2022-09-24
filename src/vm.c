@@ -91,6 +91,7 @@ void initVM()
     // LISTS
     defineNative("add", addNative, 2);
     defineNative("get", getNative, 2);
+    defineNative("slice", sliceNative, 3);
 }
 
 void freeVM() 
@@ -237,6 +238,26 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
+Value get(Value item, Value index)
+{
+    if (!IS_LIST(item))
+    {
+        runtimeError("Subscript invalid for type");
+        return NIL_VAL;
+    }
+
+    ObjList* list = AS_LIST(item);
+    int i = (int)AS_NUMBER(index);
+
+    if (i >= list->elements.count)
+    {
+        runtimeError("Index outside the bounds of the list");
+        return NIL_VAL;
+    }
+
+    return list->elements.values[i];
+}
+
 static InterpretResult run() 
 {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
@@ -359,18 +380,15 @@ static InterpretResult run()
                 push(value);
                 break;
             }
-            // This is used for subscripts (eg x[2]).  It inserts the function 
             case OP_SUBSCRIPT: {
-                Value prev = pop();
-                ObjString* name = READ_STRING();
-                Value value;
-                if (!tableGet(&vm.globals, name, &value)) 
-                {
-                    runtimeError("Undefined variable '%s'.", name->chars);
+                
+                Value index = pop();
+                Value item = pop();
+                Value result = get(item, index);
+                if(IS_NIL(result))
                     return INTERPRET_RUNTIME_ERROR;
-                }
-                push(value);
-                push(prev);
+                push(result);
+
                 break;
             }
             case OP_SET_GLOBAL: {
