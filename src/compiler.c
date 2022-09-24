@@ -595,15 +595,19 @@ static void subscript(bool canAssign)
     //printf("in subscript\n");
      
     // Get function name
+
+    /*
     char* fnName = "get";
     int arg = stringConstant(fnName);
     emitBytes(OP_SUBSCRIPT, (uint8_t)arg); //hacky op code to insert into previous slot
+    */
 
     // get the index of the array
     expression();
-    
+    emitByte(OP_SUBSCRIPT);
+
     // call the function
-    emitBytes(OP_CALL, 2);
+    //emitBytes(OP_CALL, 2);
     //emitByte(OP_POP);
 
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");

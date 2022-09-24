@@ -196,6 +196,18 @@ static void printFunction(ObjFunction* function)
     printf("<fn %s>", function->name->chars);
 }
 
+static void printList(ObjList* list)
+{
+    printf("[");
+    for(int i = 0; i < list->elements.count; i++)
+    {
+        printValue(list->elements.values[i]);
+        printf(", ");
+    }
+    printf("]");
+        
+}
+
 void printObject(Value value) 
 {
     switch (OBJ_TYPE(value)) 
@@ -216,7 +228,7 @@ void printObject(Value value)
             printf("upvalue");
             break;
         case OBJ_LIST:
-            printf("List");
+            printList(AS_LIST(value));
             break;
     }
 }

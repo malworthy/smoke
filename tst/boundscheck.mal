@@ -1,0 +1,4 @@
+const x = [1,2,3];
+print x[123];
+//expect:Index outside the bounds of the list
+//expect:[line 2] in script

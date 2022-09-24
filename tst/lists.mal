@@ -5,3 +5,30 @@ print list[1];
 //expect:true
 print list[2];
 //expect:20
+
+const list2 = ["a", "b",];
+
+print list2[0];
+//expect:a
+print list2[1];
+//expect:b
+
+add(list2,"c");
+print list2[2];
+//expect:c
+
+const list_in_list = [1,2,[10,11]];
+print list_in_list[2][1];
+//expect:11
+
+print list_in_list[2][0];
+//expect:10
+
+print list_in_list[1];
+//expect:2
+
+add(list_in_list[2], "hello");
+
+print list_in_list[2][2];
+//expect:hello
+

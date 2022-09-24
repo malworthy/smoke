@@ -14,6 +14,7 @@ add_test(NAME functions COMMAND python ../test_runner.py "mal.exe" "../tst/funct
 add_test(NAME closures COMMAND python ../test_runner.py "mal.exe" "../tst/closures.mal" "//expect:")
 add_test(NAME strings COMMAND python ../test_runner.py "mal.exe" "../tst/strings.mal" "//expect:")
 add_test(NAME lists COMMAND python ../test_runner.py "mal.exe" "../tst/lists.mal" "//expect:")
+add_test(NAME boundscheck COMMAND python ../test_runner.py "mal.exe" "../tst/boundscheck.mal" "//expect:" -e)
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c)
 

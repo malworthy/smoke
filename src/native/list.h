@@ -7,5 +7,6 @@
 
 bool addNative(int argCount, Value* args);
 bool getNative(int argCount, Value* args);
+bool sliceNative(int argCount, Value* args);
 
 #endif

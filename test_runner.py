@@ -1,7 +1,7 @@
 import subprocess
 import sys
 
-def test_file(interpreter, script_to_test, expect):
+def test_file(interpreter, script_to_test, expect, err):
     print(f"Running test: {script_to_test}")
     file = open(script_to_test,'r')
     contents = file.readlines()
@@ -12,7 +12,11 @@ def test_file(interpreter, script_to_test, expect):
         return 1
 
     result = subprocess.run([interpreter, script_to_test], capture_output=True)
-    actual = result.stdout.decode().split('\n')
+    actual = ""
+    if err:
+        actual = result.stderr.decode().split('\n')
+    else:
+        actual = result.stdout.decode().split('\n')
     actual = [x.strip() for x in actual if x != '']
 
     if len(actual) != len(expected):
@@ -32,13 +36,15 @@ def test_file(interpreter, script_to_test, expect):
 # ENTRY POINT #
 args = sys.argv
 
-if len(args) != 4:
-    print("Usage: test_runner.py [interpeter] [scripts to test] [expected result prefix]")
+if len(args) < 4:
+    print("Usage: test_runner.py [interpeter] [scripts to test] [expected result prefix] [Flags: -e = expect stderr]")
     exit_code = 64
 else:
     interpreter = args[1]
     script_to_test = args[2]
     expect = args[3]
-    exit_code = test_file(interpreter, script_to_test, expect)
+    err = len(args) > 4 and args[4] == "-e"
+
+    exit_code = test_file(interpreter, script_to_test, expect, err)
 
 sys.exit(exit_code)
