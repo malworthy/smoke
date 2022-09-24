@@ -258,6 +258,32 @@ Value get(Value item, Value index)
     return list->elements.values[i];
 }
 
+Value slice(Value item, Value startIndex, Value endIndex)
+{
+    if (!IS_LIST(item))
+    {
+        runtimeError("Subscript invalid for type");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(item);
+
+    int start = (int)AS_NUMBER(startIndex);
+    int end = (int)AS_NUMBER(endIndex);
+    if (start >= list->elements.count || end >= list->elements.count)
+    {
+        runtimeError("Index outside the bounds of the list");
+        return NIL_VAL;
+    }
+    ObjList* sliced = newList();
+
+    for(int i = start; i < end; i++)
+    {
+        writeValueArray(&sliced->elements, list->elements.values[i]);
+    }    
+
+    return OBJ_VAL(sliced);
+}
+
 static InterpretResult run() 
 {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
@@ -385,6 +411,18 @@ static InterpretResult run()
                 Value index = pop();
                 Value item = pop();
                 Value result = get(item, index);
+                if(IS_NIL(result))
+                    return INTERPRET_RUNTIME_ERROR;
+                push(result);
+
+                break;
+            }
+            case OP_SLICE: {
+                
+                Value end = pop();
+                Value start = pop();
+                Value item = pop();
+                Value result = slice(item, start, end);
                 if(IS_NIL(result))
                     return INTERPRET_RUNTIME_ERROR;
                 push(result);

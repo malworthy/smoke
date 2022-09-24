@@ -592,24 +592,20 @@ static void list(bool canAssign)
 
 static void subscript(bool canAssign)
 {
-    //printf("in subscript\n");
-     
-    // Get function name
-
-    /*
-    char* fnName = "get";
-    int arg = stringConstant(fnName);
-    emitBytes(OP_SUBSCRIPT, (uint8_t)arg); //hacky op code to insert into previous slot
-    */
-
     // get the index of the array
     expression();
-    emitByte(OP_SUBSCRIPT);
 
-    // call the function
-    //emitBytes(OP_CALL, 2);
-    //emitByte(OP_POP);
-
+    if (!match(TOKEN_COLON))
+    {
+        emitByte(OP_SUBSCRIPT);
+    }
+    else
+    {
+        //consume(TOKEN_COLON, "");
+        expression();
+        emitByte(OP_SLICE);
+    }
+    
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
 }
 

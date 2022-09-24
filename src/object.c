@@ -201,11 +201,10 @@ static void printList(ObjList* list)
     printf("[");
     for(int i = 0; i < list->elements.count; i++)
     {
+        if(i > 0) printf(", ");
         printValue(list->elements.values[i]);
-        printf(", ");
     }
     printf("]");
-        
 }
 
 void printObject(Value value) 
