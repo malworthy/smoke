@@ -74,6 +74,8 @@ int main (int argc, const char* argv[])
     if (argc == 1) 
     {
         repl();
+
+        //runFile("c:\\tmp\\test.mal");
     } 
     else if (argc == 2) 
     {

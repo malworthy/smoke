@@ -456,10 +456,10 @@ static void addLocal(Token name, bool isConst)
 }
 
 // loop statement declares a variable called 'i' to use as a counter
-static void declareLoopVariable()
+static void declareLoopVariable(char* variableName)
 {
     Token name;
-    char* variableName = "i";
+    //char* variableName = "i";
     
     name.length = 1;
     name.line = parser.previous.line;
@@ -796,11 +796,11 @@ static void funDeclaration()
     defineVariable(global);
 }
 
-static void loopVarDeclaration() 
+static void loopVarDeclaration(char* name) 
 {
     // this does what parse variable does
     uint8_t global = 0; 
-    declareLoopVariable();
+    declareLoopVariable(name);
 
     defineVariable(global);
 }
@@ -820,19 +820,124 @@ static void varDeclaration(bool isConst)
     defineVariable(global);
 }
 
+static void varDeclaration2(bool isConst) 
+{
+    uint8_t global = parseVariable("Expect variable name.", isConst);
+
+    // if (match(TOKEN_EQUAL)) 
+    //     expression();
+    // else 
+    //     errorAtCurrent("All variables must be initialised.");
+    emitConstant(NUMBER_VAL(0));
+    
+    // consume(TOKEN_SEMICOLON,
+    //         "Expect ';' after variable declaration.");
+
+    defineVariable(global);
+}
+
 static void expressionStatement() 
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP);
 }
+/*
+for x in list
+
+var i = 0;
+var x = 0;
+while i > len(list) do
+{
+    x = list[i]
+} 
+*/
+static void forStatement()
+{
+    //for x in list
+    beginScope();
+
+    loopVarDeclaration("~counter");
+    //emitConstant(NUMBER_VAL(0));
+    uint8_t counter = current->localCount - 1;
+
+    loopVarDeclaration("~eumerable");
+    uint8_t list = current->localCount - 1;
+  
+    varDeclaration2(false);
+    uint8_t var = current->localCount - 1;
+
+    //printf("c: %d l: %d v: %d\n", counter, list, var);
+
+    consume(TOKEN_IN,"missing in");
+
+    expression();
+    emitBytes(OP_SET_LOCAL, list);
+    
+
+    //loop starts here
+    int loopStart = currentChunk()->count;
+
+    // jump over
+    emitBytes(OP_GET_LOCAL, counter);
+    
+    // ** Call to get length of list/string
+    // Get function name
+    char* fnName = "len";
+    int arg = stringConstant(fnName);
+    emitBytes(OP_GET_GLOBAL, (uint8_t)arg);
+
+    // parameter 1 - the list or string we're getting the length of
+    emitBytes(OP_GET_LOCAL, list);
+
+    // call the function
+    emitBytes(OP_CALL, 1);
+    //emitByte(OP_POP);
+    // end len
+
+    emitByte(OP_LESS);     
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    //emitByte(OP_POP);//xx
+
+    emitBytes(OP_GET_LOCAL, list);
+    emitBytes(OP_GET_LOCAL, counter);
+    emitByte(OP_SUBSCRIPT);
+    emitBytes(OP_SET_LOCAL, var);
+    
+    statement();
+
+    //Now increase i by 1
+    emitBytes(OP_GET_LOCAL, counter);
+    emitConstant(NUMBER_VAL(1));
+    emitByte(OP_ADD);
+    emitBytes(OP_SET_LOCAL, counter); 
+    emitByte(OP_POP);
+
+    emitByte(OP_POP); // hack
+   
+
+    emitLoop(loopStart);
+    //emitByte(OP_POP); // mw
+    //emitByte(OP_POP); //mw
+
+    //emitByte(OP_POP); //new
+
+    patchJump(exitJump);
+    //emitByte(OP_POP); // hack to remove
+    
+    //emitByte(OP_POP);
+    
+    endScope();
+}
+
 
 static void loopStatement()
 {
     beginScope();
 
     //First declare a variable called i and set it to zero
-    loopVarDeclaration();
+    loopVarDeclaration("i");
     emitConstant(NUMBER_VAL(0));
 
     //loop starts here
@@ -992,6 +1097,8 @@ static void statement()
         whileStatement();
     else if (match(TOKEN_LOOP))
         loopStatement();
+    else if (match(TOKEN_FOR))
+        forStatement();
     else
         expressionStatement();
 }

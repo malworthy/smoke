@@ -1,0 +1,11 @@
+fn main()
+{
+    var lst = [];
+    var start = clock();
+    loop 100000 times lst = lst + [i];
+    //loop 100000 times add(lst,i);
+    print lst[10000];
+    print clock() - start;
+}
+
+main();

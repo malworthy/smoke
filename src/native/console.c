@@ -38,10 +38,23 @@
 bool writeNative(int argCount, Value* args) 
 {
     // todo - make sure it's a string
-    char* string = AS_CSTRING(args[0]);
-    printf("%s", string);
+    if (IS_STRING(args[0]))
+    {
+        char* string = AS_CSTRING(args[0]);
+        printf("%s", string);
+        return true;
+    }
+    if (IS_NUMBER(args[0]))
+    {
+        double num = AS_NUMBER(args[0]);
+        printf("%f", num);
+        return true;
+    }
 
-    return true;
+    char* msg = "can only write strings or numbers";
+    args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+
+    return false;
 }
 
 bool locateNative(int argCount, Value* args) 

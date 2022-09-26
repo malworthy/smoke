@@ -9,3 +9,6 @@ print "\ttab";
 
 { var s = "hi"; loop 10 times s = s + "bye"; print s; }
 //expect:hibyebyebyebyebyebyebyebyebyebye
+
+print "c:\\";
+//expect:c:\

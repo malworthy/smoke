@@ -9,20 +9,41 @@ bool addNative(int argCount, Value* args)
 {
     if (!IS_LIST(args[0]))
     {
-        //printf("addNative error\n");
         char* msg = "Parameter 1 of add must be a list";
         args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
 
         return false;
     }
-    //printf("addNative 1");
     ObjList* list = AS_LIST(args[0]);
-    //printf("obj type is: %d\n", list->obj.type);
     writeValueArray(&list->elements, args[1]);
-    //printf("after write value\n");
     return true;
 }
 
+bool lenNative(int argCount, Value* args)
+{
+    if (IS_LIST(args[0]))
+    {
+        ObjList* list = AS_LIST(args[0]);
+        args[-1] = NUMBER_VAL(list->elements.count);
+        
+        return true;
+    }
+
+    if (IS_STRING(args[0]))
+    {
+        char* s = AS_CSTRING(args[0]);
+        args[-1] = NUMBER_VAL(strlen(s));
+        
+        return true;
+    }
+    
+    char* msg = "len only available for strings and lists";
+    args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+
+    return false;
+}
+
+/*
 bool getNative(int argCount, Value* args)
 {
     if (!IS_LIST(args[0]))
@@ -81,3 +102,4 @@ bool sliceNative(int argCount, Value* args)
 
     return true;
 }
+*/

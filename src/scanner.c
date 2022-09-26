@@ -136,7 +136,16 @@ static TokenType identifierType()
                 }
             }
             break;
-        case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
+        case 'i':
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
+                    case 'f': return checkKeyword(1, 1, "f", TOKEN_IF);
+                    case 'n': return checkKeyword(1, 1, "n", TOKEN_IN);
+                    //case 'n': return TOKEN_FN;
+                }
+            }
+            break;
+        //case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
         case 'l': return checkKeyword(1,3,"oop", TOKEN_LOOP);
         case 'm': return checkKeyword(1, 2, "e", TOKEN_ME);
         //case 'n': return checkKeyword(1, 2, "il", TOKEN_NIL);
@@ -165,7 +174,7 @@ static Token string()
     while ((peek() != '"' || escaped) && !isAtEnd()) 
     {
         if (peek() == '\n') scanner.line++;
-        escaped = (peek() == '\\');
+        escaped = (peek() == '\\' && !escaped);
         advance();
     }
 

@@ -24,8 +24,8 @@ fn outer() {
 }
 
 const mid = outer();
-const in = mid();
-in();
+const @in = mid();
+@in();
 
 //expect:return from outer
 //expect:create inner closure

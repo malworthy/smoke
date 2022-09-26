@@ -11,6 +11,7 @@
 #include "object.h"
 #include "native/console.h"
 #include "native/list.h"
+#include "native/filesys.h"
 
 VM vm; 
 
@@ -90,8 +91,11 @@ void initVM()
 
     // LISTS
     defineNative("add", addNative, 2);
-    defineNative("get", getNative, 2);
-    defineNative("slice", sliceNative, 3);
+    defineNative("len", lenNative, 1);
+    //defineNative("slice", sliceNative, 3);
+
+    // FILESYS
+    defineNative("dir", dirNative, 1);
 }
 
 void freeVM() 
@@ -238,6 +242,53 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
+static void concatenateList() 
+{
+
+    ObjList* b = AS_LIST(peek(0));
+    ObjList* a = AS_LIST(peek(1));
+    ObjList* result = newList();
+
+    push(OBJ_VAL(result));
+
+    int length = a->elements.count + b->elements.count;
+    Value* values = ALLOCATE(Value, length);
+    result->elements.capacity = length;
+    result->elements.count = length;
+
+    memcpy(values, a->elements.values, a->elements.count * sizeof(Value));
+    memcpy(values + a->elements.count, b->elements.values, b->elements.count * sizeof(Value));
+    result->elements.values = values;
+
+    pop();
+    pop();
+    pop();
+    push(OBJ_VAL(result));
+}
+/*
+static void addToList() 
+{
+    Value b = peek(0);
+    ObjList* a = AS_LIST(peek(1));
+    ObjList* result = newList();
+
+    push(OBJ_VAL(result));
+
+    int length = a->elements.count + 1;
+    Value* values = ALLOCATE(Value, length);
+    result->elements.capacity = length;
+    result->elements.count = length;
+
+    memcpy(values, a->elements.values, a->elements.count * sizeof(Value));
+    memcpy(values + a->elements.count, &b, sizeof(Value));
+    result->elements.values = values;
+
+    pop();
+    pop();
+    pop();
+    push(OBJ_VAL(result));
+}
+*/
 Value get(Value item, Value index)
 {
     if (!IS_LIST(item))
@@ -275,11 +326,13 @@ Value slice(Value item, Value startIndex, Value endIndex)
         return NIL_VAL;
     }
     ObjList* sliced = newList();
+    push(OBJ_VAL(sliced));
 
     for(int i = start; i < end; i++)
     {
         writeValueArray(&sliced->elements, list->elements.values[i]);
-    }    
+    }   
+    pop(); 
 
     return OBJ_VAL(sliced);
 }
@@ -348,6 +401,14 @@ static InterpretResult run()
                 {
                     concatenate();
                 } 
+                else if (IS_LIST(peek(0)) && IS_LIST(peek(1))) 
+                {
+                    concatenateList();
+                } 
+                // else if (!IS_LIST(peek(0)) && IS_LIST(peek(1))) 
+                // {
+                //     addToList();
+                // } 
                 else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) 
                 {
                     double b = AS_NUMBER(pop());
@@ -356,7 +417,7 @@ static InterpretResult run()
                 } 
                 else 
                 {
-                    runtimeError("Operands must be two numbers or two strings.");
+                    runtimeError("Operands must be of the same type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;

@@ -26,7 +26,7 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line)
 
     chunk->count++;
 }
-
+/*
 void writeConstant(Chunk* chunk, Value value, int line) 
 {
     int constant = addConstant(chunk, value);
@@ -45,7 +45,7 @@ void writeConstant(Chunk* chunk, Value value, int line)
         writeChunk(chunk, constant, line);
     }
 }
-
+*/
 void freeChunk(Chunk* chunk)
 {
     FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);

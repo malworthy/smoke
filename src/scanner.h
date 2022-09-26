@@ -24,7 +24,7 @@ typedef enum {
     TOKEN_TRUE, TOKEN_VAR, TOKEN_WHILE,
     // mal's tokens
     TOKEN_CONST, TOKEN_THEN, TOKEN_DO,
-    TOKEN_LOOP, TOKEN_TIMES,
+    TOKEN_LOOP, TOKEN_TIMES, TOKEN_IN,
 
     TOKEN_ERROR, TOKEN_EOF
 } TokenType;
