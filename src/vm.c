@@ -291,50 +291,76 @@ static void addToList()
 */
 Value get(Value item, Value index)
 {
-    if (!IS_LIST(item))
+    if (!(IS_LIST(item) || IS_STRING(item)))
     {
         runtimeError("Subscript invalid for type");
         return NIL_VAL;
     }
-
-    ObjList* list = AS_LIST(item);
     int i = (int)AS_NUMBER(index);
 
-    if (i >= list->elements.count)
+    if (IS_LIST(item))
     {
-        runtimeError("Index outside the bounds of the list");
-        return NIL_VAL;
+        ObjList* list = AS_LIST(item);    
+        if (i >= list->elements.count)
+        {
+            runtimeError("Index outside the bounds of the list");
+            return NIL_VAL;
+        }
+        return list->elements.values[i];
     }
-
-    return list->elements.values[i];
+    else
+    {
+        char* string = AS_CSTRING(item);    
+        if (i >= strlen(string))
+        {
+            runtimeError("Index outside the bounds of the string");
+            return NIL_VAL;
+        }
+        return OBJ_VAL(copyStringRaw(string + i, 1));
+    }
+    
 }
 
 Value slice(Value item, Value startIndex, Value endIndex)
 {
-    if (!IS_LIST(item))
+    if (!(IS_LIST(item) || IS_STRING(item)))
     {
-        runtimeError("Subscript invalid for type");
+        runtimeError("Slice invalid for type");
         return NIL_VAL;
     }
-    ObjList* list = AS_LIST(item);
 
     int start = (int)AS_NUMBER(startIndex);
     int end = (int)AS_NUMBER(endIndex);
-    if (start >= list->elements.count || end >= list->elements.count)
+
+    if (IS_LIST(item))
     {
-        runtimeError("Index outside the bounds of the list");
-        return NIL_VAL;
+        ObjList* list = AS_LIST(item);
+        if (start >= list->elements.count || end >= list->elements.count)
+        {
+            runtimeError("Index outside the bounds of the list");
+            return NIL_VAL;
+        }
+        ObjList* sliced = newList();
+        push(OBJ_VAL(sliced));
+
+        for(int i = start; i < end; i++)
+        {
+            writeValueArray(&sliced->elements, list->elements.values[i]);
+        }   
+        pop(); 
+
+        return OBJ_VAL(sliced);
     }
-    ObjList* sliced = newList();
-    push(OBJ_VAL(sliced));
-
-    for(int i = start; i < end; i++)
+    else
     {
-        writeValueArray(&sliced->elements, list->elements.values[i]);
-    }   
-    pop(); 
-
-    return OBJ_VAL(sliced);
+        char* string = AS_CSTRING(item);    
+        if (start >= strlen(string) || end >= strlen(string))
+        {
+            runtimeError("Index outside the bounds of the string");
+            return NIL_VAL;
+        }
+        return OBJ_VAL(copyStringRaw(string + start, end - start));
+    }
 }
 
 static InterpretResult run() 
