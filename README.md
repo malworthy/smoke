@@ -3,7 +3,7 @@
 A scripting language based on the clox interpreter from Bob Nystrom's excellent book Crafting Interpreters (https://craftinginterpreters.com/ )
 
 This is still a work in progress.  At the moment it supports most of lox features but not classes.
-In addition to lox I've implemented lists and a small standard library. 
+In addition to lox features I've implemented lists and a small standard library. 
 
 
 // Variables
