@@ -30,12 +30,7 @@ bool dirNative(int argCount, Value* args)
     {
         tinydir_file file;
         tinydir_readfile(&dir, &file);
-
-        //printf("%s", file.name);
         writeValueArray(&list->elements, OBJ_VAL(copyStringRaw(file.path, (int)strlen(file.path))));
-        //if (file.is_dir)
-        
-
         tinydir_next(&dir);
     }
 

@@ -220,6 +220,11 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
+static void patchFunctionName(int location, uint8_t constant)
+{
+    currentChunk()->code[location] = constant;
+}
+
 static void initCompiler(Compiler* compiler, FunctionType type) 
 {
     compiler->enclosing = current;
@@ -571,6 +576,7 @@ static void list(bool canAssign)
         char* fnName = "add";
         int arg = stringConstant(fnName);
 		emitBytes(OP_GET_GLOBAL, (uint8_t)arg);
+        int function = currentChunk()->count - 1;
 
         // parameter 1 - list variable
         //emitBytes(OP_GET_GLOBAL, listVariable);
@@ -579,12 +585,21 @@ static void list(bool canAssign)
         // parameter 2 - value adding to the list
         expression();
 
-        // call the function
-        emitBytes(OP_CALL, 2);
-        emitByte(OP_POP);
-
-        //printf("add element\n");
-    
+        // .. so we're doing range
+        if(match(TOKEN_DOT_DOT))
+        {
+            patchFunctionName(function, stringConstant("~range"));
+            expression();
+            // call the function
+            emitBytes(OP_CALL, 3);
+            emitByte(OP_POP);
+        }
+        else
+        {
+            // call the function
+            emitBytes(OP_CALL, 2);
+            emitByte(OP_POP);
+        }
     } while (match(TOKEN_COMMA));
 
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
@@ -823,16 +838,7 @@ static void varDeclaration(bool isConst)
 static void varDeclaration2(bool isConst) 
 {
     uint8_t global = parseVariable("Expect variable name.", isConst);
-
-    // if (match(TOKEN_EQUAL)) 
-    //     expression();
-    // else 
-    //     errorAtCurrent("All variables must be initialised.");
     emitConstant(NUMBER_VAL(0));
-    
-    // consume(TOKEN_SEMICOLON,
-    //         "Expect ';' after variable declaration.");
-
     defineVariable(global);
 }
 
@@ -858,30 +864,27 @@ static void forStatement()
     beginScope();
 
     loopVarDeclaration("~counter");
-    //emitConstant(NUMBER_VAL(0));
+    
     uint8_t counter = current->localCount - 1;
 
-    loopVarDeclaration("~eumerable");
+    loopVarDeclaration("~enumerable");
     uint8_t list = current->localCount - 1;
   
     varDeclaration2(false);
     uint8_t var = current->localCount - 1;
-
-    //printf("c: %d l: %d v: %d\n", counter, list, var);
 
     consume(TOKEN_IN,"missing in");
 
     expression();
     emitBytes(OP_SET_LOCAL, list);
     
-
     //loop starts here
     int loopStart = currentChunk()->count;
 
     // jump over
     emitBytes(OP_GET_LOCAL, counter);
     
-    // ** Call to get length of list/string
+    // ** Call to get length of list/string **
     // Get function name
     char* fnName = "len";
     int arg = stringConstant(fnName);
@@ -892,13 +895,11 @@ static void forStatement()
 
     // call the function
     emitBytes(OP_CALL, 1);
-    //emitByte(OP_POP);
     // end len
 
     emitByte(OP_LESS);     
     int exitJump = emitJump(OP_JUMP_IF_FALSE);
     emitByte(OP_POP);
-    //emitByte(OP_POP);//xx
 
     emitBytes(OP_GET_LOCAL, list);
     emitBytes(OP_GET_LOCAL, counter);
@@ -913,21 +914,11 @@ static void forStatement()
     emitByte(OP_ADD);
     emitBytes(OP_SET_LOCAL, counter); 
     emitByte(OP_POP);
-
-    emitByte(OP_POP); // hack
-   
+    emitByte(OP_POP); 
 
     emitLoop(loopStart);
-    //emitByte(OP_POP); // mw
-    //emitByte(OP_POP); //mw
-
-    //emitByte(OP_POP); //new
 
     patchJump(exitJump);
-    //emitByte(OP_POP); // hack to remove
-    
-    //emitByte(OP_POP);
-    
     endScope();
 }
 
@@ -938,13 +929,14 @@ static void loopStatement()
 
     //First declare a variable called i and set it to zero
     loopVarDeclaration("i");
+    uint8_t counter = current->localCount - 1;
     emitConstant(NUMBER_VAL(0));
 
     //loop starts here
     int loopStart = currentChunk()->count;
 
     //Then compare i to the expression after "loop"
-    char* variableName = "i";
+    /*char* variableName = "i";
     Token name;
     name.length = 1;
     name.line = parser.previous.line;
@@ -952,8 +944,8 @@ static void loopStatement()
     name.type = TOKEN_IDENTIFIER;
 
     bool isConst;
-    int arg = resolveLocal(current, &name, &isConst);
-    emitBytes(OP_GET_LOCAL,(uint8_t)arg);
+    int arg = resolveLocal(current, &name, &isConst);*/
+    emitBytes(OP_GET_LOCAL, counter);
     expression();
 
     emitByte(OP_LESS); 
@@ -965,10 +957,10 @@ static void loopStatement()
     statement();
 
     //Now increase i by 1
-    emitBytes(OP_GET_LOCAL,(uint8_t)arg);
+    emitBytes(OP_GET_LOCAL, counter);
     emitConstant(NUMBER_VAL(1));
     emitByte(OP_ADD);
-    emitBytes(OP_SET_LOCAL, (uint8_t)arg); 
+    emitBytes(OP_SET_LOCAL, counter); 
     emitByte(OP_POP);
     emitLoop(loopStart);
     patchJump(exitJump);
@@ -979,7 +971,6 @@ static void loopStatement()
 
 static void ifStatement() 
 {
-    //consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
     expression();
     consume(TOKEN_THEN, "Expect 'then' after condition."); 
 

@@ -125,14 +125,14 @@ static TokenType identifierType()
     {
         case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
         case 'c': return checkKeyword(1, 4, "onst", TOKEN_CONST);
-        case 'd': return checkKeyword(1,1,"o", TOKEN_DO);
+        case 'd': return checkKeyword(1, 1, "o", TOKEN_DO);
         case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
         case 'f':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
                     case 'a': return checkKeyword(2, 3, "lse", TOKEN_FALSE);
                     case 'o': return checkKeyword(2, 1, "r", TOKEN_FOR);
-                    case 'n': return TOKEN_FN;
+                    case 'n': return checkKeyword(1, 1, "n", TOKEN_FN);
                 }
             }
             break;
@@ -237,7 +237,8 @@ Token scanToken()
         case '}': return makeToken(TOKEN_RIGHT_BRACE);
         case ';': return makeToken(TOKEN_SEMICOLON);
         case ',': return makeToken(TOKEN_COMMA);
-        case '.': return makeToken(TOKEN_DOT);
+        case '.': 
+            return makeToken(match('.') ? TOKEN_DOT_DOT : TOKEN_DOT); 
         case '/': return makeToken(TOKEN_SLASH);
         case '*': return makeToken(TOKEN_STAR);
         case '[': return makeToken(TOKEN_LEFT_BRACKET);

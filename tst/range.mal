@@ -1,0 +1,32 @@
+print [1..2];
+//expect:[1, 2]
+
+print [1..1];
+//expect:[1]
+
+print [1..5];
+//expect:[1, 2, 3, 4, 5]
+
+print [3..1];
+//expect:[3, 2, 1]
+
+print [1..2,"hello"];
+//expect:[1, 2, hello]
+
+print [1..2, 10..11];
+//expect:[1, 2, 10, 11]
+
+const x = [1..5];
+print x;
+//expect:[1, 2, 3, 4, 5]
+
+fn test(a,b)
+{
+    return [a..b];
+}
+
+print test(-1,1);
+//expect:[-1, 0, 1]
+
+print [1+1..2+2];
+//expect:[2, 3, 4]

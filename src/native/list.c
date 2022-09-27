@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "list.h"
+#include "../vm.h"
 
 
 bool addNative(int argCount, Value* args)
@@ -43,63 +44,30 @@ bool lenNative(int argCount, Value* args)
     return false;
 }
 
-/*
-bool getNative(int argCount, Value* args)
+bool rangeNative(int argCount, Value* args)
 {
-    if (!IS_LIST(args[0]))
+    if (!IS_NUMBER(args[1]) || !IS_NUMBER(args[2]))
     {
-        char* msg = "Parameter 1 of get must be a list";
+        char* msg = "Only numbers can be used to create a range";
         args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
 
         return false;
     }
-    ObjList* list = AS_LIST(args[0]);
-
-    int index = (int)AS_NUMBER(args[1]);
-    if (index >= list->elements.count)
-    {
-        char* msg = "Index outside the bounds of the list";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
-    }
-
-    Value value = list->elements.values[index];
-    args[-1] = value;
-
-    return true;
-}
-
-bool sliceNative(int argCount, Value* args)
-{
-    if (!IS_LIST(args[0]))
-    {
-        char* msg = "Parameter 1 of get must be a list";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
-    }
-    ObjList* list = AS_LIST(args[0]);
 
     int start = (int)AS_NUMBER(args[1]);
     int end = (int)AS_NUMBER(args[2]);
-    if (start >= list->elements.count || end >= list->elements.count)
-    {
-        char* msg = "Index outside the bounds of the list";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
 
-        return false;
-    }
-    ObjList* sliced = newList();
 
-    for(int i = start; i < end; i++)
+    ObjList* list = AS_LIST(args[0]);
+    push(OBJ_VAL(list));
+
+    for(int i = start; (start > end) ? i >= end : i <= end; (start > end) ? i-- : i++)
     {
-        writeValueArray(&sliced->elements, list->elements.values[i]);
-        //printf("sliced: %d\n", sliced->elements.count);
+        writeValueArray(&list->elements, NUMBER_VAL((double)i));
     }    
 
-    args[-1] = OBJ_VAL(sliced);
+    args[-1] = OBJ_VAL(list);
+    pop();
 
     return true;
 }
-*/

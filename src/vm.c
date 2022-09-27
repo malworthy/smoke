@@ -92,7 +92,7 @@ void initVM()
     // LISTS
     defineNative("add", addNative, 2);
     defineNative("len", lenNative, 1);
-    //defineNative("slice", sliceNative, 3);
+    defineNative("~range", rangeNative, 3);
 
     // FILESYS
     defineNative("dir", dirNative, 1);

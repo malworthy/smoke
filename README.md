@@ -3,7 +3,7 @@
 A scripting language based on the clox interpreter from Bob Nystrom's excellent book Crafting Interpreters (https://craftinginterpreters.com/ )
 
 This is still a work in progress.  At the moment it supports most of lox features but not classes.
-In addition to lox features I've implemented lists and a small standard library. 
+In addition to lox features I've implemented lists and a small set of native functions. 
 
 
 // Variables
@@ -65,6 +65,10 @@ My Rules:
 
 `print list[2:4]; // prints [3, 4]`
 
+// Ranges
+
+`print [1..5]; // prints [1, 2, 3, 4, 5]`
+
 // Functions
 
 `fn addNumbers(a,b) { return a + b; }`
@@ -77,9 +81,9 @@ My Rules:
 - backColor("blue") // changes the console background colour
 - clear() // clears the screen
 - clock() // number of seconds since program started
-- dir("path/to/folder") // returns a list of files (wip)
+- dir("path/to/folder") // returns a list of files (wip - currently broken :( )
 - input() // gets input from the console
+- len(list) // gets the length of a list or string
 - locate(x,y) // locates the cursor on the console
 - textColor("red") // changes the console text colour 
 - write("string") // write to the console without printing a newline afterwards (unlike print)
-
