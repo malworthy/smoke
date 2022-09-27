@@ -60,10 +60,11 @@ My Rules:
 `add(list, "hello") // adds "hello" to the end of the list`
 
 // Slicing
+<pre class="snippet">
+const list [1,2,3,4,5,6];
+print list[2:4]; // prints [3, 4]
+<pre>
 
-`const list [1,2,3,4,5,6];`
-
-`print list[2:4]; // prints [3, 4]`
 
 // Ranges
 

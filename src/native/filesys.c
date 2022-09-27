@@ -5,9 +5,11 @@
 #include "../common.h"
 #include "../value.h"
 #include "../object.h"
+#include "../vm.h"
 #include "tinydir.h"
 
 #include "filesys.h"
+
 
 bool dirNative(int argCount, Value* args)
 {
@@ -22,6 +24,7 @@ bool dirNative(int argCount, Value* args)
     if (path[0] == '\0')
         path = ".";
     ObjList* list = newList();
+    push(OBJ_VAL(list)); // stop list being garbage collected
     
     tinydir_dir dir;
     tinydir_open(&dir, path);
@@ -30,13 +33,15 @@ bool dirNative(int argCount, Value* args)
     {
         tinydir_file file;
         tinydir_readfile(&dir, &file);
-        writeValueArray(&list->elements, OBJ_VAL(copyStringRaw(file.path, (int)strlen(file.path))));
+        writeValueArray(&list->elements, OBJ_VAL(copyStringRaw(file.name, (int)strlen(file.name))));
         tinydir_next(&dir);
     }
 
     tinydir_close(&dir);
 
     args[-1] = OBJ_VAL(list);
+
+    pop(); // get rid of list from the stack
 
     return true;
 }

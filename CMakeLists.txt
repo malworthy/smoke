@@ -18,6 +18,7 @@ add_test(NAME boundscheck COMMAND python ../test_runner.py "mal.exe" "../tst/bou
 add_test(NAME slice COMMAND python ../test_runner.py "mal.exe" "../tst/slice.mal" "//expect:")
 add_test(NAME for COMMAND python ../test_runner.py "mal.exe" "../tst/for.mal" "//expect:")
 add_test(NAME range COMMAND python ../test_runner.py "mal.exe" "../tst/range.mal" "//expect:")
+add_test(NAME subscript COMMAND python ../test_runner.py "mal.exe" "../tst/subscript.mal" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c)
 

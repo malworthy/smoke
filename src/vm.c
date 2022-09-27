@@ -301,7 +301,8 @@ Value get(Value item, Value index)
     if (IS_LIST(item))
     {
         ObjList* list = AS_LIST(item);    
-        if (i >= list->elements.count)
+        if (i < 0 ) i = list->elements.count + i;
+        if (i >= list->elements.count  || i < 0)
         {
             runtimeError("Index outside the bounds of the list");
             return NIL_VAL;
@@ -311,7 +312,8 @@ Value get(Value item, Value index)
     else
     {
         char* string = AS_CSTRING(item);    
-        if (i >= strlen(string))
+        if (i < 0 ) i = strlen(string) + i;
+        if (i >= strlen(string) || i < 0)
         {
             runtimeError("Index outside the bounds of the string");
             return NIL_VAL;
@@ -335,7 +337,9 @@ Value slice(Value item, Value startIndex, Value endIndex)
     if (IS_LIST(item))
     {
         ObjList* list = AS_LIST(item);
-        if (start >= list->elements.count || end >= list->elements.count)
+        if (start < 0) start = list->elements.count + start;
+        if (end <= 0) end = list->elements.count + end;
+        if (start >= list->elements.count || end > list->elements.count || start < 0 || end < 0)
         {
             runtimeError("Index outside the bounds of the list");
             return NIL_VAL;
@@ -354,11 +358,14 @@ Value slice(Value item, Value startIndex, Value endIndex)
     else
     {
         char* string = AS_CSTRING(item);    
-        if (start >= strlen(string) || end >= strlen(string))
+        if (start < 0) start = strlen(string)  + start;
+        if (end <= 0) end = strlen(string)  + end;
+        if (start >= strlen(string) || end > strlen(string))
         {
             runtimeError("Index outside the bounds of the string");
             return NIL_VAL;
         }
+        if (start > end) start = end;
         return OBJ_VAL(copyStringRaw(string + start, end - start));
     }
 }

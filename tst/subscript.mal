@@ -1,0 +1,10 @@
+print "123456"[-1];
+//expect:6
+
+print "123456"[-6];
+//expect:1
+
+const x = ["hi","bye","three"];
+
+print x[-1];
+//expect:three
