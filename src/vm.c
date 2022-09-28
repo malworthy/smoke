@@ -12,6 +12,7 @@
 #include "native/console.h"
 #include "native/list.h"
 #include "native/filesys.h"
+#include "native/fileio.h"
 
 VM vm; 
 
@@ -96,6 +97,8 @@ void initVM()
 
     // FILESYS
     defineNative("dir", dirNative, 1);
+
+    defineNative("readlines", readlinesNative, 1);
 }
 
 void freeVM() 
