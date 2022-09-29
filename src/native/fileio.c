@@ -8,7 +8,7 @@
 #include "../object.h"
 #include "../vm.h"
 
-#define BUFFER_SIZE 20
+#define BUFFER_SIZE 200
 
 
 bool readlinesNative(int argCount, Value* args)
@@ -22,7 +22,7 @@ bool readlinesNative(int argCount, Value* args)
     }
 
     char const* const fileName = AS_CSTRING(args[0]); 
-    FILE* file = fopen(fileName, "r"); /* should check the result */
+    FILE* file = fopen(fileName, "r");
     if (file == NULL)
     {
         char* msg = "Could not open file";
@@ -36,7 +36,7 @@ bool readlinesNative(int argCount, Value* args)
     int lineLength = BUFFER_SIZE;
 
     line[0] = '\0';
-    int i = 0;
+    //int i = 0;
     int buffCount = 0;
     
     ObjList* list = newList();
@@ -44,6 +44,7 @@ bool readlinesNative(int argCount, Value* args)
 
     while (fgets(buffer, sizeof(buffer), file)) 
     {
+        //printf("buffer: %s\n", buffer);
         if (strlen(buffer) == BUFFER_SIZE - 1 && buffer[BUFFER_SIZE - 2] != '\n')
         {
             buffCount++;
@@ -71,10 +72,14 @@ bool readlinesNative(int argCount, Value* args)
                 else
                     break;
             }
-            writeValueArray(&list->elements, OBJ_VAL(copyStringRaw(line, (int)strlen(line))));
+            //printf("line:%s\n", line);
+            Value val = OBJ_VAL(copyStringRaw(line, (int)strlen(line)));
+            push(val);
+            writeValueArray(&list->elements, val);
+            pop();
             line[0] = '\0';
             buffCount = 0;
-            i++;
+            //i++;
         }
     }
     /* may check feof here to make a difference between eof and io failure -- network
