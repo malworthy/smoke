@@ -20,6 +20,7 @@ add_test(NAME for COMMAND python ../test_runner.py "mal.exe" "../tst/for.mal" "/
 add_test(NAME range COMMAND python ../test_runner.py "mal.exe" "../tst/range.mal" "//expect:")
 add_test(NAME subscript COMMAND python ../test_runner.py "mal.exe" "../tst/subscript.mal" "//expect:")
 add_test(NAME split COMMAND python ../test_runner.py "mal.exe" "../tst/split.mal" "//expect:")
+#add_test(NAME args COMMAND python ../test_runner.py "mal.exe" "../tst/args.mal one two" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c)
 

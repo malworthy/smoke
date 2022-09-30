@@ -7,6 +7,10 @@
 #include "debug.h"
 #include "vm.h"
 
+const char** _args;
+
+int _argc;
+
 static void repl() 
 {
     char line[1024];
@@ -69,6 +73,9 @@ static void runFile(const char* path)
 
 int main (int argc, const char* argv[])
 {
+    _argc = argc;
+    _args = argv;
+
     initVM();
 
     if (argc == 1) 
@@ -77,7 +84,7 @@ int main (int argc, const char* argv[])
 
         //runFile("c:\\tmp\\test.mal");
     } 
-    else if (argc == 2) 
+    else if (argc >= 2) 
     {
         runFile(argv[1]);
     } 

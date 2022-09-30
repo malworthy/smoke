@@ -1,0 +1,30 @@
+fn doit(x)
+{
+    var y = -20;
+    for x in [1..10]
+    {
+        if x == y * -1 then
+            y = 5;
+        else
+            y = 6;
+    }
+}
+
+fn main()
+{
+    var list = [];
+    var num = 0;
+
+    for i in [1..5000]
+    {
+        num = (i * 2.5) / 2.4;
+        add(list, num);
+        doit(i);
+    }
+        
+}
+print "-- start --";
+const start = clock();
+main();
+print "-- finished --";
+print clock() - start;

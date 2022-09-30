@@ -18,8 +18,32 @@
 VM vm; 
 
 static bool clockNative(int argCount, Value* args) {
-  args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-  return true;
+    args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+    return true;
+}
+
+static bool argsNative(int argCount, Value* args) {
+    ObjList* list = newList();
+    push(OBJ_VAL(list)); // stop list being garbage collected
+
+    // = 0 interpreter, 1 = source file, 2+ args passed to script
+    if (_argc > 1)
+    {
+        for(int i = 1; i < _argc; i++)
+        {
+            Value val =OBJ_VAL(copyStringRaw(_args[i], (int)strlen(_args[i])));
+            push(val);
+            writeValueArray(&list->elements, val);
+            pop();
+        }
+    }
+
+    args[-1] = OBJ_VAL(list);
+
+    pop();
+
+    
+    return true;
 }
 
 void resetStack()
@@ -82,6 +106,7 @@ void initVM()
 
     // Native Functions
     defineNative("clock", clockNative, 0);
+    defineNative("args", argsNative, 0);
 
     // CONSOLE
     defineNative("write", writeNative, 1);

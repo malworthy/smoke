@@ -14,5 +14,7 @@
 #include <stdint.h>
 
 void markCompilerRoots();
+extern const char** _args;
+extern int _argc;
 
 #endif

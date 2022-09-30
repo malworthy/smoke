@@ -1,0 +1,2 @@
+print args();
+//expect:[../tst/args.mal, one, two]
