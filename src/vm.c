@@ -97,6 +97,7 @@ void initVM()
 
     // FILESYS
     defineNative("dir", dirNative, 1);
+    defineNative("run", runNative, 1);
 
     defineNative("readlines", readlinesNative, 1);
 }
