@@ -13,6 +13,7 @@
 #include "native/list.h"
 #include "native/filesys.h"
 #include "native/fileio.h"
+#include "native/stringutil.h"
 
 VM vm; 
 
@@ -99,7 +100,12 @@ void initVM()
     defineNative("dir", dirNative, 1);
     defineNative("run", runNative, 1);
 
+    // FILEIO
     defineNative("readlines", readlinesNative, 1);
+
+    // STRING
+    defineNative("splitlines", splitlinesNative, 1);
+    defineNative("split", splitNative, 2);
 }
 
 void freeVM() 

@@ -1,0 +1,31 @@
+print split("1,2,3",",");
+//expect:[1, 2, 3]
+
+print split("1,2,,3,,",",");
+//expect:[1, 2, 3]
+
+print split(",,1,2,3",",");
+//expect:[1, 2, 3]
+
+print split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",",");
+//expect:[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]
+
+print split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd,xxxx",",");
+//expect:[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd, xxxx]
+
+print split("one**two**three**four","**");
+//expect:[one, two, three, four]
+
+
+print splitlines("1\n2\n3");
+//expect:[1, 2, 3]
+
+print splitlines("1\n2\n\n3\n\n");
+//expect:[1, 2, 3]
+
+print splitlines("\n\n1\n2\n3");
+//expect:[1, 2, 3]
+
+
+print splitlines("1\r\n2\r\n3");
+//expect:[1, 2, 3]
