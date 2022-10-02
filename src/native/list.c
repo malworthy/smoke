@@ -71,3 +71,71 @@ bool rangeNative(int argCount, Value* args)
 
     return true;
 }
+
+static void concatValue(char* str, Value value) 
+{
+    switch (value.type) 
+    {
+        case VAL_BOOL:
+            sprintf(str, AS_BOOL(value) ? "true" : "false");
+            break;
+        case VAL_NUMBER: 
+            sprintf(str, "%g", AS_NUMBER(value)); 
+            break;
+         case VAL_OBJ: 
+            switch (OBJ_TYPE(value)) 
+            {
+                case OBJ_STRING:
+                    sprintf(str, "%s", AS_CSTRING(value));
+                    break;
+                case OBJ_FUNCTION:
+                    sprintf(str, "%s", "<function>");
+                    break;
+                case OBJ_NATIVE:
+                    sprintf(str, "%s", "<native fn>");
+                    break;
+                case OBJ_CLOSURE:
+                    sprintf(str, "%s", "<closure>");
+                    break;
+                case OBJ_UPVALUE:
+                    sprintf(str, "%s", "<upvalue>");
+                    break;
+                case OBJ_LIST:
+                    sprintf(str, "%s", "<list>");
+                    break;
+            }
+            break;
+        case VAL_NIL:
+            sprintf(str, "%s", "NIL");
+            break;
+    }
+}
+
+bool joinNative(int argCount, Value* args)
+{
+    if (!IS_LIST(args[0]))
+    {
+        char* msg = "Only a list can be joined";
+        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+
+        return false;
+    }
+
+    ObjList* list = AS_LIST(args[0]);
+    push(OBJ_VAL(list));
+
+    char result[1000]; //TODO:allocate!!!
+    char strval[1000];
+    result[0] = '\0';
+    for(int i=0; i < list->elements.count; i++)
+    {
+        Value val = list->elements.values[i];
+        concatValue(strval, val);
+        strcat(result, strval);
+    }   
+
+    args[-1] = OBJ_VAL(copyStringRaw(result, (int)strlen(result)));
+    pop();
+
+    return true;
+}

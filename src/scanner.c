@@ -8,6 +8,7 @@ typedef struct {
   const char* start;
   const char* current;
   int line;
+  int interpolation;
 } Scanner;
 
 Scanner scanner;
@@ -17,6 +18,7 @@ void initScanner(const char* source)
     scanner.start = source;
     scanner.current = source;
     scanner.line = 1;
+    scanner.interpolation = 0;
 }
 
 static bool isAtEnd() 
@@ -175,6 +177,17 @@ static Token string()
     {
         if (peek() == '\n') scanner.line++;
         escaped = (peek() == '\\' && !escaped);
+        // Interpolation %{hello}
+        if (peek() == '%' && !escaped)
+        {
+            if (peekNext() != '{') return errorToken("Expect '{' after '%%' in string.");
+            advance();
+            scanner.interpolation++;
+            Token t = makeToken(TOKEN_INTERPOLATION); 
+            advance();
+            
+            return t;   
+        }
         advance();
     }
 
@@ -223,7 +236,16 @@ Token scanToken()
     skipWhitespace();
     scanner.start = scanner.current;
 
-    if (isAtEnd()) return makeToken(TOKEN_EOF);
+    if (isAtEnd()) 
+    {
+        if(scanner.interpolation > 0)
+        {
+            scanner.interpolation = 0;
+            return errorToken("String interpolation missing '}' at end.");
+        }
+
+        return makeToken(TOKEN_EOF);
+    }
 
     char c = advance();
     if (isAlpha(c)) return identifier();
@@ -234,7 +256,13 @@ Token scanToken()
         case '(': return makeToken(TOKEN_LEFT_PAREN);
         case ')': return makeToken(TOKEN_RIGHT_PAREN);
         case '{': return makeToken(TOKEN_LEFT_BRACE);
-        case '}': return makeToken(TOKEN_RIGHT_BRACE);
+        case '}': 
+            if (scanner.interpolation > 0)
+            {
+                scanner.interpolation--;
+                return string();
+            }
+            return makeToken(TOKEN_RIGHT_BRACE);
         case ';': return makeToken(TOKEN_SEMICOLON);
         case ',': return makeToken(TOKEN_COMMA);
         case '.': 

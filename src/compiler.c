@@ -558,10 +558,8 @@ static void unary(bool canAssign)
 
 static void list(bool canAssign)
 {
-    //printf("In List\n");
-    //TODO: Create a new list here
     ObjList* list = newList();
-    uint8_t listVariable = emitConstant(OBJ_VAL(list));
+    emitConstant(OBJ_VAL(list)); 
     do
     {
         // Stop if we hit the end of the list.
@@ -579,7 +577,6 @@ static void list(bool canAssign)
         int function = currentChunk()->count - 1;
 
         // parameter 1 - list variable
-        //emitBytes(OP_GET_GLOBAL, listVariable);
         emitConstant(OBJ_VAL(list));
 
         // parameter 2 - value adding to the list
@@ -601,7 +598,7 @@ static void list(bool canAssign)
             emitByte(OP_POP);
         }
     } while (match(TOKEN_COMMA));
-
+    
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
 }
 
@@ -624,8 +621,70 @@ static void subscript(bool canAssign)
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
 }
 
+static void interpolation(bool canAssign)
+{
+    ObjList* list = newList();
+    uint8_t constant = makeConstant(OBJ_VAL(list)); // constant = emitConstant(OBJ_VAL(list)); 
+    uint8_t addFn = stringConstant("add");
+    do
+    {
+        // Get function name
+		emitBytes(OP_GET_GLOBAL, addFn);
+        // parameter 1 - list variable
+        emitBytes(OP_CONSTANT, constant);
+        // parameter 2 - value adding to the list
+        string(false);
+         // call the function
+        emitBytes(OP_CALL, 2);
+        emitByte(OP_POP);
+
+        // Get function name
+		emitBytes(OP_GET_GLOBAL, addFn);
+        // parameter 1 - list variable
+        emitBytes(OP_CONSTANT, constant);
+        // parameter 2 - value adding to the list
+        expression();
+         // call the function
+        emitBytes(OP_CALL, 2);
+        emitByte(OP_POP);
+
+    } while (match(TOKEN_INTERPOLATION));
+    //Add the last bit of the string here...
+    emitBytes(OP_GET_GLOBAL, addFn);
+    // parameter 1 - list variable
+    emitBytes(OP_CONSTANT, constant);
+    
+    if (!check(TOKEN_STRING))
+    {
+        errorAtCurrent("string iterpolation error");
+        return;
+    }
+        
+    advance();
+    string(false);
+
+    // call the function
+    emitBytes(OP_CALL, 2);
+    emitByte(OP_POP);
+
+    // Get function name
+    uint8_t joinFn = stringConstant("join");
+    emitBytes(OP_GET_GLOBAL, joinFn);
+
+     // parameter 1 - list variable
+    emitBytes(OP_CONSTANT, constant);
+
+    // call the function
+    emitBytes(OP_CALL, 1);
+    //emitByte(OP_POP);
+
+    /// ---------------------------
+    
+}
+
 ParseRule rules[] = 
 {
+    [TOKEN_INTERPOLATION] = {interpolation, NULL,   PREC_NONE},
     [TOKEN_LEFT_PAREN]    = {grouping, call,        PREC_CALL},
     [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,        PREC_NONE},
     [TOKEN_LEFT_BRACKET]  = {list,     subscript,   PREC_CALL},

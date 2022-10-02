@@ -120,6 +120,7 @@ void initVM()
     defineNative("add", addNative, 2);
     defineNative("len", lenNative, 1);
     defineNative("~range", rangeNative, 3);
+    defineNative("join", joinNative, 1);
 
     // FILESYS
     defineNative("dir", dirNative, 1);
@@ -269,6 +270,36 @@ static void concatenate()
     char* chars = ALLOCATE(char, length + 1);
     memcpy(chars, a->chars, a->length);
     memcpy(chars + a->length, b->chars, b->length);
+    chars[length] = '\0';
+
+    ObjString* result = takeString(chars, length);
+    pop();
+    pop();
+    push(OBJ_VAL(result));
+}
+
+static void concatenateAny() 
+{
+    //ObjString* b = AS_STRING(peek(0));
+    //ObjString* a = AS_STRING(peek(1));
+
+    //TODO:make these dynamic
+    char a[1000];
+    char b[1000];
+
+    if (IS_STRING(peek(0))) strcpy(b, AS_CSTRING(peek(0)));
+    if (IS_NUMBER(peek(0))) sprintf(b, "%f", AS_NUMBER(peek(0)));
+
+    if (IS_STRING(peek(1))) strcpy (a, AS_CSTRING(peek(1)));
+    if (IS_NUMBER(peek(1))) sprintf(a, "%f", AS_NUMBER(peek(1)));
+
+    int length = strlen(a) + strlen(b);
+    //printf("a %s b %s length %d\n",a,b,length);
+
+
+    char* chars = ALLOCATE(char, length + 1);
+    memcpy(chars, a, strlen(a));
+    memcpy(chars + strlen(a), b, strlen(b));
     chars[length] = '\0';
 
     ObjString* result = takeString(chars, length);
@@ -485,8 +516,9 @@ static InterpretResult run()
                 } 
                 else 
                 {
-                    runtimeError("Operands must be of the same type.");
-                    return INTERPRET_RUNTIME_ERROR;
+                    concatenateAny();
+                    //runtimeError("Operands must be of the same type.");
+                    //return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
             case OP_SUBTRACT:   BINARY_OP(NUMBER_VAL, -); break;
