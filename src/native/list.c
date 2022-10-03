@@ -4,7 +4,7 @@
 
 #include "list.h"
 #include "../vm.h"
-
+#include "../memory.h"
 
 bool addNative(int argCount, Value* args)
 {
@@ -124,14 +124,14 @@ bool joinNative(int argCount, Value* args)
     ObjList* list = AS_LIST(args[0]);
     push(OBJ_VAL(list));
 
-    char result[1000]; //TODO:allocate!!!
-    char strval[1000];
+    char* result = ALLOCATE(char,1000); //TODO:allocate!!!
+    //char strval[1000];
     result[0] = '\0';
     for(int i=0; i < list->elements.count; i++)
     {
         Value val = list->elements.values[i];
-        concatValue(strval, val);
-        strcat(result, strval);
+        concatValue(result + strlen(result), val);
+        //strcat(result, strval);
     }   
 
     args[-1] = OBJ_VAL(copyStringRaw(result, (int)strlen(result)));
