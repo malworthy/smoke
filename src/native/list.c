@@ -111,6 +111,51 @@ static void concatValue(char* str, Value value)
     }
 }
 
+static int getValueLength(Value value) 
+{
+    switch (value.type) 
+    {
+        case VAL_BOOL:
+            return AS_BOOL(value) ? 5 : 6;
+            break;
+        case VAL_NUMBER: 
+            char str[100];
+            sprintf(str, "%g", AS_NUMBER(value)); 
+            return strlen(str) + 1;
+         case VAL_OBJ: 
+            switch (OBJ_TYPE(value)) 
+            {
+                case OBJ_STRING:
+                    ObjString* s = AS_STRING(value);
+                    return s->length + 1;
+                case OBJ_FUNCTION:
+                    return 11;
+                    //sprintf(str, "%s", "<function>");
+                    //break;
+                case OBJ_NATIVE:
+                    return 12;
+                    //sprintf(str, "%s", "<native fn>");
+                    //break;
+                case OBJ_CLOSURE:
+                    return 10;
+                    //sprintf(str, "%s", "<closure>");
+                    //break;
+                case OBJ_UPVALUE:
+                    return 10;
+                    //sprintf(str, "%s", "<upvalue>");
+                    //break;
+                case OBJ_LIST:
+                    return 7;
+                    //sprintf(str, "%s", "<list>");
+                    //break;
+            }
+            break;
+        case VAL_NIL:
+            return 4;
+            //break;
+    }
+}
+
 bool joinNative(int argCount, Value* args)
 {
     if (!IS_LIST(args[0]))
@@ -124,18 +169,24 @@ bool joinNative(int argCount, Value* args)
     ObjList* list = AS_LIST(args[0]);
     push(OBJ_VAL(list));
 
-    char* result = ALLOCATE(char,1000); //TODO:allocate!!!
-    //char strval[1000];
+    // work out how much memory we need for the joined string
+    int resultLength = 0;
+    for(int i=0; i < list->elements.count; i++)
+        resultLength += getValueLength(list->elements.values[i]);
+
+    char* result = ALLOCATE(char, resultLength); 
     result[0] = '\0';
+
     for(int i=0; i < list->elements.count; i++)
     {
         Value val = list->elements.values[i];
         concatValue(result + strlen(result), val);
-        //strcat(result, strval);
     }   
 
     args[-1] = OBJ_VAL(copyStringRaw(result, (int)strlen(result)));
     pop();
+    
+    FREE(char, result);
 
     return true;
 }

@@ -278,36 +278,6 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
-static void concatenateAny() 
-{
-    //ObjString* b = AS_STRING(peek(0));
-    //ObjString* a = AS_STRING(peek(1));
-
-    //TODO:make these dynamic
-    char a[1000];
-    char b[1000];
-
-    if (IS_STRING(peek(0))) strcpy(b, AS_CSTRING(peek(0)));
-    if (IS_NUMBER(peek(0))) sprintf(b, "%f", AS_NUMBER(peek(0)));
-
-    if (IS_STRING(peek(1))) strcpy (a, AS_CSTRING(peek(1)));
-    if (IS_NUMBER(peek(1))) sprintf(a, "%f", AS_NUMBER(peek(1)));
-
-    int length = strlen(a) + strlen(b);
-    //printf("a %s b %s length %d\n",a,b,length);
-
-
-    char* chars = ALLOCATE(char, length + 1);
-    memcpy(chars, a, strlen(a));
-    memcpy(chars + strlen(a), b, strlen(b));
-    chars[length] = '\0';
-
-    ObjString* result = takeString(chars, length);
-    pop();
-    pop();
-    push(OBJ_VAL(result));
-}
-
 static void concatenateList() 
 {
 
@@ -331,30 +301,7 @@ static void concatenateList()
     pop();
     push(OBJ_VAL(result));
 }
-/*
-static void addToList() 
-{
-    Value b = peek(0);
-    ObjList* a = AS_LIST(peek(1));
-    ObjList* result = newList();
 
-    push(OBJ_VAL(result));
-
-    int length = a->elements.count + 1;
-    Value* values = ALLOCATE(Value, length);
-    result->elements.capacity = length;
-    result->elements.count = length;
-
-    memcpy(values, a->elements.values, a->elements.count * sizeof(Value));
-    memcpy(values + a->elements.count, &b, sizeof(Value));
-    result->elements.values = values;
-
-    pop();
-    pop();
-    pop();
-    push(OBJ_VAL(result));
-}
-*/
 Value get(Value item, Value index)
 {
     if (!(IS_LIST(item) || IS_STRING(item)))
@@ -503,11 +450,7 @@ static InterpretResult run()
                 else if (IS_LIST(peek(0)) && IS_LIST(peek(1))) 
                 {
                     concatenateList();
-                } 
-                // else if (!IS_LIST(peek(0)) && IS_LIST(peek(1))) 
-                // {
-                //     addToList();
-                // } 
+                }              
                 else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) 
                 {
                     double b = AS_NUMBER(pop());
@@ -516,9 +459,9 @@ static InterpretResult run()
                 } 
                 else 
                 {
-                    concatenateAny();
-                    //runtimeError("Operands must be of the same type.");
-                    //return INTERPRET_RUNTIME_ERROR;
+                    //concatenateAny();
+                    runtimeError("Operands must be of the same type.");
+                    return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
             case OP_SUBTRACT:   BINARY_OP(NUMBER_VAL, -); break;

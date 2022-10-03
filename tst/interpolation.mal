@@ -1,0 +1,10 @@
+print "%{1+1}";
+//expect:2
+
+print "a %{1} b %{"two"} c";
+//expect:a 1 b two c
+
+const x = "test";
+
+print "%{"test1 %{x}2"} test3";
+//expect:test1 test2 test3
