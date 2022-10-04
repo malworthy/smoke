@@ -32,3 +32,18 @@ add(list_in_list[2], "hello");
 print list_in_list[2][2];
 //expect:hello
 
+for i in [1..2] print [1];
+//expect:[1]
+//expect:[1]
+
+print [1..2,[1,2,3,4],4,"end"];
+//expect:[1, 2, [1, 2, 3, 4], 4, end]
+
+fn getList()
+{
+    var x = [1,2,3];
+    var y = [4,2,3];
+    return x;
+}
+print ["one",getList(),"two"];
+//expect:[one, [1, 2, 3], two]

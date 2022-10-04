@@ -184,7 +184,7 @@ static int emitJump(uint8_t instruction)
 static uint8_t makeConstant(Value value) 
 {
     int constant = addConstant(currentChunk(), value);
-    if (constant > 256 /* UINT8_MAX */) 
+    if (constant > UINT8_T_MAX) 
     {
         error("Too many constants in one chunk.");
         return 0;
@@ -558,26 +558,39 @@ static void unary(bool canAssign)
 
 static void list(bool canAssign)
 {
-    ObjList* list = newList();
-    emitConstant(OBJ_VAL(list)); 
+    // create a global var to store the list.  Need to make sure name is unique for each
+    // recursive call to this function. (code smell)
+    static int count = 0;
+
+    char listVarName[20];
+    sprintf(listVarName, "~list%d", count);
+    count++;
+
+    uint8_t addFn = stringConstant("add");
+    uint8_t rangeFn = stringConstant("~range");
+    uint8_t listVar = makeConstant(OBJ_VAL(copyStringRaw(listVarName,strlen(listVarName))));
+    
+    emitConstant(NIL_VAL);
+    emitBytes(OP_DEFINE_GLOBAL, listVar);
+    emitBytes(OP_NEW_OBJ, OBJ_LIST);  
+    emitBytes(OP_SET_GLOBAL, listVar);
+    
     do
     {
         // Stop if we hit the end of the list.
         if (check(TOKEN_RIGHT_BRACKET)) 
         {
-            //printf("consuming ]\n");
             consume(TOKEN_RIGHT_BRACKET,"");
+            count--;
             return;
         }
 
         // Get function name
-        char* fnName = "add";
-        int arg = stringConstant(fnName);
-		emitBytes(OP_GET_GLOBAL, (uint8_t)arg);
+		emitBytes(OP_GET_GLOBAL, addFn);
         int function = currentChunk()->count - 1;
 
         // parameter 1 - list variable
-        emitConstant(OBJ_VAL(list));
+        emitBytes(OP_GET_GLOBAL, listVar);
 
         // parameter 2 - value adding to the list
         expression();
@@ -585,7 +598,7 @@ static void list(bool canAssign)
         // .. so we're doing range
         if(match(TOKEN_DOT_DOT))
         {
-            patchFunctionName(function, stringConstant("~range"));
+            patchFunctionName(function, rangeFn);
             expression();
             // call the function
             emitBytes(OP_CALL, 3);
@@ -600,6 +613,8 @@ static void list(bool canAssign)
     } while (match(TOKEN_COMMA));
     
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
+
+    //count--;
 }
 
 static void subscript(bool canAssign)
@@ -613,7 +628,6 @@ static void subscript(bool canAssign)
     }
     else
     {
-        //consume(TOKEN_COLON, "");
         expression();
         emitByte(OP_SLICE);
     }
@@ -621,17 +635,40 @@ static void subscript(bool canAssign)
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
 }
 
+// Interpolation is syntactic sugar for calling "join()" on a list. So the
+// string:
+//
+//     "a %{b + c} d"
+//
+// is compiled roughly like:
+//
+//     join(["a ", b + c, " d"])
+// 
 static void interpolation(bool canAssign)
 {
-    ObjList* list = newList();
-    uint8_t constant = makeConstant(OBJ_VAL(list)); // constant = emitConstant(OBJ_VAL(list)); 
+    
+    static int count = 0; 
+    // create a global var to store the list.  Need to make sure name is unique for each
+    // recursive call to this function.
+    // TODO: this is a code smell - do something different!
+    char listVarName[20];
+    sprintf(listVarName, "~ilist%d", count);
+    count++;
+
     uint8_t addFn = stringConstant("add");
+    uint8_t listVar = makeConstant(OBJ_VAL(copyStringRaw(listVarName,strlen(listVarName))));
+    
+    emitConstant(NIL_VAL);
+    emitBytes(OP_DEFINE_GLOBAL, listVar);
+    emitBytes(OP_NEW_OBJ, OBJ_LIST);  
+    emitBytes(OP_SET_GLOBAL, listVar);
+    emitByte(OP_POP);
     do
     {
         // Get function name
 		emitBytes(OP_GET_GLOBAL, addFn);
         // parameter 1 - list variable
-        emitBytes(OP_CONSTANT, constant);
+        emitBytes(OP_GET_GLOBAL, listVar);
         // parameter 2 - value adding to the list
         string(false);
          // call the function
@@ -641,7 +678,7 @@ static void interpolation(bool canAssign)
         // Get function name
 		emitBytes(OP_GET_GLOBAL, addFn);
         // parameter 1 - list variable
-        emitBytes(OP_CONSTANT, constant);
+        emitBytes(OP_GET_GLOBAL, listVar);
         // parameter 2 - value adding to the list
         expression();
          // call the function
@@ -652,11 +689,12 @@ static void interpolation(bool canAssign)
     //Add the last bit of the string here...
     emitBytes(OP_GET_GLOBAL, addFn);
     // parameter 1 - list variable
-    emitBytes(OP_CONSTANT, constant);
+    emitBytes(OP_GET_GLOBAL, listVar);
     
     if (!check(TOKEN_STRING))
     {
         errorAtCurrent("string iterpolation error");
+        count--;
         return;
     }
         
@@ -672,14 +710,12 @@ static void interpolation(bool canAssign)
     emitBytes(OP_GET_GLOBAL, joinFn);
 
      // parameter 1 - list variable
-    emitBytes(OP_CONSTANT, constant);
+    emitBytes(OP_GET_GLOBAL, listVar);
 
     // call the function
     emitBytes(OP_CALL, 1);
-    //emitByte(OP_POP);
 
-    /// ---------------------------
-    
+    //count--;
 }
 
 ParseRule rules[] = 

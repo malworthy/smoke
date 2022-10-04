@@ -601,6 +601,12 @@ static InterpretResult run()
                 closeUpvalues(vm.stackTop - 1);
                 pop();
                 break;
+            case OP_NEW_OBJ: {
+                uint8_t objType = READ_BYTE();
+                //objType for future use - for now only create a list
+                push(OBJ_VAL(newList()));
+                break;
+            }
             case OP_RETURN: {
                 Value result = pop();
                 closeUpvalues(frame->slots);

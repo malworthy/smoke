@@ -62,7 +62,7 @@ ObjList* newList()
 {
     // Allocate this before the list object in case it triggers a GC which would
     // free the list.
-    ValueArray elements;;
+    ValueArray elements;
     initValueArray(&elements);
     
     ObjList* list = ALLOCATE_OBJ(ObjList, OBJ_LIST);
