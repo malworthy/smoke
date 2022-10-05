@@ -160,6 +160,29 @@ static int getValueLength(Value value)
     }
 }
 
+Value join(ObjList* list)
+{
+    // work out how much memory we need for the joined string
+    int resultLength = 0;
+    for(int i=0; i < list->elements.count; i++)
+        resultLength += getValueLength(list->elements.values[i]);
+
+    char* result = ALLOCATE(char, resultLength); 
+    result[0] = '\0';
+
+    for(int i=0; i < list->elements.count; i++)
+    {
+        Value val = list->elements.values[i];
+        concatValue(result + strlen(result), val);
+    }   
+
+    Value joined = OBJ_VAL(copyStringRaw(result, (int)strlen(result)));
+    
+    FREE(char, result);
+
+    return joined;
+}
+
 bool joinNative(int argCount, Value* args)
 {
     if (!IS_LIST(args[0]))

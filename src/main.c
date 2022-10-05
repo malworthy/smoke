@@ -82,7 +82,7 @@ int main (int argc, const char* argv[])
     {
         repl();
 
-        //runFile("c:\\tmp\\test.mal");
+        //runFile("c:\\Users\\malwo\\code\\min\\tst\\test.mal");
     } 
     else if (argc >= 2) 
     {

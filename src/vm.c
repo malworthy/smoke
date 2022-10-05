@@ -541,6 +541,13 @@ static InterpretResult run()
 
                 break;
             }
+            case OP_JOIN: {
+                ObjList* list = AS_LIST(peek(0));
+                Value val = join(list);
+                pop();
+                push(val);
+                break;
+            }
             case OP_RANGE: {
                 int end = (int)AS_NUMBER(pop());
                 int start = (int)AS_NUMBER(pop());

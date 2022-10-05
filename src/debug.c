@@ -106,6 +106,8 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return simpleInstruction("OP_LIST_ADD", offset);
         case OP_RANGE:
             return simpleInstruction("OP_RANGE", offset);
+        case OP_JOIN:
+            return simpleInstruction("OP_JOIN", offset);
         case OP_SET_GLOBAL:
             return constantInstruction("OP_SET_GLOBAL", chunk, offset);
         case OP_GET_LOCAL:

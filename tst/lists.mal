@@ -42,7 +42,11 @@ print [1..2,[1,2,3,4],4,"end"];
 fn getList()
 {
     var x = [1,2,3];
-    var y = [4,2,3];
+    for z in [1..1000]
+    {
+        var y = [4,2,3];
+    }
+        
     return x;
 }
 print ["one",getList(),"two"];

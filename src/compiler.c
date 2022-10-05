@@ -132,7 +132,7 @@ static void consume(TokenType type, const char* message)
         advance();
         return;
     }
-
+    if (type == TOKEN_SEMICOLON) return;
     errorAtCurrent(message);
 }
 
@@ -464,7 +464,6 @@ static void addLocal(Token name, bool isConst)
 static void declareLoopVariable(char* variableName)
 {
     Token name;
-    //char* variableName = "i";
     
     name.length = 1;
     name.line = parser.previous.line;
@@ -559,9 +558,7 @@ static void unary(bool canAssign)
 static void list(bool canAssign)
 {
     emitBytes(OP_NEW_OBJ, OBJ_LIST);
-    //uint8_t addFn = stringConstant("add");
-    //uint8_t rangeFn = stringConstant("~range");    
-
+ 
     do
     {
         // Stop if we hit the end of the list.
@@ -618,76 +615,33 @@ static void subscript(bool canAssign)
 // 
 static void interpolation(bool canAssign)
 {
-    
-    static int count = 0; 
-    // create a global var to store the list.  Need to make sure name is unique for each
-    // recursive call to this function.
-    // TODO: this is a code smell - do something different!
-    char listVarName[20];
-    sprintf(listVarName, "~ilist%d", count);
-    count++;
-
-    uint8_t addFn = stringConstant("add");
-    uint8_t listVar = makeConstant(OBJ_VAL(copyStringRaw(listVarName,strlen(listVarName))));
-    
-    emitConstant(NIL_VAL);
-    emitBytes(OP_DEFINE_GLOBAL, listVar);
+    // Create a new list
     emitBytes(OP_NEW_OBJ, OBJ_LIST);  
-    emitBytes(OP_SET_GLOBAL, listVar);
-    emitByte(OP_POP);
+
     do
     {
-        // Get function name
-		emitBytes(OP_GET_GLOBAL, addFn);
-        // parameter 1 - list variable
-        emitBytes(OP_GET_GLOBAL, listVar);
-        // parameter 2 - value adding to the list
+        // add string part
         string(false);
-         // call the function
-        emitBytes(OP_CALL, 2);
-        emitByte(OP_POP);
+        emitByte(OP_LIST_ADD);
 
-        // Get function name
-		emitBytes(OP_GET_GLOBAL, addFn);
-        // parameter 1 - list variable
-        emitBytes(OP_GET_GLOBAL, listVar);
-        // parameter 2 - value adding to the list
+        // add interpolated part
         expression();
-         // call the function
-        emitBytes(OP_CALL, 2);
-        emitByte(OP_POP);
+        emitByte(OP_LIST_ADD);
 
     } while (match(TOKEN_INTERPOLATION));
-    //Add the last bit of the string here...
-    emitBytes(OP_GET_GLOBAL, addFn);
-    // parameter 1 - list variable
-    emitBytes(OP_GET_GLOBAL, listVar);
     
-    if (!check(TOKEN_STRING))
+    if (!match(TOKEN_STRING))
     {
         errorAtCurrent("string iterpolation error");
-        count--;
         return;
-    }
-        
-    advance();
-    string(false);
+    }        
+    
+    // add final part of string
+    string(canAssign);
+    emitByte(OP_LIST_ADD);
 
-    // call the function
-    emitBytes(OP_CALL, 2);
-    emitByte(OP_POP);
-
-    // Get function name
-    uint8_t joinFn = stringConstant("join");
-    emitBytes(OP_GET_GLOBAL, joinFn);
-
-     // parameter 1 - list variable
-    emitBytes(OP_GET_GLOBAL, listVar);
-
-    // call the function
-    emitBytes(OP_CALL, 1);
-
-    //count--;
+    // now perform the join
+    emitByte(OP_JOIN);
 }
 
 ParseRule rules[] = 

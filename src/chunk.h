@@ -37,6 +37,7 @@ typedef enum {
     OP_NEW_OBJ,
     OP_LIST_ADD,
     OP_RANGE,
+    OP_JOIN,
     OP_RETURN,
 } OpCode;
 
