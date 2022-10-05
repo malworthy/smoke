@@ -558,39 +558,18 @@ static void unary(bool canAssign)
 
 static void list(bool canAssign)
 {
-    // create a global var to store the list.  Need to make sure name is unique for each
-    // recursive call to this function. (code smell)
-    static int count = 0;
+    emitBytes(OP_NEW_OBJ, OBJ_LIST);
+    //uint8_t addFn = stringConstant("add");
+    //uint8_t rangeFn = stringConstant("~range");    
 
-    char listVarName[20];
-    sprintf(listVarName, "~list%d", count);
-    count++;
-
-    uint8_t addFn = stringConstant("add");
-    uint8_t rangeFn = stringConstant("~range");
-    uint8_t listVar = makeConstant(OBJ_VAL(copyStringRaw(listVarName,strlen(listVarName))));
-    
-    emitConstant(NIL_VAL);
-    emitBytes(OP_DEFINE_GLOBAL, listVar);
-    emitBytes(OP_NEW_OBJ, OBJ_LIST);  
-    emitBytes(OP_SET_GLOBAL, listVar);
-    
     do
     {
         // Stop if we hit the end of the list.
         if (check(TOKEN_RIGHT_BRACKET)) 
         {
             consume(TOKEN_RIGHT_BRACKET,"");
-            count--;
             return;
         }
-
-        // Get function name
-		emitBytes(OP_GET_GLOBAL, addFn);
-        int function = currentChunk()->count - 1;
-
-        // parameter 1 - list variable
-        emitBytes(OP_GET_GLOBAL, listVar);
 
         // parameter 2 - value adding to the list
         expression();
@@ -598,23 +577,16 @@ static void list(bool canAssign)
         // .. so we're doing range
         if(match(TOKEN_DOT_DOT))
         {
-            patchFunctionName(function, rangeFn);
             expression();
-            // call the function
-            emitBytes(OP_CALL, 3);
-            emitByte(OP_POP);
+            emitByte(OP_RANGE);
         }
         else
         {
-            // call the function
-            emitBytes(OP_CALL, 2);
-            emitByte(OP_POP);
+            emitByte(OP_LIST_ADD);
         }
     } while (match(TOKEN_COMMA));
     
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
-
-    //count--;
 }
 
 static void subscript(bool canAssign)

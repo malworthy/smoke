@@ -35,6 +35,8 @@ typedef enum {
     OP_SET_UPVALUE,
     OP_CLOSE_UPVALUE,
     OP_NEW_OBJ,
+    OP_LIST_ADD,
+    OP_RANGE,
     OP_RETURN,
 } OpCode;
 

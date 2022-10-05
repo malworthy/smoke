@@ -102,6 +102,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return constantInstruction("OP_GET_GLOBAL", chunk, offset);
         case OP_SUBSCRIPT:
             return constantInstruction("OP_SUBSCRIPT", chunk, offset);
+        case OP_LIST_ADD:
+            return simpleInstruction("OP_LIST_ADD", offset);
+        case OP_RANGE:
+            return simpleInstruction("OP_RANGE", offset);
         case OP_SET_GLOBAL:
             return constantInstruction("OP_SET_GLOBAL", chunk, offset);
         case OP_GET_LOCAL:

@@ -533,6 +533,24 @@ static InterpretResult run()
 
                 break;
             }
+            case OP_LIST_ADD: {
+                Value val = pop();
+                ObjList* list = AS_LIST(peek(0));
+
+                writeValueArray(&list->elements, val);
+
+                break;
+            }
+            case OP_RANGE: {
+                int end = (int)AS_NUMBER(pop());
+                int start = (int)AS_NUMBER(pop());
+                ObjList* list = AS_LIST(peek(0));
+                for(int i = start; (start > end) ? i >= end : i <= end; (start > end) ? i-- : i++)
+                {
+                    writeValueArray(&list->elements, NUMBER_VAL((double)i));
+                }
+                break;
+            }
             case OP_SET_GLOBAL: {
                 ObjString* name = READ_STRING();
                 if (tableSet(&vm.globals, name, peek(0))) 

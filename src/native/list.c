@@ -119,15 +119,19 @@ static int getValueLength(Value value)
             return AS_BOOL(value) ? 5 : 6;
             break;
         case VAL_NUMBER: 
+        { 
             char str[100];
             sprintf(str, "%g", AS_NUMBER(value)); 
             return strlen(str) + 1;
+        }
          case VAL_OBJ: 
             switch (OBJ_TYPE(value)) 
             {
-                case OBJ_STRING:
+                case OBJ_STRING: 
+                {
                     ObjString* s = AS_STRING(value);
                     return s->length + 1;
+                }
                 case OBJ_FUNCTION:
                     return 11;
                     //sprintf(str, "%s", "<function>");
