@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "common.h"
 #include "vm.h"
@@ -20,6 +22,33 @@ VM vm;
 static bool clockNative(int argCount, Value* args) {
     args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
     return true;
+}
+
+static double getRandomNumber(int max)
+{
+    return floor((double)rand() / ((double)RAND_MAX + 1) * max);
+}
+
+static bool randNative(int argCount, Value* args)
+{
+    if (IS_NUMBER(args[0]))
+    {
+        int max = (int)AS_NUMBER(args[0]);
+        if (abs(max) > RAND_MAX)
+        {
+            char* msg = "Value too large for rand()";
+            args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+            return false;
+        }
+        double result = getRandomNumber(max);
+
+        args[-1] = NUMBER_VAL((double) result);
+
+        return true;
+    }
+    char* msg = "Parameter 1 of rand must be a number";
+    args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+    return false;
 }
 
 static bool argsNative(int argCount, Value* args) {
@@ -107,6 +136,7 @@ void initVM()
     // Native Functions
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
+    defineNative("rand", randNative, 1);
 
     // CONSOLE
     defineNative("write", writeNative, 1);

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "common.h"
 #include "chunk.h"
@@ -73,6 +74,8 @@ static void runFile(const char* path)
 
 int main (int argc, const char* argv[])
 {
+    srand(time(NULL)); 
+
     _argc = argc;
     _args = argv;
 
