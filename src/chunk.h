@@ -39,6 +39,8 @@ typedef enum {
     OP_RANGE,
     OP_JOIN,
     OP_RETURN,
+    OP_INC_LOCAL,
+    OP_INC_UPVALUE
 } OpCode;
 
 typedef struct {

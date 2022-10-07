@@ -656,6 +656,14 @@ static InterpretResult run()
                 closeUpvalues(vm.stackTop - 1);
                 pop();
                 break;
+            case OP_INC_LOCAL: {
+                uint8_t slot = READ_BYTE();
+                Value val = frame->slots[slot];
+                AS_NUMBER(val) += (double)1;
+                frame->slots[slot] = val;
+                push(val);
+                break;
+            }
             case OP_NEW_OBJ: {
                 uint8_t objType = READ_BYTE();
                 //objType for future use - for now only create a list

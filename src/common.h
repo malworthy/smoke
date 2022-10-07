@@ -1,9 +1,9 @@
 #ifndef min_common_h
 #define min_common_h
 
-//#define DEBUG_TRACE_EXECUTION
-//#define DEBUG_PRINT_CODE
-#define DEBUG_STRESS_GC
+#define DEBUG_TRACE_EXECUTION
+#define DEBUG_PRINT_CODE
+//#define DEBUG_STRESS_GC
 //#define DEBUG_LOG_GC
 
 #define UINT8_COUNT (255 + 1)
