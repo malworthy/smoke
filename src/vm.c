@@ -437,6 +437,22 @@ static InterpretResult run()
             push(valueType(a op b)); \
         } while (false)
 
+    #define INC_DEC_OP(value, number) \
+        do { \
+            uint8_t slot = READ_BYTE(); \
+            Value val = value; \
+            if (!IS_NUMBER(val)) \
+            { \
+                runtimeError("Can only increment a number"); \
+                return INTERPRET_RUNTIME_ERROR; \
+            } \
+            push(val); \
+            AS_NUMBER(val) += (double)number; \
+            value = val; \
+        } while (false)
+        
+        
+
     #define READ_STRING() AS_STRING(READ_CONSTANT())
 
     for (;;) 
@@ -657,32 +673,11 @@ static InterpretResult run()
                 pop();
                 break;
             case OP_INC_LOCAL: {
-                uint8_t slot = READ_BYTE();
-                Value val = frame->slots[slot];
-                push(val);
-                if (!IS_NUMBER(val))
-                {
-                    runtimeError("Can only increment a number");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-
-                AS_NUMBER(val) += (double)1;
-                frame->slots[slot] = val;
-                
+                INC_DEC_OP(frame->slots[slot],1);
                 break;
             }
             case OP_INC_UPVALUE: {
-                uint8_t slot = READ_BYTE();
-                Value val = *frame->closure->upvalues[slot]->location;
-                if (!IS_NUMBER(val))
-                {
-                    runtimeError("Can only increment a number");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                push(val);
-                AS_NUMBER(val) += (double)1;
-                *frame->closure->upvalues[slot]->location = val;
-                
+                INC_DEC_OP(*frame->closure->upvalues[slot]->location,1);
                 break;
             }
             case OP_NEW_OBJ: {
@@ -714,6 +709,7 @@ static InterpretResult run()
     #undef BINARY_OP
     #undef READ_STRING
     #undef READ_SHORT
+    #undef INC_DEC_OP
 }
 
 InterpretResult interpret(const char* source) 
