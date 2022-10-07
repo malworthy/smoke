@@ -659,9 +659,30 @@ static InterpretResult run()
             case OP_INC_LOCAL: {
                 uint8_t slot = READ_BYTE();
                 Value val = frame->slots[slot];
+                push(val);
+                if (!IS_NUMBER(val))
+                {
+                    runtimeError("Can only increment a number");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
                 AS_NUMBER(val) += (double)1;
                 frame->slots[slot] = val;
+                
+                break;
+            }
+            case OP_INC_UPVALUE: {
+                uint8_t slot = READ_BYTE();
+                Value val = *frame->closure->upvalues[slot]->location;
+                if (!IS_NUMBER(val))
+                {
+                    runtimeError("Can only increment a number");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 push(val);
+                AS_NUMBER(val) += (double)1;
+                *frame->closure->upvalues[slot]->location = val;
+                
                 break;
             }
             case OP_NEW_OBJ: {

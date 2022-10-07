@@ -1,0 +1,32 @@
+fn test_local()
+{
+    var x = 0
+    print x++
+    print x
+}
+
+fn test_upvalue()
+{
+    var x = 0
+
+    fn test2()
+    {
+        print x++
+        
+    }
+    return test2
+}
+
+test_local()
+//expect:0
+//expect:1
+
+const func = test_upvalue()
+
+func()
+//expect:0
+func()
+//expect:1
+func()
+//expect:2
+

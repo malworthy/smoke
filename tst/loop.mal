@@ -1,27 +1,29 @@
-// loop is my own custom instruction.  so needs insane testing
+// This test is good for picking up weird bugs
 
-loop 5 times print i;
+for i in [0..4] print i;
 //expect:0
 //expect:1
 //expect:2
 //expect:3
 //expect:4
 
-loop 5 times print i;
+for i in [0..4] print i;
 //expect:0
 //expect:1
 //expect:2
 //expect:3
 //expect:4
-
 {
     var x = 0;
-    loop 500 times x = x + 1;
+    for i in [1..500] 
+    { 
+        x = x + 1;
+    }
     print x;
 }
 //expect:500
 
-loop 3 times
+for count in [0..2]
 {
     print "hello";
     print "again";
@@ -35,16 +37,17 @@ loop 3 times
 
 const x = 2;
 const y = 3;
-loop x * y times print i;
+for i in [0..x * y] print i;
 //expect:0
 //expect:1
 //expect:2
 //expect:3
 //expect:4
 //expect:5
+//expect:6
 
 const i = 100;
-loop 1 times print i;
+for i in [0..0] print i;
 //expect:0
 print i;
 //expect:100

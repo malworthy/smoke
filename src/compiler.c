@@ -530,7 +530,7 @@ static void namedVariable(Token name, bool canAssign)
         expression();
         emitBytes(setOp, (uint8_t)arg);
     }
-    if (canAssign && match(TOKEN_PLUS_PLUS))
+    else if (canAssign && match(TOKEN_PLUS_PLUS))
     {
         emitBytes(incOp, (uint8_t)arg);
     } 
