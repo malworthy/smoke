@@ -1,0 +1,7 @@
+#inc ../tst/inc1.mal 
+#inc ../tst/inc2.mal 
+
+from_inc_one()
+from_inc_two()
+//expect:inc1
+//expect:inc2

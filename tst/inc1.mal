@@ -1,0 +1,6 @@
+#inc ../tst/inc2.mal 
+
+fn from_inc_one()
+{
+    print "inc1"
+}

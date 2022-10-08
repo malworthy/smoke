@@ -7,6 +7,14 @@
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
+#include "core.inc"
+
+#define MAX_INCS 256
+
+char* includeFiles[MAX_INCS];
+char* fileContents[MAX_INCS];
+int includeFileCount = 0;
+int fileContentsCount = 0;
 
 const char** _args;
 
@@ -62,7 +70,80 @@ static char* readFile(const char* path)
     return buffer;
 }
 
-static void runFile(const char* path) 
+// TODO: Need to add all the error handling!
+static void preProcessFile(const char* filename, const char* rootFilename)
+{    
+    char* buffer = readFile(filename);
+
+    char* localIncludeFiles[MAX_INCS];
+    char* current = buffer;
+    char prev = '\n';
+    int localCount = 0;
+
+    while(*current != '\0')
+    {
+        if(*current == '#' 
+			&& current[1] != '\0' && current[2] != '\0' && current[3] != '\0' && current[4] != '\0'
+			&& current[1] == 'i' && current[2] == 'n' && current[3] == 'c' && current[4] == ' '
+		       && (prev == '\n' || prev == '\r'))
+	
+        {
+            char* startOfInc = current;
+                current += 5;
+            char *filenameStart = current;
+            
+            while(*current != '\n' && *current != '\r' && *current != '\0') 
+                current++;
+
+            int len = current - filenameStart;
+            char* includeFile = (char*)malloc(len+1);
+
+            memcpy(includeFile, filenameStart, len);
+            includeFile[len] = '\0';
+
+            // only add if doesn't exist
+            bool exists = false;
+            for (int i = 0; i < includeFileCount; i++)
+            {
+                if (strcmp(includeFiles[i], includeFile) == 0)
+                {
+                     exists = true;
+                     break;
+                }
+                if (strcmp(includeFile, rootFilename) == 0 && strcmp(filename, rootFilename) != 0 )
+                {
+                    exists = true;
+                    break;
+                }
+            }
+
+            // TODO: notify if greater than MAX_INCS
+            if (!exists && includeFileCount < MAX_INCS)
+            {
+                includeFiles[includeFileCount++] = includeFile;
+                localIncludeFiles[localCount++] = includeFile;
+            }
+            
+            
+            // wipe away #inc by turning into a comment
+            *startOfInc = '/';
+            startOfInc[1] = '/'; 
+        }
+	    prev = *current;
+        current++;	
+    }
+
+    for (int i=0; i<localCount; i++)
+    {
+        //printf("include in:%s\n",localIncludeFiles[i]);
+        preProcessFile(localIncludeFiles[i], rootFilename);
+    }
+    
+    fileContents[fileContentsCount++] = buffer;
+}
+
+
+static void runFile_old(const char* path) 
 {
     char* source = readFile(path);
     InterpretResult result = interpret(source);
@@ -70,6 +151,25 @@ static void runFile(const char* path)
 
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+}
+
+static void runFile(const char* path) 
+{
+    preProcessFile(path, path);
+
+    for (int i = 0;  i < fileContentsCount; i++ )
+    {
+        //printf("Running file %d of %d: %s\n", i+1, fileContentsCount, fileContents[i]);
+        InterpretResult result = interpret(fileContents[i]);
+    
+        if (result == INTERPRET_COMPILE_ERROR) exit(65);
+        if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    }
+
+    for (int i = 0;  i < fileContentsCount; i++ )
+    {
+         free(fileContents[i]); 
+    }
 }
 
 int main (int argc, const char* argv[])
@@ -80,6 +180,14 @@ int main (int argc, const char* argv[])
     _args = argv;
 
     initVM();
+
+    InterpretResult result = interpret(coreModuleSource);
+    if (result != INTERPRET_OK)
+    {
+        //If there are errors in the core library obvously I've stuffed up, but let me know.
+        printf("Core library is corrupt\n");
+        exit(1);
+    }
 
     if (argc == 1) 
     {

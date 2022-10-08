@@ -1,0 +1,4 @@
+fn from_inc_two()
+{
+    print "inc2"
+}
