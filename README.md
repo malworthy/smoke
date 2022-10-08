@@ -34,8 +34,7 @@ else
 // looping
 while a == 1 do { print "doing stuff"; }
 
-// loop creates a variabled called 'i' that can be accessed in the scope of the loop
-loop 10 times print i;
+for x in [1..100] print x // prints 1-100
 
 // use for to enumerate lists or strings
 for x in [1,2,3] print x; 
@@ -62,16 +61,30 @@ print addNumbers(1,1); // prints 2
 
 ## Native functions
 
-- add(list, item) // add item to list
+Console
 - backColor("blue") // changes the console background colour
 - clear() // clears the screen
-- clock() // number of seconds since program started
-- dir("path/to/folder") // returns a list of files (wip - currently broken :( )
 - input() // gets input from the console
-- len(list) // gets the length of a list or string
 - locate(x,y) // locates the cursor on the
-- run(path) 
-- split(str, delim)
-- splitlines(str)
 - textColor("red") // changes the console text colour 
 - write("string") // write to the console without printing a newline afterwards (unlike print)
+
+Lists
+- add(list, item) // add item to list
+- len(list) // gets the length of a list or string
+- map(list, function(item))
+
+System
+- dir("path/to/folder") // returns a list of files (wip - currently broken :( )
+- run(path)
+
+String Functions
+- split(str, delim) // split a string on delimeter.  a returns list
+- splitlines(str) // split a string on newline.  a returns list
+
+File IO
+- readlines(path) // reads a text file and returns a list of all the lines in file 
+
+Utils
+- clock() // number of seconds since program started
+- rand(max) // gets a random number from 0 to max-1
