@@ -24,6 +24,12 @@ static bool clockNative(int argCount, Value* args) {
     return true;
 }
 
+static bool nowNative(int argCount, Value* args)
+{
+    args[-1] = DATETIME_VAL(time(NULL));
+    return true;
+}
+
 static double getRandomNumber(int max)
 {
     return floor((double)rand() / ((double)RAND_MAX + 1) * max);
@@ -136,6 +142,7 @@ void initVM()
     // Native Functions
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
+    defineNative("now", nowNative, 0);
     defineNative("rand", randNative, 1);
 
     // CONSOLE

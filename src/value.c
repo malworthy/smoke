@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "object.h"
 #include "memory.h"
@@ -48,6 +49,14 @@ void printValue(Value value)
         case VAL_NIL:
             printf("NIL");
             break;
+        case VAL_DATETIME: {
+            time_t t = AS_DATETIME(value);
+            struct tm *tm = localtime(&t);
+            char s[64];
+            strftime(s, sizeof(s), "%c", tm);
+            printf("%s", s);
+            break;
+        }
     }
 }
 

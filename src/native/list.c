@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "list.h"
 #include "../vm.h"
@@ -105,6 +106,14 @@ static void concatValue(char* str, Value value)
                     break;
             }
             break;
+        case VAL_DATETIME: {
+            time_t t = AS_DATETIME(value);
+            struct tm *tm = localtime(&t);
+            char s[64];
+            strftime(s, sizeof(s), "%c", tm);
+            sprintf(str, "%s", s);
+            break;
+        }
         case VAL_NIL:
             sprintf(str, "%s", "NIL");
             break;
@@ -134,29 +143,20 @@ static int getValueLength(Value value)
                 }
                 case OBJ_FUNCTION:
                     return 11;
-                    //sprintf(str, "%s", "<function>");
-                    //break;
                 case OBJ_NATIVE:
                     return 12;
-                    //sprintf(str, "%s", "<native fn>");
-                    //break;
                 case OBJ_CLOSURE:
                     return 10;
-                    //sprintf(str, "%s", "<closure>");
-                    //break;
                 case OBJ_UPVALUE:
                     return 10;
-                    //sprintf(str, "%s", "<upvalue>");
-                    //break;
                 case OBJ_LIST:
                     return 7;
-                    //sprintf(str, "%s", "<list>");
-                    //break;
             }
             break;
+        case VAL_DATETIME:
+            return 64;
         case VAL_NIL:
             return 4;
-            //break;
     }
 }
 
