@@ -498,7 +498,7 @@ static void declareVariable(bool isConst)
 
 static void namedVariable(Token name, bool canAssign) 
 {
-    uint8_t getOp, setOp, incOp;
+    uint8_t getOp, setOp, incOp, decOp;
     bool isConst;
     int arg = resolveLocal(current, &name, &isConst);
     if (arg != -1) 
@@ -506,12 +506,14 @@ static void namedVariable(Token name, bool canAssign)
         getOp = OP_GET_LOCAL;
         setOp = OP_SET_LOCAL;
         incOp = OP_INC_LOCAL;
+        decOp = OP_DEC_LOCAL;
     } 
     else if ((arg = resolveUpvalue(current, &name, &isConst)) != -1) 
     {
         getOp = OP_GET_UPVALUE;
         setOp = OP_SET_UPVALUE;
         incOp = OP_INC_UPVALUE;
+        decOp = OP_DEC_UPVALUE;
     }
     else 
     {
@@ -533,6 +535,10 @@ static void namedVariable(Token name, bool canAssign)
     else if (canAssign && match(TOKEN_PLUS_PLUS))
     {
         emitBytes(incOp, (uint8_t)arg);
+    } 
+    else if (canAssign && match(TOKEN_MINUS_MINUS))
+    {
+        emitBytes(decOp, (uint8_t)arg);
     } 
     else 
     {

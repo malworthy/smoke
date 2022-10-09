@@ -118,6 +118,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return byteInstruction("OP_INC_LOCAL", chunk, offset);
         case OP_INC_UPVALUE:
             return byteInstruction("OP_INC_UPVALUE", chunk, offset);
+        case OP_DEC_LOCAL:
+            return byteInstruction("OP_DEC_LOCAL", chunk, offset);
+        case OP_DEC_UPVALUE:
+            return byteInstruction("OP_DEC_UPVALUE", chunk, offset);
         case OP_GET_UPVALUE:
             return byteInstruction("OP_GET_UPVALUE", chunk, offset);
         case OP_SET_UPVALUE:

@@ -40,7 +40,9 @@ typedef enum {
     OP_JOIN,
     OP_RETURN,
     OP_INC_LOCAL,
-    OP_INC_UPVALUE
+    OP_INC_UPVALUE,
+    OP_DEC_LOCAL,
+    OP_DEC_UPVALUE
 } OpCode;
 
 typedef struct {
