@@ -42,7 +42,10 @@ typedef enum {
     OP_INC_LOCAL,
     OP_INC_UPVALUE,
     OP_DEC_LOCAL,
-    OP_DEC_UPVALUE
+    OP_DEC_UPVALUE,
+    OP_CLASS,
+    OP_GET_PROPERTY,
+    OP_SET_PROPERTY
 } OpCode;
 
 typedef struct {

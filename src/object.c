@@ -50,6 +50,14 @@ ObjFunction* newFunction()
     return function;
 }
 
+ObjInstance* newInstance(ObjClass* klass) 
+{
+    ObjInstance* instance = ALLOCATE_OBJ(ObjInstance, OBJ_INSTANCE);
+    instance->klass = klass;
+    initTable(&instance->fields);
+    return instance;
+}
+
 ObjNative* newNative(NativeFn function, int arity) 
 {
     ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
@@ -69,6 +77,13 @@ ObjList* newList()
     list->elements = elements;
     
     return list;
+}
+
+ObjClass* newClass(ObjString* name) 
+{
+    ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
+    klass->name = name; 
+    return klass;
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) 
@@ -228,6 +243,12 @@ void printObject(Value value)
             break;
         case OBJ_LIST:
             printList(AS_LIST(value));
+            break;
+        case OBJ_CLASS:
+            printf("%s", AS_CLASS(value)->name->chars);
+            break;
+        case OBJ_INSTANCE:
+            printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
             break;
     }
 }

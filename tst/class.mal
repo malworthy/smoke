@@ -1,0 +1,14 @@
+class Brioche {}
+print Brioche;
+print Brioche()
+//expect:Brioche
+//expect:Brioche instance
+
+class Pair {}
+
+const pair = Pair();
+pair.first = 1;
+pair.second = 2;
+print pair.first + pair.second; 
+
+//expect:3

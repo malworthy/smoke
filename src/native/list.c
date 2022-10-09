@@ -104,6 +104,12 @@ static void concatValue(char* str, Value value)
                 case OBJ_LIST:
                     sprintf(str, "%s", "<list>");
                     break;
+                case OBJ_CLASS:
+                    sprintf(str, "%s", AS_CLASS(value)->name->chars);
+                    break;
+                case OBJ_INSTANCE:
+                    sprintf(str, "%s instance", AS_INSTANCE(value)->klass->name->chars);
+                    break;
             }
             break;
         case VAL_DATETIME: {
@@ -151,6 +157,10 @@ static int getValueLength(Value value)
                     return 10;
                 case OBJ_LIST:
                     return 7;
+                case OBJ_CLASS:
+                    return strlen(AS_CLASS(value)->name->chars) + 1;
+                case OBJ_INSTANCE:
+                    return strlen(AS_INSTANCE(value)->klass->name->chars) + 10;
             }
             break;
         case VAL_DATETIME:

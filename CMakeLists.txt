@@ -22,7 +22,9 @@ add_test(NAME subscript COMMAND python ../test_runner.py "mal.exe" "../tst/subsc
 add_test(NAME split COMMAND python ../test_runner.py "mal.exe" "../tst/split.mal" "//expect:")
 add_test(NAME interpolation COMMAND python ../test_runner.py "mal.exe" "../tst/interpolation.mal" "//expect:")
 add_test(NAME inc COMMAND python ../test_runner.py "mal.exe" "../tst/increment.mal" "//expect:")
+add_test(NAME decrement COMMAND python ../test_runner.py "mal.exe" "../tst/decrement.mal" "//expect:")
 add_test(NAME include COMMAND python ../test_runner.py "mal.exe" "../tst/inc.mal" "//expect:")
+add_test(NAME class COMMAND python ../test_runner.py "mal.exe" "../tst/class.mal" "//expect:")
 #add_test(NAME args COMMAND python ../test_runner.py "mal.exe" "../tst/args.mal one two" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c)
