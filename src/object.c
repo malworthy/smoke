@@ -125,8 +125,6 @@ ObjString* takeString(char* chars, int length)
     return allocateString(chars, length, hash);
 }
 
-
-
 ObjString* copyString(const char* chars, int length) 
 {
     char processedString[length];
