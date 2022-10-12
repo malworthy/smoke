@@ -12,3 +12,13 @@ pair.second = 2;
 print pair.first + pair.second; 
 
 //expect:3
+
+class Scone {
+  topping(first, second) {
+    print "scone with " + first + " and " + second;
+  }
+}
+
+const scone = Scone();
+scone.topping("berries", "cream");
+//expect:scone with berries and cream

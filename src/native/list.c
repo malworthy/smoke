@@ -91,6 +91,9 @@ static void concatValue(char* str, Value value)
                 case OBJ_FUNCTION:
                     sprintf(str, "%s", "<function>");
                     break;
+                case OBJ_BOUND_METHOD:
+                    sprintf(str, "%s", "<method>");
+                    break;
                 case OBJ_NATIVE:
                     sprintf(str, "%s", "<native fn>");
                     break;
@@ -148,6 +151,8 @@ static int getValueLength(Value value)
                 }
                 case OBJ_FUNCTION:
                     return 11;
+                case OBJ_BOUND_METHOD:
+                    return 9;
                 case OBJ_NATIVE:
                     return 12;
                 case OBJ_CLOSURE:
