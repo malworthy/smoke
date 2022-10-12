@@ -22,3 +22,34 @@ class Scone {
 const scone = Scone();
 scone.topping("berries", "cream");
 //expect:scone with berries and cream
+
+class CoffeeMaker {
+  init(coffee) {
+    me.coffee = coffee;
+  }
+
+  brew() {
+    print "Enjoy your cup of %{me.coffee}";
+
+    // No reusing the grounds!
+    me.coffee = "";
+  }
+}
+
+const maker = CoffeeMaker("coffee and chicory");
+maker.brew();
+//expect:Enjoy your cup of coffee and chicory
+
+class Oops {
+  init() {
+    fn f() {
+      print "not a method";
+    }
+
+    me.field = f;
+  }
+}
+
+const oops = Oops();
+oops.field();
+//expect:not a method
