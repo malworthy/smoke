@@ -122,6 +122,7 @@ ObjString* copyString(const char* chars, int length);
 ObjString* copyStringRaw(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
 ObjList* newList();
+bool compareStrings(char* chars, int length, ObjString* compareString);
 //void printObject(Value value);
 int stringifyObject(Value value, char* str);
 int stringifyObjectLength(Value value);

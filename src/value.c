@@ -35,11 +35,12 @@ void freeValueArray(ValueArray* array)
 
 void printValue(Value value) 
 {
-    char* buffer = ALLOCATE(char, stringifyValueLength(value) + 1);
-
+    //char* buffer = ALLOCATE(char, stringifyValueLength(value) + 1);
+    char* buffer = (char*)malloc(stringifyValueLength(value) + 1);
     stringifyValue(value, buffer);
     printf("%s", buffer);
-    FREE(char, buffer);
+    free(buffer);
+    //FREE(char, buffer);
 }
 
 bool valuesEqual(Value a, Value b)

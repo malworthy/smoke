@@ -1,17 +1,1 @@
-print "before bug";
-{
-    var x = 0;
-    for i in [1..5] 
-    { 
-        x = x - 2;
-    }
-    print x;
-}
-//expect:500
-print "after bug"
-
-for count in [0..2]
-{
-    print "hello";
-    print "again";
-}
+print dateadd(now(),"year",1700)

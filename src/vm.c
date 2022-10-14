@@ -16,6 +16,7 @@
 #include "native/filesys.h"
 #include "native/fileio.h"
 #include "native/stringutil.h"
+#include "native/date.h"
 
 VM vm; 
 
@@ -24,11 +25,11 @@ static bool clockNative(int argCount, Value* args) {
     return true;
 }
 
-static bool nowNative(int argCount, Value* args)
+/*static bool nowNative(int argCount, Value* args)
 {
     args[-1] = DATETIME_VAL(time(NULL));
     return true;
-}
+}*/
 
 static double getRandomNumber(int max)
 {
@@ -145,6 +146,8 @@ void initVM()
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
     defineNative("now", nowNative, 0);
+    defineNative("date", dateNative, 1);
+    defineNative("dateadd", dateaddNative, 3);
     defineNative("rand", randNative, 1);
 
     // CONSOLE

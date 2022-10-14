@@ -122,6 +122,17 @@ static uint32_t hashString(const char* key, int length)
     return hash;
 }
 
+bool compareStrings(char* chars, int length, ObjString* compareString) 
+{
+    uint32_t hash = hashString(chars, length);
+    ObjString* interned = tableFindString(&vm.strings, chars, length,
+                                        hash);
+    if (interned != NULL) 
+        return interned == compareString;
+
+    return false;
+}
+
 ObjString* takeString(char* chars, int length) 
 {
     uint32_t hash = hashString(chars, length);
@@ -209,62 +220,7 @@ ObjUpvalue* newUpvalue(Value* slot)
 
     return upvalue;
 }
-/*
-static void printFunction(ObjFunction* function) 
-{
-    if (function->name == NULL) 
-    {
-        printf("<script>");
-        return;
-    }
-    printf("<fn %s>", function->name->chars);
-}
 
-static void printList(ObjList* list)
-{
-    printf("[");
-    for(int i = 0; i < list->elements.count; i++)
-    {
-        if(i > 0) printf(", ");
-        printValue(list->elements.values[i]);
-    }
-    printf("]");
-}
-
-void printObject(Value value) 
-{
-    switch (OBJ_TYPE(value)) 
-    {
-        case OBJ_STRING:
-            printf("%s", AS_CSTRING(value));
-            break;
-        case OBJ_FUNCTION:
-            printFunction(AS_FUNCTION(value));
-            break;
-        case OBJ_NATIVE:
-            printf("<native fn>");
-            break;
-        case OBJ_CLOSURE:
-            printFunction(AS_CLOSURE(value)->function);
-            break;
-        case OBJ_UPVALUE:
-            printf("upvalue");
-            break;
-        case OBJ_LIST:
-            printList(AS_LIST(value));
-            break;
-        case OBJ_CLASS:
-            printf("%s", AS_CLASS(value)->name->chars);
-            break;
-        case OBJ_INSTANCE:
-            printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
-            break;
-        case OBJ_BOUND_METHOD:
-             printFunction(AS_BOUND_METHOD(value)->method->function);
-            break;
-    }
-}
-*/
 static int stringifyFunction(ObjFunction* function, char* str)
 {
     if (function->name == NULL)
