@@ -34,7 +34,7 @@ typedef enum {
     OP_GET_UPVALUE,
     OP_SET_UPVALUE,
     OP_CLOSE_UPVALUE,
-    OP_NEW_OBJ,
+    OP_NEW_LIST,
     OP_LIST_ADD,
     OP_RANGE,
     OP_JOIN,

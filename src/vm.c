@@ -778,9 +778,7 @@ static InterpretResult run()
                 INC_DEC_OP(*frame->closure->upvalues[slot]->location,-1);
                 break;
             }
-            case OP_NEW_OBJ: {
-                uint8_t objType = READ_BYTE();
-                //objType for future use - for now only create a list
+            case OP_NEW_LIST: {
                 push(OBJ_VAL(newList()));
                 break;
             }

@@ -137,8 +137,8 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return byteInstruction("OP_GET_UPVALUE", chunk, offset);
         case OP_SET_UPVALUE:
             return byteInstruction("OP_SET_UPVALUE", chunk, offset);
-        case OP_NEW_OBJ:
-            return byteInstruction("OP_NEW_OBJ", chunk, offset);
+        case OP_NEW_LIST:
+            return simpleInstruction("OP_NEW_LIST", offset);
         case OP_JUMP:
             return jumpInstruction("OP_JUMP", 1, chunk, offset);
         case OP_JUMP_IF_FALSE:

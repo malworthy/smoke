@@ -624,7 +624,7 @@ static void unary(bool canAssign)
 
 static void list(bool canAssign)
 {
-    emitBytes(OP_NEW_OBJ, OBJ_LIST);
+    emitByte(OP_NEW_LIST);
  
     do
     {
@@ -683,7 +683,7 @@ static void subscript(bool canAssign)
 static void interpolation(bool canAssign)
 {
     // Create a new list
-    emitBytes(OP_NEW_OBJ, OBJ_LIST);  
+    emitByte(OP_NEW_LIST);  
 
     do
     {
