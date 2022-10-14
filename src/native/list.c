@@ -71,7 +71,7 @@ bool rangeNative(int argCount, Value* args)
 
     return true;
 }
-
+/*
 static void concatValue(char* str, Value value) 
 {
     switch (value.type) 
@@ -173,13 +173,14 @@ static int getValueLength(Value value)
             return 4;
     }
 }
+*/
 
 Value join(ObjList* list)
 {
     // work out how much memory we need for the joined string
     int resultLength = 0;
     for(int i=0; i < list->elements.count; i++)
-        resultLength += getValueLength(list->elements.values[i]);
+        resultLength += stringifyValueLength(list->elements.values[i]);
 
     char* result = ALLOCATE(char, resultLength); 
     result[0] = '\0';
@@ -187,7 +188,7 @@ Value join(ObjList* list)
     for(int i=0; i < list->elements.count; i++)
     {
         Value val = list->elements.values[i];
-        concatValue(result + strlen(result), val);
+        stringifyValue(val, result + strlen(result));
     }   
 
     Value joined = OBJ_VAL(takeString(result, (int)strlen(result)));

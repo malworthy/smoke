@@ -122,7 +122,9 @@ ObjString* copyString(const char* chars, int length);
 ObjString* copyStringRaw(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
 ObjList* newList();
-void printObject(Value value);
+//void printObject(Value value);
+int stringifyObject(Value value, char* str);
+int stringifyObjectLength(Value value);
 
 static inline bool isObjType(Value value, ObjType type) 
 {

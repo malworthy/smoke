@@ -2,6 +2,7 @@
 #define min_value_h
 
 #include "common.h"
+#include <time.h>
 
 typedef struct Obj Obj;
 typedef struct ObjString ObjString;
@@ -52,5 +53,7 @@ void writeValueArray(ValueArray* array, Value value);
 void freeValueArray(ValueArray* array);
 void printValue(Value value);
 bool valuesEqual(Value a, Value b);
+int stringifyValue(Value value, char* str);
+int stringifyValueLength(Value value);
 
 #endif

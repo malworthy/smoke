@@ -35,29 +35,11 @@ void freeValueArray(ValueArray* array)
 
 void printValue(Value value) 
 {
-    switch (value.type) 
-    {
-        case VAL_BOOL:
-            printf(AS_BOOL(value) ? "true" : "false");
-            break;
-        case VAL_NUMBER: 
-            printf("%g", AS_NUMBER(value)); 
-            break;
-         case VAL_OBJ: 
-            printObject(value); 
-            break;
-        case VAL_NIL:
-            printf("NIL");
-            break;
-        case VAL_DATETIME: {
-            time_t t = AS_DATETIME(value);
-            struct tm *tm = localtime(&t);
-            char s[64];
-            strftime(s, sizeof(s), "%c", tm);
-            printf("%s", s);
-            break;
-        }
-    }
+    char* buffer = ALLOCATE(char, stringifyValueLength(value) + 1);
+
+    stringifyValue(value, buffer);
+    printf("%s", buffer);
+    FREE(char, buffer);
 }
 
 bool valuesEqual(Value a, Value b)
@@ -70,5 +52,51 @@ bool valuesEqual(Value a, Value b)
         case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
         case VAL_OBJ:    return AS_OBJ(a) == AS_OBJ(b);
         default:         return false; // Unreachable.
+    }
+}
+
+int stringifyValue(Value value, char* str)
+{
+    switch (value.type)
+    {
+        case VAL_BOOL:
+            return sprintf(str, "%s", AS_BOOL(value) ? "true" : "false");
+        case VAL_NUMBER:
+            return sprintf(str, "%g", AS_NUMBER(value));
+         case VAL_OBJ:
+            return stringifyObject(value, str);
+        case VAL_NIL:
+            return sprintf(str, "%s", "NIL");
+        case VAL_DATETIME: {
+            time_t t = AS_DATETIME(value);
+            struct tm *tm = localtime(&t);
+            char s[64];
+            strftime(s, sizeof(s), "%c", tm);
+            return sprintf(str, "%s", s);
+        }
+    }
+}
+
+int stringifyValueLength(Value value)
+{
+    switch (value.type)
+    {
+        case VAL_BOOL:
+            return AS_BOOL(value) ? 4 : 5;
+        case VAL_NUMBER:  {
+            char str[100];
+            return sprintf(str, "%g", AS_NUMBER(value));
+        }
+        case VAL_OBJ:
+            return stringifyObjectLength(value);
+        case VAL_NIL:
+            return 3;
+        case VAL_DATETIME: {
+            time_t t = AS_DATETIME(value);
+            struct tm *tm = localtime(&t);
+            char str[64];
+            strftime(str, sizeof(str), "%c", tm);
+            return strlen(str);
+        }
     }
 }

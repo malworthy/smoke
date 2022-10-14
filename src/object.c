@@ -209,7 +209,7 @@ ObjUpvalue* newUpvalue(Value* slot)
 
     return upvalue;
 }
-
+/*
 static void printFunction(ObjFunction* function) 
 {
     if (function->name == NULL) 
@@ -262,5 +262,100 @@ void printObject(Value value)
         case OBJ_BOUND_METHOD:
              printFunction(AS_BOUND_METHOD(value)->method->function);
             break;
+    }
+}
+*/
+static int stringifyFunction(ObjFunction* function, char* str)
+{
+    if (function->name == NULL)
+    {
+        return sprintf(str, "%s", "<script>");
+    }
+    return sprintf(str, "<fn %s>", function->name->chars);
+}
+
+static int stringifyList(ObjList* list, char* str)
+{
+    char* begin = str;
+    sprintf(str, "%s", "[");
+    str++;
+    for(int i = 0; i < list->elements.count; i++)
+    {
+        if(i > 0)
+        {
+            sprintf(str, "%s", ", ");
+            str +=2 ;
+        }
+        str += stringifyValue(list->elements.values[i], str);
+    }
+    sprintf(str, "%s", "]");
+    str++;
+
+    return (str - begin);
+}
+
+int stringifyObject(Value value, char* str)
+{
+    switch (OBJ_TYPE(value))
+    {
+        case OBJ_STRING:
+            return sprintf(str, "%s", AS_CSTRING(value));
+        case OBJ_FUNCTION:
+            return stringifyFunction(AS_FUNCTION(value), str);
+        case OBJ_NATIVE:
+            return sprintf(str, "%s", "<native fn>");
+        case OBJ_CLOSURE:
+            return stringifyFunction(AS_CLOSURE(value)->function, str);
+        case OBJ_UPVALUE:
+            return sprintf(str, "%s", "upvalue");
+        case OBJ_LIST:
+            return stringifyList(AS_LIST(value), str);
+        case OBJ_CLASS:
+            return sprintf(str, "%s", AS_CLASS(value)->name->chars);
+        case OBJ_INSTANCE:
+            return sprintf(str, "%s instance", AS_INSTANCE(value)->klass->name->chars);
+        case OBJ_BOUND_METHOD:
+            return stringifyFunction(AS_BOUND_METHOD(value)->method->function, str);
+    }
+}
+
+static int stringifyListLength(ObjList* list)
+{
+    int total = 2; // count '[' at start and ']' at end
+
+    for(int i = 0; i < list->elements.count; i++)
+    {
+        if(i > 0)
+        {
+            total +=2; // ', '
+        }
+        total += stringifyValueLength(list->elements.values[i]);
+    }
+
+    return total;
+}
+
+int stringifyObjectLength(Value value)
+{
+    switch (OBJ_TYPE(value))
+    {
+        case OBJ_STRING:
+            return AS_STRING(value)->length;
+        case OBJ_FUNCTION:
+            return AS_FUNCTION(value)->name == NULL ? 8 : AS_FUNCTION(value)->name->length;
+        case OBJ_NATIVE:
+            return 11;
+        case OBJ_CLOSURE:
+            return AS_CLOSURE(value)->function->name == NULL ? 8 : AS_CLOSURE(value)->function->name->length;
+        case OBJ_UPVALUE:
+            return 7;
+        case OBJ_LIST:
+            return stringifyListLength(AS_LIST(value));
+        case OBJ_CLASS:
+            return AS_CLASS(value)->name->length;
+        case OBJ_INSTANCE:
+            return AS_INSTANCE(value)->klass->name->length + 9;
+        case OBJ_BOUND_METHOD:
+            return AS_BOUND_METHOD(value)->method->function->name == NULL ? 8 : AS_BOUND_METHOD(value)->method->function->name->length;
     }
 }
