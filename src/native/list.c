@@ -182,7 +182,7 @@ Value join(ObjList* list)
     for(int i=0; i < list->elements.count; i++)
         resultLength += stringifyValueLength(list->elements.values[i]);
 
-    char* result = ALLOCATE(char, resultLength); 
+    char* result = ALLOCATE(char, resultLength + 1); 
     result[0] = '\0';
 
     for(int i=0; i < list->elements.count; i++)

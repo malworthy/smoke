@@ -342,11 +342,11 @@ int stringifyObjectLength(Value value)
         case OBJ_STRING:
             return AS_STRING(value)->length;
         case OBJ_FUNCTION:
-            return AS_FUNCTION(value)->name == NULL ? 8 : AS_FUNCTION(value)->name->length;
+            return AS_FUNCTION(value)->name == NULL ? 8 : AS_FUNCTION(value)->name->length + 5;
         case OBJ_NATIVE:
             return 11;
         case OBJ_CLOSURE:
-            return AS_CLOSURE(value)->function->name == NULL ? 8 : AS_CLOSURE(value)->function->name->length;
+            return AS_CLOSURE(value)->function->name == NULL ? 8 : AS_CLOSURE(value)->function->name->length + 5;
         case OBJ_UPVALUE:
             return 7;
         case OBJ_LIST:
@@ -356,6 +356,6 @@ int stringifyObjectLength(Value value)
         case OBJ_INSTANCE:
             return AS_INSTANCE(value)->klass->name->length + 9;
         case OBJ_BOUND_METHOD:
-            return AS_BOUND_METHOD(value)->method->function->name == NULL ? 8 : AS_BOUND_METHOD(value)->method->function->name->length;
+            return AS_BOUND_METHOD(value)->method->function->name == NULL ? 8 : AS_BOUND_METHOD(value)->method->function->name->length + 5;
     }
 }
