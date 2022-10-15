@@ -22,6 +22,13 @@
         return false; \
     }
 
+#define CHECK_LIST(argnum, msg) \
+    if (!IS_LIST(args[argnum])) \
+    { \
+        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg))); \
+        return false; \
+    }
+
 #define NATIVE_ERROR(msg) \
     args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg))); \
     return false;

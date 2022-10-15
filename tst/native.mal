@@ -1,0 +1,7 @@
+print len("hello")
+//expect:5
+print len([1,2,3,4,5,6,7])
+//expect:7
+
+print join(["hello",true,7,[1,2]])
+//expect:hellotrue7[1, 2]

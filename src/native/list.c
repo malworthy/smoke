@@ -4,18 +4,14 @@
 #include <time.h>
 
 #include "list.h"
+#include "native.h"
 #include "../vm.h"
 #include "../memory.h"
 
 bool addNative(int argCount, Value* args)
 {
-    if (!IS_LIST(args[0]))
-    {
-        char* msg = "Parameter 1 of add must be a list";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+    CHECK_LIST(0, "Parameter 1 of add must be a list");
 
-        return false;
-    }
     ObjList* list = AS_LIST(args[0]);
     writeValueArray(&list->elements, args[1]);
     return true;
@@ -33,26 +29,21 @@ bool lenNative(int argCount, Value* args)
 
     if (IS_STRING(args[0]))
     {
-        char* s = AS_CSTRING(args[0]);
-        args[-1] = NUMBER_VAL(strlen(s));
+        ObjString* string = AS_STRING(args[0]);
+        args[-1] = NUMBER_VAL(string->length);
         
         return true;
     }
-    
-    char* msg = "len only available for strings and lists";
-    args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
 
-    return false;
+    NATIVE_ERROR("len only available for strings and lists");
+    
 }
 
 bool rangeNative(int argCount, Value* args)
 {
     if (!IS_NUMBER(args[1]) || !IS_NUMBER(args[2]))
     {
-        char* msg = "Only numbers can be used to create a range";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
+        NATIVE_ERROR("Only numbers can be used to create a range");
     }
 
     int start = (int)AS_NUMBER(args[1]);
@@ -81,27 +72,21 @@ Value join(ObjList* list)
 
     char* result = ALLOCATE(char, resultLength + 1); 
     result[0] = '\0';
-
+    int length = 0;
     for(int i=0; i < list->elements.count; i++)
     {
         Value val = list->elements.values[i];
-        stringifyValue(val, result + strlen(result));
+        length += stringifyValue(val, result + length /* strlen(result)*/);
     }   
 
-    Value joined = OBJ_VAL(takeString(result, (int)strlen(result)));
+    Value joined = OBJ_VAL(takeString(result, resultLength /*(int)strlen(result)*/));
 
     return joined;
 }
 
 bool joinNative(int argCount, Value* args)
-{
-    if (!IS_LIST(args[0]))
-    {
-        char* msg = "Only a list can be joined";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
-    }
+{ 
+    CHECK_LIST(0, "Only a list can be joined");
 
     ObjList* list = AS_LIST(args[0]);
 

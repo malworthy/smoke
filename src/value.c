@@ -98,8 +98,8 @@ int stringifyValueLength(Value value)
             time_t t = AS_DATETIME(value);
             struct tm *tm = localtime(&t);
             char str[64];
-            strftime(str, sizeof(str), DATE_FMT, tm);
-            return strlen(str);
+            return strftime(str, sizeof(str), DATE_FMT, tm);
+            //return strlen(str);
         }
     }
 }

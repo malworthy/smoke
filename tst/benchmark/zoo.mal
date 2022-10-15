@@ -1,0 +1,36 @@
+class Zoo {
+  init() {
+    me.aardvark = 1;
+    me.baboon   = 1;
+    me.cat      = 1;
+    me.donkey   = 1;
+    me.elephant = 1;
+    me.fox      = 1;
+  }
+  ant()    { return me.aardvark; }
+  banana() { return me.baboon; }
+  tuna()   { return me.cat; }
+  hay()    { return me.donkey; }
+  grass()  { return me.elephant; }
+  mouse()  { return me.fox; }
+}
+
+fn main()
+{
+    var zoo = Zoo();
+    var sum = 0;
+    var start = clock();
+    while (sum < 100000000) do {
+    sum = sum + zoo.ant()
+                + zoo.banana()
+                + zoo.tuna()
+                + zoo.hay()
+                + zoo.grass()
+                + zoo.mouse();
+    }
+
+    print clock() - start;
+    print sum;
+}
+
+main()
