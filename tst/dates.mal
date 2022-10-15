@@ -1,0 +1,31 @@
+fn printDate(dte)
+{
+    var parts = dateparts(dte)
+    print "date: %{parts[0]}-%{parts[1]}-%{parts[2]} %{parts[3]}:%{parts[4]}:%{parts[5]}"
+}
+
+fn start()
+{
+    var d = now()
+    var strDate = "%{d}"
+    if len(strDate) > 6 then print "worked"
+
+    d = date("2022-10-15 00:00:00")
+    printDate(d)
+    printDate(dateadd(d,"day",2))
+    printDate(dateadd(d,"month",1))
+    printDate(dateadd(d,"year",1))
+    printDate(dateadd(d,"hour",2))
+    printDate(dateadd(d,"min",2))
+    printDate(dateadd(d,"sec",2))
+}
+
+start()
+//expect:worked
+//expect:date: 2022-10-15 0:0:0
+//expect:date: 2022-10-17 0:0:0
+//expect:date: 2022-11-15 0:0:0
+//expect:date: 2023-10-15 0:0:0
+//expect:date: 2022-10-15 2:0:0
+//expect:date: 2022-10-15 0:2:0
+//expect:date: 2022-10-15 0:0:2

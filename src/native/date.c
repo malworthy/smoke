@@ -15,6 +15,39 @@ bool nowNative(int argCount, Value* args)
     return true;
 }
 
+bool datepartsNative(int argCount, Value* args)
+{
+    CHECK_DATE(0, "dateparts() expects a date");
+    struct tm * timeinfo = localtime(&AS_DATETIME(args[0]));
+
+    ObjList* list = newList();
+    push(OBJ_VAL(list)); // stop list being garbage collected
+
+    Value val = NUMBER_VAL((double)timeinfo->tm_year + 1900);
+    writeValueArray(&list->elements, val);
+
+    val = NUMBER_VAL((double)timeinfo->tm_mon + 1);
+    writeValueArray(&list->elements, val);
+
+    val = NUMBER_VAL((double)timeinfo->tm_mday);
+    writeValueArray(&list->elements, val);
+
+    val = NUMBER_VAL((double)timeinfo->tm_hour);
+    writeValueArray(&list->elements, val);
+
+    val = NUMBER_VAL((double)timeinfo->tm_min);
+    writeValueArray(&list->elements, val);
+
+    val = NUMBER_VAL((double)timeinfo->tm_sec);
+    writeValueArray(&list->elements, val);
+
+    args[-1] = OBJ_VAL(list);
+
+    pop();
+    
+    return true;
+}
+
 bool dateNative(int argCount, Value* args)
 {
     CHECK_STRING(0, "date() expect a string");
@@ -124,7 +157,7 @@ bool dateaddNative(int argCount, Value* args)
     {
         NATIVE_ERROR("Invalid Interval");
     }
-    
+
     if (timeinfo->tm_year+1900 < 1970 || timeinfo->tm_year+1900 > 3000)
     {
         NATIVE_ERROR("Invalid Date: Year must be between 1970 and 3000");

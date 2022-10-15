@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "object.h"
 #include "memory.h"
@@ -49,10 +50,11 @@ bool valuesEqual(Value a, Value b)
 
     switch (a.type) 
     {
-        case VAL_BOOL:   return AS_BOOL(a) == AS_BOOL(b);
-        case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
-        case VAL_OBJ:    return AS_OBJ(a) == AS_OBJ(b);
-        default:         return false; // Unreachable.
+        case VAL_BOOL:      return AS_BOOL(a) == AS_BOOL(b);
+        case VAL_NUMBER:    return AS_NUMBER(a) == AS_NUMBER(b);
+        case VAL_OBJ:       return AS_OBJ(a) == AS_OBJ(b);
+        case VAL_DATETIME:  return AS_DATETIME(a) == AS_DATETIME(b);
+        default:            return false; // Unreachable.
     }
 }
 
@@ -72,7 +74,7 @@ int stringifyValue(Value value, char* str)
             time_t t = AS_DATETIME(value);
             struct tm *tm = localtime(&t);
             char s[64];
-            strftime(s, sizeof(s), "%c", tm);
+            strftime(s, sizeof(s), DATE_FMT, tm);
             return sprintf(str, "%s", s);
         }
     }
@@ -96,7 +98,7 @@ int stringifyValueLength(Value value)
             time_t t = AS_DATETIME(value);
             struct tm *tm = localtime(&t);
             char str[64];
-            strftime(str, sizeof(str), "%c", tm);
+            strftime(str, sizeof(str), DATE_FMT, tm);
             return strlen(str);
         }
     }

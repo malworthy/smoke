@@ -148,6 +148,7 @@ void initVM()
     defineNative("now", nowNative, 0);
     defineNative("date", dateNative, 1);
     defineNative("dateadd", dateaddNative, 3);
+    defineNative("dateparts", datepartsNative, 1);
     defineNative("rand", randNative, 1);
 
     // CONSOLE
@@ -516,6 +517,26 @@ static InterpretResult run()
     #define READ_CONSTANT() \
         (frame->closure->function->chunk.constants.values[READ_BYTE()])
         
+    #define COMPARE_OP(valueType, op) \
+        do { \
+            if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) { \
+                double b = AS_NUMBER(pop()); \
+                double a = AS_NUMBER(pop()); \
+                push(valueType(a op b)); \
+            } \
+            else if (IS_DATETIME(peek(0)) && IS_DATETIME(peek(1))) \
+            { \
+                time_t b = AS_DATETIME(pop()); \
+                time_t a = AS_DATETIME(pop()); \
+                push(valueType(a op b)); \
+            } \
+            else \
+            { \
+                runtimeError("Operands must be numbers or dates."); \
+                return INTERPRET_RUNTIME_ERROR; \
+            } \
+        } while (false)
+
     #define BINARY_OP(valueType, op) \
         do { \
             if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
@@ -540,8 +561,6 @@ static InterpretResult run()
             AS_NUMBER(val) += (double)number; \
             value = val; \
         } while (false)
-        
-        
 
     #define READ_STRING() AS_STRING(READ_CONSTANT())
 
@@ -576,8 +595,8 @@ static InterpretResult run()
                 push(BOOL_VAL(valuesEqual(a, b)));
                 break;
             }
-            case OP_GREATER:    BINARY_OP(BOOL_VAL, >); break;
-            case OP_LESS:       BINARY_OP(BOOL_VAL, <); break;
+            case OP_GREATER:    COMPARE_OP(BOOL_VAL, >); break;
+            case OP_LESS:       COMPARE_OP(BOOL_VAL, <); break;
             case OP_ADD:        
                 if (IS_STRING(peek(0)) && IS_STRING(peek(1))) 
                 {
@@ -859,6 +878,7 @@ static InterpretResult run()
     #undef READ_STRING
     #undef READ_SHORT
     #undef INC_DEC_OP
+    #undef COMPARE_OP
 }
 
 InterpretResult interpret(const char* source) 

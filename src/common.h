@@ -9,6 +9,7 @@
 #define UINT8_COUNT (255 + 1)
 #define UINT16_T_MAX 0xFFFF
 #define UINT8_T_MAX 0xFF
+#define DATE_FMT "%c"
 
 #include <stdbool.h>
 #include <stddef.h>
