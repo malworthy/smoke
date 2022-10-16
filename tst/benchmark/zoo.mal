@@ -34,3 +34,4 @@ fn main()
 }
 
 main()
+print "expect 7-8 secs\n"

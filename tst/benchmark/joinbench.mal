@@ -7,5 +7,5 @@ fn main()
 print "-- start --";
 const start = clock();
 main();
-print "should take around 10 secs."
+print "should take around 3-4 secs."
 print "Took: %{clock() - start} secs";

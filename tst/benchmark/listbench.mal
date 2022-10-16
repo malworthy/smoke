@@ -1,7 +1,7 @@
 fn doit(x)
 {
     var y = -20;
-    for x in [1..10000]
+    for x in [1..20000]
     {
         if x == y * -1 then
             y = 5;
@@ -17,7 +17,7 @@ fn main()
     var num = 0;
     var total = 0;
 
-    for i in [1..6000]
+    for i in [1..8000]
     {
         num = (i * 2.5) / 2.4;
         add(list, num);
@@ -32,5 +32,6 @@ const start = clock();
 print("Total is: %{main()}");
 print "-- finished --";
 print clock() - start;
+print "expect 11-12 secs\n"
 
 // expected 10-11 secs

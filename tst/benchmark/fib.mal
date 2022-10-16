@@ -9,3 +9,4 @@ fn fib(n) {
 const start = clock();
 print fib(40);
 print clock() - start;
+print "expect 11 secs (make sure you disable stress gc and build release version!)\n"
