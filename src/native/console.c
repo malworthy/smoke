@@ -134,6 +134,16 @@ bool backColorNative(int argCount, Value* args)
     return true;
 }
 
+bool cursoffNative(int argCount, Value* args)
+{
+    if(AS_BOOL(args[0]))
+        printf("\e[?25l");
+    else
+        printf("\e[?25h");
+
+    return true;
+}
+
 bool inputNative(int argCount, Value* args) 
 {
     char line[1024];

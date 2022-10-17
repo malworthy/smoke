@@ -13,5 +13,6 @@ bool backColorNative(int argCount, Value* args);
 bool inputNative(int argCount, Value* args);
 bool kbhitNative(int argCount, Value* args);
 bool getchNative(int argCount, Value* args);
-
+bool cursoffNative(int argCount, 
+        Value* args);
 #endif

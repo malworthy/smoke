@@ -153,6 +153,7 @@ void initVM()
     defineNative("input", inputNative, 0);
     defineNative("kbhit", kbhitNative, 0);
     defineNative("getch", getchNative, 0);
+    defineNative("cursoff", cursoffNative, 1);
 
     // LISTS
     defineNative("add", addNative, 2);
