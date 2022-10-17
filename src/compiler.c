@@ -57,7 +57,8 @@ typedef enum {
     TYPE_FUNCTION,
     TYPE_SCRIPT,
     TYPE_METHOD,
-    TYPE_INITIALIZER
+    TYPE_INITIALIZER,
+    TYPE_ANON
 } FunctionType;
 
 typedef struct Compiler {
@@ -85,6 +86,7 @@ static void parsePrecedence(Precedence precedence);
 static void statement();
 static void declaration();
 static uint8_t argumentList(); 
+static void function(FunctionType type);
 
 static Chunk* currentChunk() 
 {
@@ -249,7 +251,7 @@ static void initCompiler(Compiler* compiler, FunctionType type)
     compiler->function = newFunction();
     current = compiler;
 
-    if (type != TYPE_SCRIPT) 
+    if (type != TYPE_SCRIPT && type != TYPE_ANON) 
     {
         current->function->name = copyStringRaw(parser.previous.start,
                                             parser.previous.length);
@@ -257,7 +259,7 @@ static void initCompiler(Compiler* compiler, FunctionType type)
 
     Local* local = &current->locals[current->localCount++];
     local->depth = 0;
-    if (type != TYPE_FUNCTION) 
+    if (type != TYPE_FUNCTION && type != TYPE_ANON) 
     {
         local->name.start = "me";
         local->name.length = 2;
@@ -711,6 +713,11 @@ static void interpolation(bool canAssign)
     emitByte(OP_JOIN);
 }
 
+static void fn(bool canAssign)
+{
+    function(TYPE_ANON);
+}
+
 ParseRule rules[] = 
 {
     [TOKEN_INTERPOLATION] = {interpolation, NULL,   PREC_NONE},
@@ -744,7 +751,7 @@ ParseRule rules[] =
     [TOKEN_ELSE]          = {NULL,     NULL,        PREC_NONE},
     [TOKEN_FALSE]         = {literal,  NULL,        PREC_NONE},
     [TOKEN_FOR]           = {NULL,     NULL,        PREC_NONE},
-    [TOKEN_FN]            = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_FN]            = {fn,       NULL,        PREC_NONE},
     [TOKEN_IF]            = {NULL,     NULL,        PREC_NONE},
     //[TOKEN_NIL]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_OR]            = {NULL,     or_,         PREC_OR},
