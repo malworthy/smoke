@@ -11,5 +11,7 @@ bool clearNative(int argCount, Value* args);
 bool textColorNative(int argCount, Value* args);
 bool backColorNative(int argCount, Value* args);
 bool inputNative(int argCount, Value* args);
+bool kbhitNative(int argCount, Value* args);
+bool getchNative(int argCount, Value* args);
 
 #endif

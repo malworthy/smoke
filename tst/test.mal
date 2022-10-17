@@ -1,1 +1,22 @@
-print dateadd(now(),"year",1700)
+fn start()
+{
+    clear()
+    var hits = 0
+    var key = 0
+    var i = 0
+    while true do
+    {
+         hits = kbhit() 
+         
+         if hits > 0 then 
+         {
+            key = getch()
+            locate(1,1)
+            write("Key Pressed %{key}.  Hits %{hits}")
+         }
+         locate(10,10)
+         write("Counter: %{i++}")
+    }
+}
+
+start()

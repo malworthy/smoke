@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include <string.h>
+#if defined(_WIN32)
+    #include <conio.h>
+#else
+    #include "conio.h"
+#endif
 
 #include "console.h"
+#include "native.h"
 
  enum Code {
     FG_BLACK        = 30,
@@ -35,30 +41,36 @@
 
 };
 
+bool kbhitNative(int argCount, Value* args) 
+{
+    int result = _kbhit();
+    args[-1] = NUMBER_VAL(result);
+    return true;
+}
+
+bool getchNative(int argCount, Value* args) 
+{
+    int result = _getch();
+    args[-1] = NUMBER_VAL(result);
+    return true;
+}
+
 bool writeNative(int argCount, Value* args) 
 {
-    // todo - make sure it's a string
-    if (IS_STRING(args[0]))
-    {
-        char* string = AS_CSTRING(args[0]);
-        printf("%s", string);
-        return true;
-    }
-    if (IS_NUMBER(args[0]))
-    {
-        double num = AS_NUMBER(args[0]);
-        printf("%f", num);
-        return true;
-    }
+    CHECK_STRING(0, "Argument to write() must be a string.");
 
-    char* msg = "can only write strings or numbers";
-    args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
+    char* string = AS_CSTRING(args[0]);
 
-    return false;
+    printf("%s", string);
+    
+    return true;
 }
 
 bool locateNative(int argCount, Value* args) 
 {
+    CHECK_NUM(0, "Argument 1 of locate must be a number");
+    CHECK_NUM(1, "Argument 2 of locate must be a number");
+
     int x = (int)AS_NUMBER(args[0]);
     int y = (int)AS_NUMBER(args[1]);
     printf("%c[%d;%df",0x1B,y,x);
@@ -102,6 +114,8 @@ static int getColorCode(char* color, bool isBackground)
 
 bool textColorNative(int argCount, Value* args) 
 {
+    CHECK_STRING(0, "Parameter to textcolor must be a string");
+
     char* color = AS_CSTRING(args[0]);
 
     printf("%c[%dm",0x1B, getColorCode(color, false));
@@ -111,6 +125,8 @@ bool textColorNative(int argCount, Value* args)
 
 bool backColorNative(int argCount, Value* args) 
 {
+    CHECK_STRING(0, "Parameter to backcolor must be a string");
+    
     char* color = AS_CSTRING(args[0]);
 
     printf("%c[%dm",0x1B, getColorCode(color, true));
@@ -142,5 +158,3 @@ bool inputNative(int argCount, Value* args)
 
     return true;
 }
-
-//fgets(line, sizeof(line), stdin)

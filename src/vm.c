@@ -25,12 +25,6 @@ static bool clockNative(int argCount, Value* args) {
     return true;
 }
 
-/*static bool nowNative(int argCount, Value* args)
-{
-    args[-1] = DATETIME_VAL(time(NULL));
-    return true;
-}*/
-
 static double getRandomNumber(int max)
 {
     return floor((double)rand() / ((double)RAND_MAX + 1) * max);
@@ -77,7 +71,6 @@ static bool argsNative(int argCount, Value* args) {
     args[-1] = OBJ_VAL(list);
 
     pop();
-
     
     return true;
 }
@@ -158,6 +151,8 @@ void initVM()
     defineNative("textColor", textColorNative, 1);
     defineNative("backColor", backColorNative, 1);
     defineNative("input", inputNative, 0);
+    defineNative("kbhit", kbhitNative, 0);
+    defineNative("getch", getchNative, 0);
 
     // LISTS
     defineNative("add", addNative, 2);

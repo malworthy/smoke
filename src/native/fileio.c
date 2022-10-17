@@ -7,28 +7,19 @@
 #include "../value.h"
 #include "../object.h"
 #include "../vm.h"
+#include "native.h"
 
 #define BUFFER_SIZE 200
 
-
 bool readlinesNative(int argCount, Value* args)
 {
-    if (!IS_STRING(args[0]))
-    {
-        char* msg = "Parameter 1 must be a string for function readline()";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
-    }
+    CHECK_STRING(0, "Parameter 1 must be a string for function readline()");
 
     char const* const fileName = AS_CSTRING(args[0]); 
     FILE* file = fopen(fileName, "r");
     if (file == NULL)
     {
-        char* msg = "Could not open file";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
+        NATIVE_ERROR("Could not open file");
     }
 
     char buffer[BUFFER_SIZE];
@@ -36,7 +27,6 @@ bool readlinesNative(int argCount, Value* args)
     int lineLength = BUFFER_SIZE;
 
     line[0] = '\0';
-    //int i = 0;
     int buffCount = 0;
     
     ObjList* list = newList();

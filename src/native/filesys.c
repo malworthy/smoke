@@ -7,8 +7,8 @@
 #include "../object.h"
 #include "../vm.h"
 #include "tinydir.h"
-
 #include "filesys.h"
+#include "native.h"
 
 bool runNative(int argCount, Value* args)
 {
@@ -44,18 +44,11 @@ bool runNative(int argCount, Value* args)
         strcat(output, buffer);
     }
 
-    if (output != NULL)
-        printf("output: |%s|", output);
-    else
-        printf("no output");    
-
     #if defined(_WIN32)
         int returnCode = _pclose(file);
     #else
         int returnCode = pclose(file);
     #endif
-
-    printf("return code: %d", returnCode);
 
     ObjList* list = newList();
     push(OBJ_VAL(list)); // stop list being garbage collected
@@ -80,13 +73,8 @@ bool runNative(int argCount, Value* args)
 
 bool dirNative(int argCount, Value* args)
 {
-    if (!IS_STRING(args[0]))
-    {
-        char* msg = "Parameter 1 must be a string for function dir()";
-        args[-1] = OBJ_VAL(copyStringRaw(msg, (int)strlen(msg)));
-
-        return false;
-    }
+    CHECK_STRING(0, "Parameter 1 must be a string for function dir()");
+    
     char* path = AS_CSTRING(args[0]);
     if (path[0] == '\0')
         path = ".";
