@@ -2,6 +2,8 @@
  Linux (POSIX) implementation of _kbhit().
  Morgan McGuire, morgan@cs.brown.edu
  */
+#ifndef _WIN32
+
 #include <stdio.h>
 #include <sys/select.h>
 #include <sys/ioctl.h>
@@ -33,3 +35,4 @@ int _getch()
     return getchar();
 }
 
+#endif

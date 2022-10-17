@@ -19,16 +19,6 @@
     FG_CYAN         = 36, 
     FG_LIGHT_GRAY   = 37, 
     FG_DEFAULT      = 39,
-
-    BG_BLACK        = 40,
-    BG_RED          = 41,
-    BG_GREEN        = 42,
-    BG_YELLOW       = 43,
-    BG_BLUE         = 44,     
-    BG_MAGENTA      = 45, 
-    BG_CYAN         = 46, 
-    BG_LIGHT_GRAY   = 47, 
-    BG_DEFAULT      = 49,
     
     FG_DARK_GRAY = 90, 
     FG_LIGHT_RED = 91, 
@@ -136,6 +126,8 @@ bool backColorNative(int argCount, Value* args)
 
 bool cursoffNative(int argCount, Value* args)
 {
+    CHECK_BOOL(0,"Parameter to cursoff() must be a boolean.");
+
     if(AS_BOOL(args[0]))
         printf("\e[?25l");
     else
