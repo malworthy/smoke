@@ -1,0 +1,27 @@
+const func = fn(x) { print "hello %{x}"}
+
+func("mal")
+//expect:hello mal
+
+const list = [1,2,3]
+
+print map(list, fn(x) {
+    return x * 2
+})
+//expect:[2, 4, 6]
+
+fn test(f1, f2)
+{
+    f1()
+    f2()
+}
+test(fn() { print "one"}, fn() { print "two"})
+//expect:one
+//expect:two
+
+//Arrow 
+print map(list, fn(x) => 45)
+//expect:[45, 45, 45]
+
+print map(list, fn(x) => x * 2)
+//expect:[2, 4, 6]
