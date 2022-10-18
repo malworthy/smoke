@@ -17,8 +17,23 @@
 #include "native/fileio.h"
 #include "native/stringutil.h"
 #include "native/date.h"
+#include "native/native.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#define sleep(x) Sleep(x)
+#else
+#include <unistd.h>
+#define sleep(x) usleep((x)*1000)
+#endif
 
 VM vm; 
+
+static bool sleepNative(int argCount, Value* args)
+{
+    CHECK_NUM(0, "Sleep expects number as parameter.");
+    sleep((int)AS_NUMBER(args[0]));
+}
 
 static bool clockNative(int argCount, Value* args) {
     args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
@@ -136,6 +151,7 @@ void initVM()
     vm.initString = copyString("init", 4);
 
     // Native Functions
+    defineNative("sleep", sleepNative, 1);
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
     defineNative("now", nowNative, 0);
