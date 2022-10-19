@@ -10,19 +10,32 @@
 #include <termios.h>
 #include <stropts.h>
 #include <stdbool.h>
+#include <unistd.h>
+
+struct termios orig_settings;
+static bool initialized = false;
+static const int STDIN = 0;
+
+void restoreTerminal()
+{
+    if(initialized)
+        tcsetattr(STDIN,TCSANOW,&orig_settings);
+}
 
 int _kbhit() {
-    static const int STDIN = 0;
-    static bool initialized = false;
 
     if (! initialized) {
         // Use termios to turn off line buffering
         struct termios term;
         tcgetattr(STDIN, &term);
+        
+        orig_settings = term;
+
         term.c_lflag &= (~ICANON & ~ECHO);
         tcsetattr(STDIN, TCSANOW, &term);
         setbuf(stdin, NULL);
         initialized = true;
+        fflush(stdout);
     }
 
     int bytesWaiting;

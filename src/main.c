@@ -11,6 +11,12 @@
 
 #define MAX_INCS 256
 
+#ifndef _WIN32
+
+#include "native/conio.h"
+
+#endif
+
 char* includeFiles[MAX_INCS];
 char* fileContents[MAX_INCS];
 int includeFileCount = 0;
@@ -206,6 +212,8 @@ int main (int argc, const char* argv[])
     }
 
     freeVM();
-
+#ifndef _WIN32
+    restoreTerminal();
+#endif
     return 0;
 }

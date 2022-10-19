@@ -38,10 +38,48 @@ bool kbhitNative(int argCount, Value* args)
     return true;
 }
 
-bool getchNative(int argCount, Value* args) 
+bool getchNative(int argCount, Value* args)
 {
+    char keyString[10];
+    //keyString[0] = '\0';
+    int hits = _kbhit();
+    for(int i=0; i < hits; i++)
+    {
+        int key = _getch();
+        if (key == 27) keyString[i] = '#'; else keyString[i] = key;
+        //keyString[i] = _getch();
+    }
+
+    keyString[hits] = '\0';
+
+    args[-1] = OBJ_VAL(copyStringRaw(keyString, hits));
+    return true;
+}
+
+bool getchNative_old(int argCount, Value* args) 
+{
+    char key[10];
     int result = _getch();
-    args[-1] = NUMBER_VAL(result);
+    //args[-1] = NUMBER_VAL(result);
+    if (result == 27)
+    {
+        int nextkey = 0;
+        key[0] = '#';
+        int i = 0;
+        while(_kbhit() > 0 && ++i < 10)
+        {
+            nextkey = _getch();
+            key[i] = nextkey;
+        }
+        key[i] = '\0';
+        //printf("nextkey: %d\n", nextkey);
+    }
+    else
+    {
+        key[0] = result;
+        key[1] = '\0';
+    }
+    args[-1] = OBJ_VAL(copyStringRaw(key, (int)strlen(key)));
     return true;
 }
 
@@ -52,7 +90,7 @@ bool writeNative(int argCount, Value* args)
     char* string = AS_CSTRING(args[0]);
 
     printf("%s", string);
-    
+    fflush(stdout);    
     return true;
 }
 

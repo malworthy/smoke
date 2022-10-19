@@ -31,7 +31,7 @@ add_test(NAME anon COMMAND python ../test_runner.py "mal.exe" "../tst/anon.mal" 
 #add_test(NAME args COMMAND python ../test_runner.py "mal.exe" "../tst/args.mal one two" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c)
-#target_link_options(mal PRIVATE -lm)
+target_link_options(mal PRIVATE -lm)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

@@ -3,5 +3,6 @@
 
 int _kbhit();
 int _getch();
+void restoreTerminal();
 
 #endif
