@@ -360,6 +360,14 @@ static void dot(bool canAssign)
         expression();
         emitBytes(OP_SET_PROPERTY, name);
     } 
+    else if (canAssign && match(TOKEN_PLUS_PLUS))
+    {
+        emitBytes(OP_INC_PROPERTY, name);
+    } 
+    else if (canAssign && match(TOKEN_MINUS_MINUS))
+    {
+        emitBytes(OP_DEC_PROPERTY, name);
+    } 
     else if (match(TOKEN_LEFT_PAREN)) 
     {
         uint8_t argCount = argumentList();

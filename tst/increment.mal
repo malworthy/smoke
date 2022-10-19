@@ -30,3 +30,37 @@ func()
 func()
 //expect:2
 
+class Foo
+{
+    init()
+    {
+        me.x = 10;
+        me.y = 10;
+    }
+
+    inc()
+    {
+        me.x++
+        me.y++
+    }
+
+    dec()
+    {
+        me.x--
+        me.y--
+    }
+}
+
+const f = Foo()
+f.x++
+f.y++
+print "%{f.x} %{f.y}"
+//expect:11 11
+
+f.inc()
+print "%{f.x} %{f.y}"
+//expect:12 12
+
+f.dec()
+print "%{f.x} %{f.y}"
+//expect:11 11

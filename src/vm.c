@@ -854,6 +854,46 @@ static InterpretResult run()
                 push(value);
                 break;
             }
+            case OP_INC_PROPERTY: 
+            {
+                if (!IS_INSTANCE(peek(0))) 
+                {
+                    runtimeError("Only instances have fields.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                ObjInstance* instance = AS_INSTANCE(peek(0));
+                Value val;
+                ObjString* propName = READ_STRING();
+                tableGet(&instance->fields, propName, &val);
+                Value value = val;
+                AS_NUMBER(val) += (double)1;
+
+                tableSet(&instance->fields, propName, val);
+                pop();
+                push(value);
+                break;
+            }
+            case OP_DEC_PROPERTY: 
+            {
+                if (!IS_INSTANCE(peek(0))) 
+                {
+                    runtimeError("Only instances have fields.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                ObjInstance* instance = AS_INSTANCE(peek(0));
+                Value val;
+                ObjString* propName = READ_STRING();
+                tableGet(&instance->fields, propName, &val);
+                Value value = val;
+                AS_NUMBER(val) -= (double)1;
+
+                tableSet(&instance->fields, propName, val);
+                pop();
+                push(value);
+                break;
+            }
             case OP_METHOD:
                 defineMethod(READ_STRING());
                 break;
