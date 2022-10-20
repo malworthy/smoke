@@ -1,0 +1,91 @@
+fn get_words(filename)
+{
+    return readlines(filename)
+}
+
+fn random_number(max)
+{
+    //var num = clock() * max
+    //if num > max then num = num - max
+    //if num > max then num = max - 100 - clock() * 10000
+    //if num < 0 then num = 0
+
+    return rand(max)
+}
+
+fn find_all(str, ch)
+{
+    var result = []
+    var i = 0
+    for letter in str
+    {
+        if letter == ch then add(result, i)
+        i = i + 1
+    }
+    return result
+}
+
+fn in_list(list, item)
+{
+    for i in list
+    {
+        if i == item then return true
+    }
+    return false
+}
+
+fn game()
+{
+    const words = get_words("wordlist.txt")
+    const allowed_words = get_words("five_letter_words.txt")
+    const word = words[random_number(len(words)-1)]
+    var notused = ""
+    for r in [1..6]
+    {
+        write("Enter Guess %{r}: ")
+        var guess = input()
+        while !in_list(allowed_words, guess) do
+        {
+            print "Word not in dictionary.  Try again"
+            write("Enter Guess %{r}: ")
+            guess = input()
+        }
+        var used_letters = ""
+        textColor("black")
+        for i in [0..4]
+        {
+            var found_indexes = find_all(word, guess[i])
+            if in_list(found_indexes,i) then
+            {
+                backColor("green")
+                write(guess[i])
+                used_letters = used_letters + guess[i]
+            }
+            else if len(found_indexes) > 0 and len(find_all(used_letters,guess[i])) < len(found_indexes) then
+            {
+                backColor("yellow")
+                write(guess[i])
+                used_letters = used_letters + guess[i]
+            }
+            else
+            {
+                backColor("gray")
+                write(guess[i])
+                if !in_list(notused, guess[i]) then notused = notused + guess[i]
+            }
+        }
+        textColor("reset")
+        backColor("reset")
+        print ""
+        if guess == word then
+        {
+            print "You got it in %{r} guesses"
+            return;
+        }
+        if notused != "" then print "Letters not in word: %{notused}"
+    }
+
+    print "The word was %{word}"
+}
+
+game()

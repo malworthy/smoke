@@ -1,0 +1,117 @@
+class Paddle
+{
+    init()
+    {
+        me.x = 1
+        me.y = 1
+        me.hits = 0
+    }
+
+    draw()
+    {
+        backColor("green")
+        for row in [0..4]
+        {
+            locate(me.x, me.y + row);
+            write(" ")
+        }
+        backColor("reset")
+    }
+
+    moveDown()
+    {
+        locate(me.x, me.y)
+        write(" ")
+        me.y++
+        me.draw()
+    }
+
+    moveUp()
+    {
+        locate(me.x, me.y+4)
+        write(" ")
+        me.y--
+        me.draw()
+    }
+}
+
+class Ball
+{
+    init()
+    {
+        me.x = 10
+        me.y = 10
+        me.xv = 0.2 + rand(10) / 30
+        me.yv = 0.1 + rand(10) / 40
+    }
+
+    move(paddle)
+    {
+        locate(me.x, me.y)
+        write(" ");
+        me.x = me.x + me.xv
+        me.y = me.y + me.yv
+        if me.x <= 2 then
+        {
+            if me.y >= paddle.y and me.y <= paddle.y + 5 then
+            {
+                me.xv = -me.xv
+                me.x = me.x + me.xv
+                paddle.draw()
+                paddle.hits++
+
+                if me.xv > 0 then 
+                    me.xv = me.xv + rand(10) / 40 
+                else 
+                    me.xv = me.xv - rand(10) / 40
+            }
+            else
+            {
+                return false
+            }
+        }
+        if me.x > 80 then 
+        {
+            me.xv = -me.xv
+            me.x = me.x + me.xv
+        }
+        if me.y > 30 or me.y < 1 then
+        {
+            me.yv = -me.yv
+            me.y = me.y + me.yv
+        }
+        backColor("red")
+        locate(me.x,me.y)
+        write(" ")
+        backColor("reset")
+
+        return true        
+    }
+}
+
+fn game()
+{
+    var paddle = Paddle()
+    var ball = Ball()
+    paddle.draw()
+    while true do
+    {
+        var key = getch()
+        locate(10,1)
+        write("Hits: %{paddle.hits}")
+        if (len(key) > 0 and key[0] == "w") then paddle.moveUp()
+        if (len(key) > 0 and key[0] == "s") then paddle.moveDown()
+        if (key == "q") then return 0
+        if !ball.move(paddle) then return paddle.hits
+        sleep(20)
+    }
+}
+
+clear()
+cursoff(true)
+write(" ")
+const result = game()
+cursoff(false)
+clear()
+print "Game Over. Hits = %{result}"
+

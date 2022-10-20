@@ -148,18 +148,7 @@ static void preProcessFile(const char* filename, const char* rootFilename)
     fileContents[fileContentsCount++] = buffer;
 }
 
-
-static void runFile_old(const char* path) 
-{
-    char* source = readFile(path);
-    InterpretResult result = interpret(source);
-    free(source); 
-
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-}
-
-static void runFile(const char* path) 
+static int runFile(const char* path) 
 {
     preProcessFile(path, path);
 
@@ -168,14 +157,16 @@ static void runFile(const char* path)
         //printf("Running file %d of %d: %s\n", i+1, fileContentsCount, fileContents[i]);
         InterpretResult result = interpret(fileContents[i]);
     
-        if (result == INTERPRET_COMPILE_ERROR) exit(65);
-        if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+        if (result == INTERPRET_COMPILE_ERROR) return 65;
+        if (result == INTERPRET_RUNTIME_ERROR) return 70;
     }
 
     for (int i = 0;  i < fileContentsCount; i++ )
     {
          free(fileContents[i]); 
     }
+
+    return 0;
 }
 
 int main (int argc, const char* argv[])
@@ -195,6 +186,8 @@ int main (int argc, const char* argv[])
         exit(1);
     }
 
+    int exitCode = 0;
+
     if (argc == 1) 
     {
         repl();
@@ -203,7 +196,7 @@ int main (int argc, const char* argv[])
     } 
     else if (argc >= 2) 
     {
-        runFile(argv[1]);
+        exitCode = runFile(argv[1]);
     } 
     else 
     {
@@ -215,5 +208,5 @@ int main (int argc, const char* argv[])
 #ifndef _WIN32
     restoreTerminal();
 #endif
-    return 0;
+    return exitCode;
 }
