@@ -21,10 +21,10 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#define sleep(x) Sleep(x)
+#define sleep(x) Sleep((DWORD)x)
 #else
 #include <unistd.h>
-#define sleep(x) usleep((x)*1000)
+#define sleep(x) usleep(((int)x)*1000)
 #endif
 
 VM vm; 
@@ -32,7 +32,9 @@ VM vm;
 static bool sleepNative(int argCount, Value* args)
 {
     CHECK_NUM(0, "Sleep expects number as parameter.");
-    sleep((int)AS_NUMBER(args[0]));
+    sleep(AS_NUMBER(args[0]));
+
+    return true;
 }
 
 static bool clockNative(int argCount, Value* args) {

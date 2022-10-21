@@ -5,18 +5,14 @@ fn start()
     var hits = 0
     var key = 0
     var i = 0
-    while key != 27 do
+    while key != "#" do
     {
-         hits = kbhit() 
-         
-         if hits > 0 then 
-         {
-            key = getch()
-            locate(1,1)
+        key = getch()
+        locate(1,1)
+        if key != "" then
             write("Key Pressed %{key}.  Hits %{hits}")
-         }
-         locate(10,10)
-         write("Counter: %{i++}")
+        locate(10,10)
+        write("Counter: %{i++}")
     }
 }
-start()
+sleep(1000)

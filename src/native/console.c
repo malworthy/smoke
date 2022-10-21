@@ -40,10 +40,10 @@ bool kbhitNative(int argCount, Value* args)
 
 bool getchNative(int argCount, Value* args)
 {
-    char keyString[10];
+    char keyString[11];
     //keyString[0] = '\0';
     int hits = _kbhit();
-    for(int i=0; i < hits; i++)
+    for(int i=0; i < hits && i < 10; i++)
     {
         int key = _getch();
         if (key == 27) keyString[i] = '#'; else keyString[i] = key;
