@@ -28,6 +28,7 @@ add_test(NAME class COMMAND python ../test_runner.py "mal.exe" "../tst/class.mal
 add_test(NAME dates COMMAND python ../test_runner.py "mal.exe" "../tst/dates.mal" "//expect:")
 add_test(NAME native COMMAND python ../test_runner.py "mal.exe" "../tst/native.mal" "//expect:")
 add_test(NAME anon COMMAND python ../test_runner.py "mal.exe" "../tst/anon.mal" "//expect:")
+add_test(NAME binary COMMAND python ../test_runner.py "mal.exe" "../tst/binary.mal" "//expect:")
 #add_test(NAME args COMMAND python ../test_runner.py "mal.exe" "../tst/args.mal one two" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c)

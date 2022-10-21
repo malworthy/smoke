@@ -562,6 +562,17 @@ static InterpretResult run()
             push(valueType(a op b)); \
         } while (false)
 
+    #define BINARY_OP_INT(valueType, op) \
+        do { \
+            if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
+                runtimeError("Operands must be numbers."); \
+                return INTERPRET_RUNTIME_ERROR; \
+            } \
+            int b = (int)AS_NUMBER(pop()); \
+            int a = (int)AS_NUMBER(pop()); \
+            push(valueType(a op b)); \
+        } while (false)
+
     #define INC_DEC_OP(value, number) \
         do { \
             uint8_t slot = READ_BYTE(); \
@@ -636,6 +647,7 @@ static InterpretResult run()
             case OP_SUBTRACT:   BINARY_OP(NUMBER_VAL, -); break;
             case OP_MULTIPLY:   BINARY_OP(NUMBER_VAL, *); break;
             case OP_DIVIDE:     BINARY_OP(NUMBER_VAL, /); break;
+            case OP_MOD:        BINARY_OP_INT(NUMBER_VAL, %); break;
             case OP_NOT:
                 push(BOOL_VAL(isFalsey(pop())));
                 break;
@@ -933,6 +945,7 @@ static InterpretResult run()
     #undef READ_SHORT
     #undef INC_DEC_OP
     #undef COMPARE_OP
+    #undef BINARY_OP_INT
 }
 
 InterpretResult interpret(const char* source) 

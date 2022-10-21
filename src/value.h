@@ -27,13 +27,13 @@ typedef struct {
 
 #define IS_BOOL(value)      ((value).type == VAL_BOOL)
 #define IS_NUMBER(value)    ((value).type == VAL_NUMBER)
-#define IS_DATETIME(value)   ((value).type == VAL_DATETIME)
+#define IS_DATETIME(value)  ((value).type == VAL_DATETIME)
 #define IS_OBJ(value)       ((value).type == VAL_OBJ)
 #define IS_NIL(value)       ((value).type == VAL_NIL)
 
 #define AS_BOOL(value)      ((value).as.boolean)
 #define AS_NUMBER(value)    ((value).as.number)
-#define AS_DATETIME(value)   ((value).as.datetime)
+#define AS_DATETIME(value)  ((value).as.datetime)
 #define AS_OBJ(value)       ((value).as.obj)
 
 #define BOOL_VAL(value)     ((Value){VAL_BOOL, {.boolean = value}})

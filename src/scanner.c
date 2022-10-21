@@ -280,6 +280,7 @@ Token scanToken()
         case '[': return makeToken(TOKEN_LEFT_BRACKET);
         case ']': return makeToken(TOKEN_RIGHT_BRACKET);
         case ':': return makeToken(TOKEN_COLON);
+        case '%': return makeToken(TOKEN_PERCENT);
         case '-': 
             return makeToken(match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
         case '+': 

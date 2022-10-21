@@ -1,0 +1,17 @@
+print 10 % 6
+//expect:4
+
+print 1 + 10
+//expect:11
+
+print 6*6
+//expect:36
+
+print 50/5
+//expect:10
+
+print (1+1*6/4-2%7)
+//expect:0.5
+
+print((5-2+4*(1+1) + 5)/4)
+//expect:4
