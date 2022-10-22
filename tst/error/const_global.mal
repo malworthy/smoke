@@ -1,0 +1,3 @@
+const x = 45
+x = 50
+//expect:ERROR!

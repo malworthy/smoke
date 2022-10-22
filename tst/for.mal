@@ -47,8 +47,8 @@ tripItUp();
 
 fn range(start, end)
 {
-    var result = [];
-    loop end-start times add(result, start + i);
+    var result = [start..end-1];
+    //loop end-start times add(result, start + i);
 
     return result;
 }

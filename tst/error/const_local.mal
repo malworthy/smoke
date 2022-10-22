@@ -1,0 +1,8 @@
+fn test()
+{
+    const x = "don't change eme"
+    x = "but why?"
+}
+
+test()
+//expect:ERROR!

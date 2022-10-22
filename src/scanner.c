@@ -61,6 +61,13 @@ static char peek()
     return *scanner.current;
 }
 
+static char peekPrev() 
+{
+    if (scanner.start == scanner.current) return peek();
+
+    return scanner.current[-1];
+}
+
 static bool match(char expected) 
 {
     if (isAtEnd()) return false;
@@ -151,24 +158,18 @@ static TokenType identifierType()
                 switch (scanner.start[1]) {
                     case 'f': return checkKeyword(1, 1, "f", TOKEN_IF);
                     case 'n': return checkKeyword(1, 1, "n", TOKEN_IN);
-                    //case 'n': return TOKEN_FN;
                 }
             }
             break;
-        //case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
-        case 'l': return checkKeyword(1,3,"oop", TOKEN_LOOP);
         case 'm': return checkKeyword(1, 2, "e", TOKEN_ME);
-        //case 'n': return checkKeyword(1, 2, "il", TOKEN_NIL);
         case 'o': return checkKeyword(1, 1, "r", TOKEN_OR);
         case 'p': return checkKeyword(1, 4, "rint", TOKEN_PRINT);
         case 'r': return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
-        //case 's': return checkKeyword(1, 4, "uper", TOKEN_SUPER);
         case 't':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
                     case 'h': return checkKeyword(2, 2, "en", TOKEN_THEN);
                     case 'r': return checkKeyword(2, 2, "ue", TOKEN_TRUE);
-                    case 'i': return checkKeyword(2,3, "mes", TOKEN_TIMES);
                 }
             }
             break;
@@ -186,9 +187,9 @@ static Token string()
         if (peek() == '\n') scanner.line++;
         escaped = (peek() == '\\' && !escaped);
         // Interpolation %{hello}
-        if (peek() == '%' && !escaped)
+        if (peek() == '%' && peekPrev() != '\\')
         {
-            if (peekNext() != '{') return errorToken("Expect '{' after '%%' in string.");
+            if (peekNext() != '{') return errorToken("Expect '{' after '%' in string.");
             advance();
             scanner.interpolation++;
             Token t = makeToken(TOKEN_INTERPOLATION); 

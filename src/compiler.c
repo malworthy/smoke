@@ -1081,53 +1081,6 @@ static void forStatement()
     endScope();
 }
 
-
-static void loopStatement()
-{
-    beginScope();
-
-    //First declare a variable called i and set it to zero
-    loopVarDeclaration("i");
-    uint8_t counter = current->localCount - 1;
-    emitConstant(NUMBER_VAL(0));
-
-    //loop starts here
-    int loopStart = currentChunk()->count;
-
-    //Then compare i to the expression after "loop"
-    /*char* variableName = "i";
-    Token name;
-    name.length = 1;
-    name.line = parser.previous.line;
-    name.start = variableName;
-    name.type = TOKEN_IDENTIFIER;
-
-    bool isConst;
-    int arg = resolveLocal(current, &name, &isConst);*/
-    emitBytes(OP_GET_LOCAL, counter);
-    expression();
-
-    emitByte(OP_LESS); 
-    
-    int exitJump = emitJump(OP_JUMP_IF_FALSE);
-    emitByte(OP_POP);    
-    consume(TOKEN_TIMES, "Expect 'times' after loop.");
-    
-    statement();
-
-    //Now increase i by 1
-    emitBytes(OP_GET_LOCAL, counter);
-    emitConstant(NUMBER_VAL(1));
-    emitByte(OP_ADD);
-    emitBytes(OP_SET_LOCAL, counter); 
-    emitByte(OP_POP);
-    emitLoop(loopStart);
-    patchJump(exitJump);
-    emitByte(OP_POP);
-    
-    endScope();
-}
-
 static void ifStatement() 
 {
     expression();
@@ -1204,6 +1157,7 @@ static void synchronize()
         case TOKEN_CLASS:
         case TOKEN_FN:
         case TOKEN_VAR:
+        case TOKEN_CONST:
         case TOKEN_FOR:
         case TOKEN_IF:
         case TOKEN_WHILE:
@@ -1251,8 +1205,6 @@ static void statement()
         returnStatement();
     else if (match(TOKEN_WHILE)) 
         whileStatement();
-    else if (match(TOKEN_LOOP))
-        loopStatement();
     else if (match(TOKEN_FOR))
         forStatement();
     else

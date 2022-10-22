@@ -12,6 +12,9 @@ def test_file(interpreter, script_to_test, expect, err):
         return 1
 
     result = subprocess.run([interpreter, script_to_test], capture_output=True)
+    if result.returncode > 0 and expected[0] == "ERROR!":
+        return 0
+
     actual = ""
     if err:
         actual = result.stderr.decode().split('\n')

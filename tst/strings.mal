@@ -7,8 +7,12 @@ print "\\backslash\"";
 print "\ttab";
 //expect:   tab
 
-{ var s = "hi"; loop 10 times s = s + "bye"; print s; }
+{ var s = "hi"; for i in [1..10] s = s + "bye"; print s; }
+
 //expect:hibyebyebyebyebyebyebyebyebyebye
 
 print "c:\\";
 //expect:c:\
+
+print "\%"
+//expect:%

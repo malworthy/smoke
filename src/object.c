@@ -172,6 +172,9 @@ ObjString* copyString(const char* chars, int length)
                 break;
             case '"':
                 processedString[charCount++] = '"';
+                break;   
+            case '%':
+                processedString[charCount++] = '%';
                 break;            
             default: // no valid escape sequence, so just treat as backslash
                 i--;

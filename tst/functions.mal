@@ -35,3 +35,16 @@ print(fib(10));
 const x = clock();
 if x >= 0 then print "clock worked";
 //expect:clock worked
+
+fn verySimple() => 10 * 10
+print verySimple()
+//expect:100
+
+fn testReturn()
+{
+    print "hello"
+    return
+    print "unreachable"
+}
+testReturn()
+//expect:hello
