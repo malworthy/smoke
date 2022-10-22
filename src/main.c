@@ -77,7 +77,7 @@ static char* readFile(const char* path)
 }
 
 // TODO: Need to add all the error handling!
-static void preProcessFile(const char* filename, const char* rootFilename)
+static bool preProcessFile(const char* filename, const char* rootFilename)
 {    
     char* buffer = readFile(filename);
 
@@ -129,7 +129,11 @@ static void preProcessFile(const char* filename, const char* rootFilename)
                 includeFiles[includeFileCount++] = includeFile;
                 localIncludeFiles[localCount++] = includeFile;
             }
-            
+            else if (includeFileCount >= MAX_INCS)
+            {
+                printf("Too many include files\n");
+                return false;
+            }
             
             // wipe away #inc by turning into a comment
             *startOfInc = '/';
@@ -138,14 +142,16 @@ static void preProcessFile(const char* filename, const char* rootFilename)
 	    prev = *current;
         current++;	
     }
-
+    
     for (int i=0; i<localCount; i++)
     {
-        //printf("include in:%s\n",localIncludeFiles[i]);
-        preProcessFile(localIncludeFiles[i], rootFilename);
+        if (!preProcessFile(localIncludeFiles[i], rootFilename))
+            return false;
     }
     
     fileContents[fileContentsCount++] = buffer;
+
+    return true;
 }
 
 static int runFile(const char* path) 

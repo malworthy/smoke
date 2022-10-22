@@ -145,6 +145,12 @@ static void consume(TokenType type, const char* message)
     errorAtCurrent(message);
 }
 
+static bool isReturnAtEndOfBlock()
+{
+    return (parser.previous.line < parser.current.line || parser.current.type == TOKEN_EOF 
+        || parser.current.type == TOKEN_RIGHT_BRACE) && parser.previous.type == TOKEN_RETURN;
+}
+
 static bool check(TokenType type) 
 {
     return parser.current.type == type;
@@ -1155,7 +1161,8 @@ static void returnStatement()
         error("Can't return from top-level code.");
     }
     
-    if (match(TOKEN_SEMICOLON)) 
+    //if (match(TOKEN_SEMICOLON)) 
+    if (isReturnAtEndOfBlock())
     {
         emitReturn();
     } 

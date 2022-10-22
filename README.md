@@ -5,8 +5,20 @@ A scripting language based on the clox interpreter from Bob Nystrom's excellent 
 This is still a work in progress.  At the moment it supports most of lox features but not classes.
 In addition to lox features I've implemented lists and a small set of native functions. 
 
+## Data types
+
+
+```
+var number = 0
+var string = "hello"
+var boolean = true
+var list = [1,"hello", true]
+var date = date()
+```
+
 <pre class="snippet">
 // Variables
+
 
 // My Rules: 
 // 1) Global variables are not allowed.

@@ -518,6 +518,34 @@ Value slice(Value item, Value startIndex, Value endIndex)
     }
 }
 
+static bool incDecProperty(ObjString* propName, double amount)
+{
+    if (!IS_INSTANCE(peek(0))) 
+    {
+        runtimeError("Only instances have fields.");
+        return false;
+    }
+
+    ObjInstance* instance = AS_INSTANCE(peek(0));
+    Value val;
+
+    tableGet(&instance->fields, propName, &val);
+    if(!IS_NUMBER(val))
+    {
+        runtimeError("Property must be a number");
+        return false;
+    }
+
+    Value value = val;
+    AS_NUMBER(val) += amount;
+
+    tableSet(&instance->fields, propName, val);
+    pop();
+    push(value);
+
+    return true;
+}
+
 static InterpretResult run() 
 {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
@@ -579,7 +607,7 @@ static InterpretResult run()
             Value val = value; \
             if (!IS_NUMBER(val)) \
             { \
-                runtimeError("Can only increment a number"); \
+                runtimeError("Variable must be a number"); \
                 return INTERPRET_RUNTIME_ERROR; \
             } \
             push(val); \
@@ -870,42 +898,15 @@ static InterpretResult run()
             }
             case OP_INC_PROPERTY: 
             {
-                if (!IS_INSTANCE(peek(0))) 
-                {
-                    runtimeError("Only instances have fields.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-
-                ObjInstance* instance = AS_INSTANCE(peek(0));
-                Value val;
                 ObjString* propName = READ_STRING();
-                tableGet(&instance->fields, propName, &val);
-                Value value = val;
-                AS_NUMBER(val) += (double)1;
-
-                tableSet(&instance->fields, propName, val);
-                pop();
-                push(value);
+                if (!incDecProperty(propName, 1)) return INTERPRET_RUNTIME_ERROR;
                 break;
+                
             }
             case OP_DEC_PROPERTY: 
             {
-                if (!IS_INSTANCE(peek(0))) 
-                {
-                    runtimeError("Only instances have fields.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-
-                ObjInstance* instance = AS_INSTANCE(peek(0));
-                Value val;
                 ObjString* propName = READ_STRING();
-                tableGet(&instance->fields, propName, &val);
-                Value value = val;
-                AS_NUMBER(val) -= (double)1;
-
-                tableSet(&instance->fields, propName, val);
-                pop();
-                push(value);
+                if (!incDecProperty(propName, -1)) return INTERPRET_RUNTIME_ERROR;
                 break;
             }
             case OP_METHOD:
