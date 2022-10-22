@@ -563,7 +563,7 @@ static Value format(Value fmt, Value val)
         struct tm *tm = localtime(&t);
         char buffer[100];
         int len = strftime(buffer, sizeof(buffer), cformatstring, tm);
-         printf("format as date: %s\n", buffer);
+
         return OBJ_VAL(copyStringRaw(buffer, len));
     }
 
