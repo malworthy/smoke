@@ -546,6 +546,31 @@ static bool incDecProperty(ObjString* propName, double amount)
     return true;
 }
 
+static Value format(Value fmt, Value val)
+{
+    if (IS_NUMBER(val))
+    {
+        char* cformatstring = AS_CSTRING(fmt);
+        char buffer[100];
+        int len = sprintf(buffer, cformatstring, AS_NUMBER(val));
+        return OBJ_VAL(copyStringRaw(buffer, len));
+    }
+
+    if (IS_DATETIME(val))
+    {
+        char* cformatstring = AS_CSTRING(fmt);
+        time_t t = AS_DATETIME(val);
+        struct tm *tm = localtime(&t);
+        char buffer[100];
+        int len = strftime(buffer, sizeof(buffer), cformatstring, tm);
+         printf("format as date: %s\n", buffer);
+        return OBJ_VAL(copyStringRaw(buffer, len));
+    }
+
+    // if neither date or number, ignore format string and leave value alone
+    return val;
+}
+
 static InterpretResult run() 
 {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
@@ -753,6 +778,14 @@ static InterpretResult run()
             case OP_JOIN: {
                 ObjList* list = AS_LIST(peek(0));
                 Value val = join(list);
+                pop();
+                push(val);
+                break;
+            }
+            case OP_FORMAT: 
+            {
+                Value val = format(peek(0), peek(1));
+                pop();
                 pop();
                 push(val);
                 break;

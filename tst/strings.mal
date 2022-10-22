@@ -16,3 +16,12 @@ print "c:\\";
 
 print "\%"
 //expect:%
+
+print "string1" + " - string2"
+//expect:string1 - string2
+
+const a = "one"
+const b = "two"
+const c = a + b 
+print c 
+//expect:onetwo

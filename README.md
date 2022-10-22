@@ -2,18 +2,23 @@
 
 A scripting language based on the clox interpreter from Bob Nystrom's excellent book Crafting Interpreters (https://craftinginterpreters.com/ )
 
-This is still a work in progress.  At the moment it supports most of lox features but not classes.
-In addition to lox features I've implemented lists and a small set of native functions. 
+Although the underlying code is based on clox, MAL is a very different language.
 
 ## Data types
 
+There a 5 different data types
+1) Numbers - numbers are double precision floating points
+2) String
+3) Boolean - either true or false
+4) Lists - a list is a collection of values
+5) Datetime
 
 ```
 var number = 0
 var string = "hello"
 var boolean = true
 var list = [1,"hello", true]
-var date = date()
+var date = date("2022-02-01")
 ```
 
 <pre class="snippet">
@@ -70,6 +75,17 @@ fn addNumbers(a,b) { return a + b; }
 
 print addNumbers(1,1); // prints 2
 </pre>
+
+## String interpolation
+Anything between '%{' and '}' is evaluated and embedded into the string.
+You can also include a format string to format the evaluated value.  Format strings only work on numbers and dates. For other data types the format string will be ignored. Use a dollar sign after the expression to add a format string.  The format string is anything between the '$' and the closing '}'.
+
+Format strings are passed as is to the C code. See C documentation on strftime for date formats, and printf for number formats.
+
+```
+var interpolated = "Value: %{1+1}" // "Value: 2"
+var withFormatting = "%{100.1234$%0.2f}" // "100.12"
+```
 
 ## Native functions
 

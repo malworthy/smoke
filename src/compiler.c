@@ -437,6 +437,12 @@ static void string(bool canAssign)
                                     parser.previous.length - 2)));
 }
 
+static void formatString(bool canAssign) 
+{
+    emitConstant(OBJ_VAL(copyString(parser.previous.start + 1,
+                                    parser.previous.length - 1)));
+}
+
 static uint8_t stringConstant(char* name) 
 {
     return makeConstant(OBJ_VAL(copyStringRaw(name,strlen(name))));
@@ -710,9 +716,17 @@ static void interpolation(bool canAssign)
 
         // add interpolated part
         expression();
+        // check for format string and format the expression
+        if (match(TOKEN_FORMAT_STRING))
+        {
+            formatString(canAssign);
+            emitByte(OP_FORMAT);
+        }
         emitByte(OP_LIST_ADD);
 
     } while (match(TOKEN_INTERPOLATION));
+
+    
     
     if (!match(TOKEN_STRING))
     {

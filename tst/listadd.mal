@@ -2,10 +2,11 @@ fn main()
 {
     var lst = [];
     var start = clock();
-    loop 100000 times lst = lst + [i];
-    //loop 100000 times add(lst,i);
+    for i in [0..10000] lst = lst + [i];
     print lst[10000];
-    print clock() - start;
+    const time = clock() - start;
+    if time > 2 then print "too slow"
 }
 
 main();
+//expect:10000

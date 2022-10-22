@@ -1,0 +1,7 @@
+print [1,2,3,4,5] where x => x < 3
+//expect:[1, 2]
+
+//filter([1,2,3,4,5], fn(x) => x < 5)
+print [1,2,3] select x => x+1
+
+list where x {}

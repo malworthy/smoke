@@ -115,6 +115,8 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return simpleInstruction("OP_SUBSCRIPT", offset);
         case OP_LIST_ADD:
             return simpleInstruction("OP_LIST_ADD", offset);
+        case OP_FORMAT:
+            return simpleInstruction("OP_FORMAT", offset);
         case OP_RANGE:
             return simpleInstruction("OP_RANGE", offset);
         case OP_JOIN:

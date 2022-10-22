@@ -207,6 +207,20 @@ static Token string()
     return makeToken(TOKEN_STRING);
 }
 
+static Token formatString() 
+{
+    while (peek() != '}' && !isAtEnd()) 
+    {
+        advance();
+    }
+
+    if (isAtEnd()) return errorToken("Expect '}' after format string.");
+
+    // The closing }.
+    //advance();
+    return makeToken(TOKEN_FORMAT_STRING);
+}
+
 static bool isDigit(char c) 
 {
     return c >= '0' && c <= '9';
@@ -281,6 +295,12 @@ Token scanToken()
         case '[': return makeToken(TOKEN_LEFT_BRACKET);
         case ']': return makeToken(TOKEN_RIGHT_BRACKET);
         case ':': return makeToken(TOKEN_COLON);
+        case '$':
+            if (scanner.interpolation > 0)
+            {
+                return formatString();
+            }
+            
         case '%': return makeToken(TOKEN_PERCENT);
         case '-': 
             return makeToken(match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);

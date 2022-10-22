@@ -51,3 +51,18 @@ fn getList()
 }
 print ["one",getList(),"two"];
 //expect:[one, [1, 2, 3], two]
+
+print [1,2,3] + [4,5,6]
+//expect:[1, 2, 3, 4, 5, 6]
+
+const a = [1]
+const b = a + [2]
+print b 
+//expect:[1, 2]
+
+fn listAdd(a,b) => a+b
+
+print listAdd([10,11], ["one", true])
+//expect:[10, 11, one, true]
+
+
