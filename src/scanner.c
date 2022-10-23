@@ -295,7 +295,7 @@ Token scanToken()
         case '[': return makeToken(TOKEN_LEFT_BRACKET);
         case ']': return makeToken(TOKEN_RIGHT_BRACKET);
         case ':': return makeToken(TOKEN_COLON);
-        case '$':
+        case '|':
             if (scanner.interpolation > 0)
             {
                 return formatString();

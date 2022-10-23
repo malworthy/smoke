@@ -31,3 +31,4 @@ print "Value is: %{test()}";
 
 print "%{"hello"[1:3]}"
 //expect:el
+
