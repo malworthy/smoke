@@ -8,6 +8,13 @@
 #include "common.h"
 #include "object.h"
 
+#define BUFFER_SIZE 200
+
+typedef struct {
+    char cfmt[10];
+    char fmt[10];
+} DateFormat;
+
 // https://stackoverflow.com/questions/779875/what-function-is-to-replace-a-substring-from-a-string-in-c
 // You must free the result if result is non-NULL.
 static char *str_replace(char *orig, char *rep, char *with) {
@@ -111,18 +118,67 @@ static bool toCFormat(char* format, char* buffer)
     return false;
 }
 
+static bool toCDateFormat(char* format, char* buffer)
+{
+    DateFormat formats[] =
+    {
+        [0] = {"\%x", "defdate"},
+        [1] = {"\%X", "deftime"},
+        [2] = {"\%T", "time1"},
+        [3] = {"\%R", "time2"},
+        [4] = {"\%F", "date"},
+        [5] = {"\%c", "def"},
+        [6] = {"\%V", "isowk"},
+
+
+        [7] = {"\%B", "mmmm"},
+        [8] = {"\%b", "mmm" },
+        [9] = {"\%m", "mm"  },
+        [10] = {"\%A", "dddd"},
+        [11] = {"\%a", "ddd" },
+        [12] = {"\%d", "dd"  },
+        [13] = {"\%Y", "yyyy"},
+        [14] = {"\%y", "yy"  },
+        [15] = {"\%P", "ampm"},
+        [16] = {"\%p", "AMPM"},
+        [17] = {"\%H", "HH"},
+        [18] = {"\%I", "hh"},
+        [19] = {"\%j", "yd"},
+        [20] = {"\%M", "MM"},
+        [21] = {"\%S", "ss"},
+        [22] = {"\%u", "wd"},
+        [23] = {"\%W", "wk"},
+        [24] = {"\%z", "zz"},
+
+        [25] = {"\%e", "d1"},
+    };
+    char* tmp;
+    strcpy(buffer, format);
+    for (int i=0; i<=25; i++)
+    {
+        //printf("i:%d, fmt: %s, cfmt: %s\n",i, formats[i].fmt, formats[i].cfmt);
+        tmp = str_replace(buffer, formats[i].fmt, formats[i].cfmt);
+        if (tmp != NULL)
+        {
+            //printf("replaced: %s\n", tmp);
+            strcpy(buffer, tmp);
+            free(tmp);
+        }
+    }
+}
+
 Value format(Value fmt, Value val)
 {
-    // any format string > 30 chars is invalid.  The will prevent buffer over run, since we are using 
+    // any format string > half the buffer size is invalid.  The will prevent buffer over run, since we are using 
     // a fixed buffer size.
-    if (AS_STRING(fmt)->length > 30)
+    if (AS_STRING(fmt)->length > (BUFFER_SIZE / 2))
     {
         return val;
     }
 
     if (IS_NUMBER(val))
     {
-        char cformatstring[100]; 
+        char cformatstring[BUFFER_SIZE]; 
         char* formatString = AS_CSTRING(fmt);
 
         bool result = toCFormat(formatString, cformatstring);
@@ -130,11 +186,11 @@ Value format(Value fmt, Value val)
             return val;
 
         //printf("format string: %s\n\n", cformatstring);
-        char buffer[100];
+        char buffer[BUFFER_SIZE];
         int len = sprintf(buffer, cformatstring, AS_NUMBER(val));
         if (formatString[0] == 'c')
         {
-            char buffer2[100];
+            char buffer2[BUFFER_SIZE];
             len = addThousandsSeparator(buffer2, buffer, ',');
             return OBJ_VAL(copyStringRaw(buffer2, len));
         }
@@ -144,10 +200,14 @@ Value format(Value fmt, Value val)
 
     if (IS_DATETIME(val))
     {
-        char* cformatstring = AS_CSTRING(fmt);
+        char cformatstring[BUFFER_SIZE];
+        char* formatstring = AS_CSTRING(fmt);
+        bool result = toCDateFormat(formatstring, cformatstring);
+        //TODO:check result
+
         time_t t = AS_DATETIME(val);
         struct tm *tm = localtime(&t);
-        char buffer[100];
+        char buffer[BUFFER_SIZE];
         int len = strftime(buffer, sizeof(buffer), cformatstring, tm);
         if (len == 0)
             return val;

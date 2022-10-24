@@ -1,2 +1,37 @@
-print "%{123.4567$n2}"
+print "%{123.4567|n2}"
 //expect:123.45
+
+print "%{1234567890.1234567890|c4}"
+//expect:1,234,567,890.1235
+
+print "%{-1234.5|c2}"
+//expect:-1,234.50
+
+
+print "%{123|%S %s %d buffer overrun me nnnnnnnnnnnooooooooowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww}"
+//expect:123
+
+print "%{123|n1000000000}"
+//expect:123.000000000000000000000000000000
+
+print "%{123|n3 n2 n1 c3}"
+//expect:123.000
+
+const d = date("2022-10-24 14:58:34")
+
+print "%{d|ddd dddd mmm mmmm mm dd date HH hh yd MM ampm AMPM ss time1 time2 wd isowk wk yy yyyy d1}"
+//expect:Mon Monday Oct October 10 24 2022-10-24 14 02 297 58 pm PM 34 14:58:34 14:58 1 43 43 22 2022 24 
+
+//these depend of local settings, so just check that it doesn't crash and burn
+const test = "%{now()|def defdate deftime zz}"
+if len(test) > 1 then print "worked"
+//expect:worked
+
+const d2 = date("2001-01-01 01:01:01")
+
+print "%{d2|d1}"
+//expect: 1
+
+
+
+
