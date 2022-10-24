@@ -1,5 +1,5 @@
 print "%{123.4567|n2}"
-//expect:123.45
+//expect:123.46
 
 print "%{1234567890.1234567890|c4}"
 //expect:1,234,567,890.1235
@@ -19,8 +19,8 @@ print "%{123|n3 n2 n1 c3}"
 
 const d = date("2022-10-24 14:58:34")
 
-print "%{d|ddd dddd mmm mmmm mm dd date HH hh yd MM ampm AMPM ss time1 time2 wd isowk wk yy yyyy d1}"
-//expect:Mon Monday Oct October 10 24 2022-10-24 14 02 297 58 pm PM 34 14:58:34 14:58 1 43 43 22 2022 24 
+print "%{d|ddd dddd mmm mmmm mm dd date HH hh yd MM AMPM ampm ss time1 time2 wd isowk wk yy yyyy d1}"
+//expect:Mon Monday Oct October 10 24 2022-10-24 14 02 297 58 PM PM 34 14:58:34 14:58 1 43 43 22 2022 24 
 
 //these depend of local settings, so just check that it doesn't crash and burn
 const test = "%{now()|def defdate deftime zz}"

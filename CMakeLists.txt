@@ -36,9 +36,10 @@ add_test(NAME dec_string COMMAND python ../test_runner.py "mal.exe" "../tst/erro
 add_test(NAME const_global COMMAND python ../test_runner.py "mal.exe" "../tst/error/const_global.mal" "//expect:")
 add_test(NAME const_local COMMAND python ../test_runner.py "mal.exe" "../tst/error/const_local.mal" "//expect:")
 add_test(NAME var_global COMMAND python ../test_runner.py "mal.exe" "../tst/error/var_global.mal" "//expect:")
+add_test(NAME format COMMAND python ../test_runner.py "mal.exe" "../tst/format.mal" "//expect:")
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c)
-target_link_options(mal PRIVATE -lm)
+#target_link_options(mal PRIVATE -lm)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

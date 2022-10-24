@@ -139,7 +139,7 @@ static bool toCDateFormat(char* format, char* buffer)
         [12] = {"\%d", "dd"  },
         [13] = {"\%Y", "yyyy"},
         [14] = {"\%y", "yy"  },
-        [15] = {"\%P", "ampm"},
+        [15] = {"\%p", "ampm"},
         [16] = {"\%p", "AMPM"},
         [17] = {"\%H", "HH"},
         [18] = {"\%I", "hh"},
