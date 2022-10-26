@@ -783,6 +783,39 @@ static void where(bool canAssign)
     emitBytes(OP_CALL, 2);
 }
 
+static void select(bool canAssign)
+{
+    Compiler compiler;
+    initCompiler(&compiler, TYPE_ANON);
+    beginScope(); 
+
+    uint8_t constant = parseVariable("Expect parameter name.", false);
+    defineVariable(constant);
+    current->function->arity = 1;
+
+    if (match(TOKEN_ARROW))
+    {
+        expression();
+        emitByte(OP_RETURN);
+    }
+    else
+    {
+        consume(TOKEN_LEFT_BRACE, "Expect '{' or '=>' before function body.");
+        block();
+    }
+
+    ObjFunction* function = endCompiler();
+    emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+
+    for (int i = 0; i < function->upvalueCount; i++) 
+    {
+        emitByte(compiler.upvalues[i].isLocal ? 1 : 0);
+        emitByte(compiler.upvalues[i].index);
+    }
+    emitByte(OP_SELECT);
+    emitBytes(OP_CALL, 2);
+}
+
 ParseRule rules[] = 
 {
     [TOKEN_INTERPOLATION] = {interpolation, NULL,   PREC_NONE},
@@ -832,6 +865,7 @@ ParseRule rules[] =
     [TOKEN_ERROR]         = {NULL,     NULL,        PREC_NONE},
     [TOKEN_EOF]           = {NULL,     NULL,        PREC_NONE},
     [TOKEN_WHERE]         = {NULL,     where,       PREC_TERM},
+    [TOKEN_SELECT]        = {NULL,     select,      PREC_TERM},
 };
 
 static void parsePrecedence(Precedence precedence) 

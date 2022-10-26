@@ -229,6 +229,7 @@ static void markRoots()
     markCompilerRoots();
     markObject((Obj*)vm.initString);
     markObject((Obj*)vm.whereString);
+    markObject((Obj*)vm.selectString);
 }
 
 static void traceReferences() 

@@ -31,6 +31,7 @@ typedef struct {
     size_t nextGC;
     ObjString* initString;
     ObjString* whereString;
+    ObjString* selectString;
 } VM;
 
 typedef enum {

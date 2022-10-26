@@ -156,6 +156,9 @@ void initVM()
     vm.whereString = NULL;
     vm.whereString = copyString("filter", 6);
 
+    vm.selectString = NULL;
+    vm.selectString = copyString("map", 3);
+
     // Native Functions
     defineNative("sleep", sleepNative, 1);
     defineNative("clock", clockNative, 0);
@@ -1044,6 +1047,29 @@ static InterpretResult run()
                 pop();
                 pop();
                 push(filterFunction);
+                push(list);
+                push(fn);
+
+                break;
+            }
+            case OP_SELECT: {
+                Value list = peek(1);
+                Value fn = peek(0);
+
+                if(!IS_LIST(list))
+                {
+                    runtimeError("select only works on lists.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                Value mapFunction;
+                if (!tableGet(&vm.globals, vm.selectString, &mapFunction))
+                {
+                    runtimeError("map missing from core function.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                pop();
+                pop();
+                push(mapFunction);
                 push(list);
                 push(fn);
 
