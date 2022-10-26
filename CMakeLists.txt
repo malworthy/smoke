@@ -30,6 +30,7 @@ add_test(NAME dates COMMAND python ../test_runner.py "mal.exe" "../tst/dates.mal
 add_test(NAME native COMMAND python ../test_runner.py "mal.exe" "../tst/native.mal" "//expect:")
 add_test(NAME anon COMMAND python ../test_runner.py "mal.exe" "../tst/anon.mal" "//expect:")
 add_test(NAME binary COMMAND python ../test_runner.py "mal.exe" "../tst/binary.mal" "//expect:")
+add_test(NAME where COMMAND python ../test_runner.py "mal.exe" "../tst/where.mal" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/inc_string.mal" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/dec_string.mal" "//expect:")

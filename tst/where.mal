@@ -1,0 +1,24 @@
+print [1,2,3,4,5,6] where x => x >= 4
+//expect:[4, 5, 6]
+
+const x = [1,2,3,4]
+const y = x where z => z == 3
+print y
+//expect:[3]
+
+for name in ["john", "bill", "fred", "jess"] where n {
+        if len(n) > 0 then return n[0] == "j"
+        return false
+    }
+    print name
+//expect:john
+//expect:jess
+
+print [1,2,3] + [4,5,6] where xx => xx == 4
+//expect:[4]
+
+print [1,2,3] + ([4,5,6] where xx => xx == 4)
+//expect:[1, 2, 3, 4]
+
+print [1,2,3] + ([4,5,6] where xx => xx == 4) + [5,6]
+//expect:[1, 2, 3, 4, 5, 6]

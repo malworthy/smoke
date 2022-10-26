@@ -87,6 +87,9 @@ static void statement();
 static void declaration();
 static uint8_t argumentList(); 
 static void function(FunctionType type);
+static uint8_t parseVariable(const char* errorMessage, bool isConst);
+static void defineVariable(uint8_t global);
+static void block();
 
 static Chunk* currentChunk() 
 {
@@ -747,6 +750,39 @@ static void fn(bool canAssign)
     function(TYPE_ANON);
 }
 
+static void where(bool canAssign)
+{
+    Compiler compiler;
+    initCompiler(&compiler, TYPE_ANON);
+    beginScope(); 
+
+    uint8_t constant = parseVariable("Expect parameter name.", false);
+    defineVariable(constant);
+    current->function->arity = 1;
+
+    if (match(TOKEN_ARROW))
+    {
+        expression();
+        emitByte(OP_RETURN);
+    }
+    else
+    {
+        consume(TOKEN_LEFT_BRACE, "Expect '{' or '=>' before function body.");
+        block();
+    }
+
+    ObjFunction* function = endCompiler();
+    emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+
+    for (int i = 0; i < function->upvalueCount; i++) 
+    {
+        emitByte(compiler.upvalues[i].isLocal ? 1 : 0);
+        emitByte(compiler.upvalues[i].index);
+    }
+    emitByte(OP_WHERE);
+    emitBytes(OP_CALL, 2);
+}
+
 ParseRule rules[] = 
 {
     [TOKEN_INTERPOLATION] = {interpolation, NULL,   PREC_NONE},
@@ -795,6 +831,7 @@ ParseRule rules[] =
     [TOKEN_WHILE]         = {NULL,     NULL,        PREC_NONE},
     [TOKEN_ERROR]         = {NULL,     NULL,        PREC_NONE},
     [TOKEN_EOF]           = {NULL,     NULL,        PREC_NONE},
+    [TOKEN_WHERE]         = {NULL,     where,       PREC_TERM},
 };
 
 static void parsePrecedence(Precedence precedence) 

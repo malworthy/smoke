@@ -153,6 +153,9 @@ void initVM()
     vm.initString = NULL;
     vm.initString = copyString("init", 4);
 
+    vm.whereString = NULL;
+    vm.whereString = copyString("filter", 6);
+
     // Native Functions
     defineNative("sleep", sleepNative, 1);
     defineNative("clock", clockNative, 0);
@@ -197,6 +200,7 @@ void freeVM()
     freeTable(&vm.globals);
     freeTable(&vm.strings);
     vm.initString = NULL;
+    vm.whereString = NULL;
     freeObjects();
 }
 
@@ -1017,9 +1021,32 @@ static InterpretResult run()
                 ObjString* method = READ_STRING();
                 int argCount = READ_BYTE();
                 if (!invoke(method, argCount)) {
-                return INTERPRET_RUNTIME_ERROR;
+                    return INTERPRET_RUNTIME_ERROR;
                 }
                 frame = &vm.frames[vm.frameCount - 1];
+                break;
+            }
+            case OP_WHERE: {
+                Value list = peek(1);
+                Value fn = peek(0);
+
+                if(!IS_LIST(list))
+                {
+                    runtimeError("Where only works on lists.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                Value filterFunction;
+                if (!tableGet(&vm.globals, vm.whereString, &filterFunction))
+                {
+                    runtimeError("filter missing from core function.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                pop();
+                pop();
+                push(filterFunction);
+                push(list);
+                push(fn);
+
                 break;
             }
             case OP_RETURN: {

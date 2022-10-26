@@ -30,6 +30,7 @@ typedef struct {
     size_t bytesAllocated;
     size_t nextGC;
     ObjString* initString;
+    ObjString* whereString;
 } VM;
 
 typedef enum {
