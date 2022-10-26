@@ -530,7 +530,6 @@ static void addLocal(Token name, bool isConst)
     local->isCaptured = false;
 }
 
-// loop statement declares a variable called 'i' to use as a counter
 static void declareLoopVariable(char* variableName)
 {
     Token name;

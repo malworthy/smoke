@@ -553,99 +553,7 @@ static bool incDecProperty(ObjString* propName, double amount)
 
     return true;
 }
-/*
-static int addThousandsSeparator(char* buffer, char* string, char sep)
-{
-    int count = 0;
-    bool negative = string[0] == '-';
-    
-    if(negative)  
-    { 
-        string++; 
-        count = 1; 
-        buffer[0]='-'; 
-    }
 
-    char* start = string;
-    
-    while(*string!='.' && *string!='\0') string++;
-
-    int len = string - start;
-    //printf("len:%d\n", len);
-    //printf("start: %s\n", start);
-    int firstComma = len % 3;
-    int digitCount = 1;
-    while(*start != '\0')
-    {
-        buffer[count] = *start;
-        //printf("char: %c count: %d buf: %s (len-count): %d\n", *start, count, buffer, (len-count));
-        count++;
-        if (digitCount < len && digitCount >= firstComma && (digitCount - firstComma) % 3 == 0) 
-        {
-            buffer[count++] = sep;
-            //printf("char: %c count: %d buf: %s\n", *start, count, buffer);
-        }
-        start++;
-        digitCount++;
-    }
-    //printf("final count: %d\n", count);
-    buffer[count] = '\0';
-
-    return count;
-}
-
-static bool toCFormat(char* format, char* buffer)
-{
-    if(format[0] == 'n' || format[0] == 'c')
-    {
-        int decimalPlaces = 0;
-        if (strlen(format) > 1 ) decimalPlaces = atoi(format+1);
-        if (decimalPlaces > 30) decimalPlaces = 30;
-        if (decimalPlaces < 0) decimalPlaces = 0;
-        sprintf(buffer, "%%0.%df", decimalPlaces);
-        return true;
-    }
-
-    sprintf(buffer, "%s", format);
-    return true;
-}
-
-static Value format(Value fmt, Value val)
-{
-    if (IS_NUMBER(val))
-    {
-        char cformatstring[100]; 
-        char* formatString = AS_CSTRING(fmt);
-        bool result = toCFormat(formatString, cformatstring);
-
-        //printf("format string: %s\n\n", cformatstring);
-        char buffer[100];
-        int len = sprintf(buffer, cformatstring, AS_NUMBER(val));
-        if (formatString[0] == 'c')
-        {
-            char buffer2[100];
-            len = addThousandsSeparator(buffer2, buffer, ',');
-            return OBJ_VAL(copyStringRaw(buffer2, len));
-        }
-        return OBJ_VAL(copyStringRaw(buffer, len));
-        
-    }
-
-    if (IS_DATETIME(val))
-    {
-        char* cformatstring = AS_CSTRING(fmt);
-        time_t t = AS_DATETIME(val);
-        struct tm *tm = localtime(&t);
-        char buffer[100];
-        int len = strftime(buffer, sizeof(buffer), cformatstring, tm);
-
-        return OBJ_VAL(copyStringRaw(buffer, len));
-    }
-
-    // if neither date or number, ignore format string and leave value alone
-    return val;
-}
-*/
 static InterpretResult run() 
 {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
@@ -804,6 +712,12 @@ static InterpretResult run()
             }
             case OP_DEFINE_GLOBAL: {
                 ObjString* name = READ_STRING();
+                Value value;
+                if(tableGet(&vm.globals, name, &value))
+                {
+                    runtimeError("A global variable or function called '%s' already exists.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 tableSet(&vm.globals, name, peek(0));
                 pop();
                 break;

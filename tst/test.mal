@@ -1,1 +1,7 @@
-[1,2,3] where x => x == 2
+fn test()
+{
+    fn test2() { print "hi" }
+    var test2 = 45
+    test2()
+    print test2
+}

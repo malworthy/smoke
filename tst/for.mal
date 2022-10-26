@@ -57,3 +57,11 @@ for x in range(2,4) print x;
 //expect:2
 //expect:3
 
+for a in [1..2]
+{
+    for b in [1..2] print "%{a}-%{b}" 
+}
+//expect:1-1
+//expect:1-2
+//expect:2-1
+//expect:2-2

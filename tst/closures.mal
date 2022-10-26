@@ -1,11 +1,11 @@
-fn outer() {
+fn outer1() {
   var x = "outside";
   fn inner() {
     print x;
   }
   inner();
 }
-outer();
+outer1();
 //expect:outside
 
 fn outer() {
