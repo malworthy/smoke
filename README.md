@@ -78,13 +78,13 @@ print addNumbers(1,1); // prints 2
 
 ## String interpolation
 Anything between '%{' and '}' is evaluated and embedded into the string.
-You can also include a format string to format the evaluated value.  Format strings only work on numbers and dates. For other data types the format string will be ignored. Use a dollar sign after the expression to add a format string.  The format string is anything between the '$' and the closing '}'.
+You can also include a format string to format the evaluated value.  Format strings only work on numbers and dates. For other data types the format string will be ignored. Use a pipe '|' after the expression to add a format string.  The format string is anything between the '|' and the closing '}'.
 
 Format strings are passed as is to the C code. See C documentation on strftime for date formats, and printf for number formats.
 
 ```
 var interpolated = "Value: %{1+1}" // "Value: 2"
-var withFormatting = "%{100.1234$%0.2f}" // "100.12"
+var withFormatting = "%{100.1234|0.2f}" // "100.12"
 ```
 
 ## Native functions
