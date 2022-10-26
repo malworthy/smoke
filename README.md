@@ -97,6 +97,13 @@ Console
 - textColor("red") // changes the console text colour 
 - write("string") // write to the console without printing a newline afterwards (unlike print)
 
+Dates
+- dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])
+- now() // returns the current date/time in current timezone
+- date(datestring) // creates a new date by converting datestring to a date.  Format for datestring is yyyy-mm-dd hh:MM:ss
+- dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy,  year, hour, min, sec
+
+
 Lists
 - add(list, item) // add item to list
 - len(list) // gets the length of a list or string
