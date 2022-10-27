@@ -815,6 +815,13 @@ static void _select(bool canAssign)
     emitBytes(OP_CALL, 2);
 }
 
+static void addList(bool canAssign)
+{
+    //printf("parsed <<\n");
+    expression();
+    emitByte(OP_LIST_ADD);
+}
+
 ParseRule rules[] = 
 {
     [TOKEN_INTERPOLATION] = {interpolation, NULL,   PREC_NONE},
@@ -865,6 +872,7 @@ ParseRule rules[] =
     [TOKEN_EOF]           = {NULL,     NULL,        PREC_NONE},
     [TOKEN_WHERE]         = {NULL,     where,       PREC_TERM},
     [TOKEN_SELECT]        = {NULL,     _select,     PREC_TERM},
+    [TOKEN_LESS_LESS]   = {NULL,     addList,     PREC_TERM},
 };
 
 static void parsePrecedence(Precedence precedence) 

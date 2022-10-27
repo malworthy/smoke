@@ -5,7 +5,7 @@ fn main()
     for i in [0..10000] lst = lst + [i];
     print lst[10000];
     const time = clock() - start;
-    if time > 3 then print "too slow"
+    //if time > 3 then print "too slow"
 }
 
 main();

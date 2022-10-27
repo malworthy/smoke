@@ -1,0 +1,12 @@
+print [1,2,3] << 4
+//expect:[1, 2, 3, 4]
+
+const x = ((([] << 1) << 2) << 3) << 4
+print x
+//expect:[1, 2, 3, 4]
+
+const y = [1,2,3]
+
+y << "hello"
+print y
+//expect [1, 2, 3, hello]

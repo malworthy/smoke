@@ -184,7 +184,7 @@ void initVM()
     defineNative("cursoff", cursoffNative, 1);
 
     // LISTS
-    defineNative("add", addNative, 2);
+    //defineNative("add", addNative, 2);
     defineNative("len", lenNative, 1);
     defineNative("~range", rangeNative, 3);
     defineNative("join", joinNative, 1);
@@ -761,6 +761,11 @@ static InterpretResult run()
             }
             case OP_LIST_ADD: {
                 Value val = pop();
+                if (!IS_LIST(peek(0)))
+                {
+                    runtimeError("Expect list");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 ObjList* list = AS_LIST(peek(0));
 
                 writeValueArray(&list->elements, val);

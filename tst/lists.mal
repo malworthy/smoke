@@ -13,7 +13,7 @@ print list2[0];
 print list2[1];
 //expect:b
 
-add(list2,"c");
+list2 << "c";
 print list2[2];
 //expect:c
 
@@ -27,7 +27,7 @@ print list_in_list[2][0];
 print list_in_list[1];
 //expect:2
 
-add(list_in_list[2], "hello");
+list_in_list[2]<< "hello"
 
 print list_in_list[2][2];
 //expect:hello
