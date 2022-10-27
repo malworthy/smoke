@@ -4,6 +4,10 @@ A scripting language based on the clox interpreter from Bob Nystrom's excellent 
 
 Although the underlying code is based on clox, MAL is a very different language.
 
+Compiling
+# for a better repl experience on linux install the readline library
+sudo apt-get install libreadline-dev
+
 ## Data types
 
 There a 5 different data types
