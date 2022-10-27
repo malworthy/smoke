@@ -116,6 +116,44 @@ bool dateNative(int argCount, Value* args)
 
     return true;
 }
+// 0=interval, 1=start, 2=end
+bool datediffNative(int argCount, Value* args)
+{
+    CHECK_STRING(0,"Argument 1 of datediff() must be a string");
+    CHECK_DATE(1,"Argument 2 of datediff() must be a date");
+    CHECK_DATE(2,"Argument 2 of datediff() must be a date");
+
+    time_t start = AS_DATETIME(args[1]);
+    time_t end = AS_DATETIME(args[2]);
+    double diffSecs = difftime(end, start);
+    double result = 0;
+    ObjString* interval = AS_STRING(args[0]);
+
+    if (compareStrings("day", 3, interval))
+    {
+        result = diffSecs / 60 / 60 / 24;
+    }
+    else if (compareStrings("hour", 4, interval))
+    {
+        result = diffSecs / 60 / 60;
+    }
+    else if (compareStrings("min", 3, interval))
+    {
+        result = diffSecs / 60;
+    }
+    else if (compareStrings("sec", 3, interval))
+    {
+        result = diffSecs;
+    }
+    else
+    {
+        NATIVE_ERROR("Invalid Interval for datediff(): Must be 'day', 'hour', 'min' or 'sec'");
+    }
+    args[-1] = NUMBER_VAL(result);
+
+    return true;
+}
+
 
 //0=date, 1=interval, 2=number
 bool dateaddNative(int argCount, Value* args)

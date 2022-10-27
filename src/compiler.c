@@ -782,7 +782,7 @@ static void where(bool canAssign)
     emitBytes(OP_CALL, 2);
 }
 
-static void select(bool canAssign)
+static void _select(bool canAssign)
 {
     Compiler compiler;
     initCompiler(&compiler, TYPE_ANON);
@@ -864,7 +864,7 @@ ParseRule rules[] =
     [TOKEN_ERROR]         = {NULL,     NULL,        PREC_NONE},
     [TOKEN_EOF]           = {NULL,     NULL,        PREC_NONE},
     [TOKEN_WHERE]         = {NULL,     where,       PREC_TERM},
-    [TOKEN_SELECT]        = {NULL,     select,      PREC_TERM},
+    [TOKEN_SELECT]        = {NULL,     _select,     PREC_TERM},
 };
 
 static void parsePrecedence(Precedence precedence) 

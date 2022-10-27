@@ -14,6 +14,14 @@
 #ifndef _WIN32
 
 #include "native/conio.h"
+#define USE_READLINE
+
+#endif
+
+#ifdef USE_READLINE
+
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #endif
 
@@ -33,13 +41,19 @@ static void repl()
     for (;;) 
     {
         printf("> ");
-
+#ifdef USE_READLINE
+        char *buffer = readline("");
+        strncpy(line, buffer, 1024);
+        line[1023] = '\0';
+        if(line[0] != '\0') add_history(line);
+        free(buffer);
+#else
         if (!fgets(line, sizeof(line), stdin)) 
         {
             printf("\n");
             break;
         }
-
+#endif
         interpret(line);
     }
 }

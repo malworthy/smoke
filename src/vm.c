@@ -163,11 +163,14 @@ void initVM()
     defineNative("sleep", sleepNative, 1);
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
+    defineNative("rand", randNative, 1);
+
+    // Dates
     defineNative("now", nowNative, 0);
     defineNative("date", dateNative, 1);
     defineNative("dateadd", dateaddNative, 3);
     defineNative("dateparts", datepartsNative, 1);
-    defineNative("rand", randNative, 1);
+    defineNative("datediff", datediffNative, 3);
 
     // CONSOLE
     defineNative("write", writeNative, 1);
