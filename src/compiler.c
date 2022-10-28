@@ -680,17 +680,24 @@ static void list(bool canAssign)
 
 static void subscript(bool canAssign)
 {
-    // get the index of the array
-    expression();
-
-    if (!match(TOKEN_COLON))
+    if (match(TOKEN_GREATER_GREATER))
     {
-        emitByte(OP_SUBSCRIPT);
+        emitByte(OP_POP_LIST);
     }
     else
     {
+        // get the index of the array
         expression();
-        emitByte(OP_SLICE);
+
+        if (!match(TOKEN_COLON))
+        {
+            emitByte(OP_SUBSCRIPT);
+        }
+        else
+        {
+            expression();
+            emitByte(OP_SLICE);
+        }
     }
     
     consume(TOKEN_RIGHT_BRACKET,"Expect ']'");

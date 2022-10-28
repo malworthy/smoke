@@ -772,6 +772,23 @@ static InterpretResult run()
 
                 break;
             }
+            case OP_POP_LIST: {
+                if (!IS_LIST(peek(0)))
+                {
+                    runtimeError("Expect list");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(pop());
+                if (list->elements.count == 0)
+                {
+                    runtimeError("List is empty. Nothing can be removed.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(list->elements.values[list->elements.count-1]);
+                list->elements.count--;
+
+                break;
+            }
             case OP_JOIN: {
                 ObjList* list = AS_LIST(peek(0));
                 Value val = join(list);
