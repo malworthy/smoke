@@ -1035,6 +1035,30 @@ static void method()
     emitBytes(OP_METHOD, constant);
 }
 
+static void enumDeclaration()
+{
+    consume(TOKEN_IDENTIFIER, "Expect enum name.");
+    Token enumName = parser.previous;
+    uint8_t nameConstant = identifierConstant(&parser.previous);
+    declareVariable(false);
+
+    emitBytes(OP_ENUM, nameConstant);
+    defineVariable(nameConstant);
+    namedVariable(enumName, false);
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) 
+    {
+        consume(TOKEN_IDENTIFIER, "Expect enum name.");
+        uint8_t fieldConstant = identifierConstant(&parser.previous);
+        emitBytes(OP_ENUM_FIELD, fieldConstant);
+        if (check(TOKEN_RIGHT_BRACE))
+            break;
+        consume(TOKEN_COMMA,"Expect ',' after enum field");
+    }
+    emitByte(OP_POP);
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+}
+
 static void classDeclaration() 
 {
     consume(TOKEN_IDENTIFIER, "Expect class name.");
@@ -1282,6 +1306,8 @@ static void declaration()
         varDeclaration(isConst);
     else if (match(TOKEN_CLASS))
         classDeclaration();
+    else if (match(TOKEN_ENUM))
+        enumDeclaration();
     else 
         statement();
 

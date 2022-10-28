@@ -1,0 +1,15 @@
+print 1 > 2
+//expect:false
+print 1 < 2
+//expect:true
+
+print "a" > "b"
+//expect:false
+print "a" < "b"
+//expect:true
+
+print "abacus" >= "aardvark"
+//expect:true
+
+print "100" <= "200"
+//expect:true

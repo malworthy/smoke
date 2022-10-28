@@ -97,6 +97,15 @@ ObjClass* newClass(ObjString* name)
     return klass;
 }
 
+ObjEnum* newEnum(ObjString* name) 
+{
+    ObjEnum* _enum = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM);
+    _enum->name = name; 
+    _enum->counter = 0;
+    initTable(&_enum->fields);
+    return _enum;
+}
+
 static ObjString* allocateString(char* chars, int length, uint32_t hash) 
 {
     ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
@@ -271,6 +280,8 @@ int stringifyObject(Value value, char* str)
             return stringifyList(AS_LIST(value), str);
         case OBJ_CLASS:
             return sprintf(str, "%s", AS_CLASS(value)->name->chars);
+        case OBJ_ENUM:
+            return sprintf(str, "%s", AS_ENUM(value)->name->chars);
         case OBJ_INSTANCE:
             return sprintf(str, "%s instance", AS_INSTANCE(value)->klass->name->chars);
         case OBJ_BOUND_METHOD:
@@ -312,6 +323,8 @@ int stringifyObjectLength(Value value)
             return stringifyListLength(AS_LIST(value));
         case OBJ_CLASS:
             return AS_CLASS(value)->name->length;
+        case OBJ_ENUM:
+            return AS_ENUM(value)->name->length;
         case OBJ_INSTANCE:
             return AS_INSTANCE(value)->klass->name->length + 9;
         case OBJ_BOUND_METHOD:

@@ -401,6 +401,18 @@ static void defineMethod(ObjString* name)
     pop();
 }
 
+static void defineEnumField(ObjString* name) 
+{
+    //Value field = peek(0);
+    ObjEnum* _enum = AS_ENUM(peek(0));
+    Value val = NUMBER_VAL((double)_enum->counter);
+
+    //printf("Defining enum field: %s\n", name->chars);
+    
+    tableSet(&_enum->fields, name, val);
+    _enum->counter++;
+}
+
 static bool isFalsey(Value value) 
 {
     // 0 is false, all other numbers true
@@ -909,10 +921,37 @@ static InterpretResult run()
                 push(OBJ_VAL(newList()));
                 break;
             }
+            case OP_ENUM:
+                push(OBJ_VAL(newEnum(READ_STRING())));
+                break;
+            case OP_ENUM_FIELD:
+                defineEnumField(READ_STRING());
+                break;
             case OP_CLASS:
                 push(OBJ_VAL(newClass(READ_STRING())));
                 break;
             case OP_GET_PROPERTY: {
+                if (IS_ENUM(peek(0)))
+                {
+                    ObjEnum* _enum = AS_ENUM(peek(0));
+                    ObjString* name = READ_STRING();
+
+                    Value value;
+                    //printf("enum count: %d\n", _enum->fields.count);
+                    //printValue(_enum->fields.entries[0].value);
+                    if (tableGet(&_enum->fields, name, &value)) 
+                    {
+                        pop(); // Enum.
+                        push(value);
+                        break;
+                    }
+                    else
+                    {
+                        runtimeError("Unknowm enum value '%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    break;
+                }
                 if (!IS_INSTANCE(peek(0))) 
                 {
                     runtimeError("Only instances have properties.");

@@ -143,7 +143,16 @@ static TokenType identifierType()
             break;
          
         case 'd': return checkKeyword(1, 1, "o", TOKEN_DO);
-        case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
+        //case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
+        case 'e':
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
+                    case 'n': return checkKeyword(2, 2, "um", TOKEN_ENUM);
+                    case 'l': return checkKeyword(2, 2, "se", TOKEN_ELSE);
+                }
+            }
+            break;
+
         case 'f':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {

@@ -185,6 +185,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return simpleInstruction("OP_CLOSE_UPVALUE", offset);
         case OP_WHERE:
             return simpleInstruction("OP_WHERE", offset);
+        case OP_ENUM:
+            return constantInstruction("OP_ENUM", chunk, offset);
+        case OP_ENUM_FIELD:
+            return constantInstruction("OP_ENUM_FIELD", chunk, offset);
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;

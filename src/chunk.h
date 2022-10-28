@@ -54,7 +54,10 @@ typedef enum {
     OP_INVOKE,
     OP_WHERE,
     OP_SELECT,
-    OP_POP_LIST
+    OP_POP_LIST,
+    OP_ENUM,
+    OP_ENUM_FIELD,
+    OP_ENUM_GET
 } OpCode;
 
 typedef struct {

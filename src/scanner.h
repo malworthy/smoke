@@ -27,6 +27,7 @@ typedef enum {
     // mal's tokens
     TOKEN_CONST, TOKEN_THEN, TOKEN_DO,
     TOKEN_IN, TOKEN_WHERE, TOKEN_SELECT,
+    TOKEN_ENUM,
 
     TOKEN_ERROR, TOKEN_EOF
 } TokenType;

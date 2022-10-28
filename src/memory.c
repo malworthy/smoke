@@ -117,6 +117,12 @@ static void blackenObject(Obj* object)
             markTable(&instance->fields);
             break;
         }
+        case OBJ_ENUM: 
+        {
+            ObjEnum* _enum = (ObjEnum*)object;
+            markTable(&_enum->fields);
+            break;
+        }
         case OBJ_BOUND_METHOD: 
         {
             ObjBoundMethod* bound = (ObjBoundMethod*)object;
@@ -187,6 +193,13 @@ static void freeObject(Obj* object)
             ObjInstance* instance = (ObjInstance*)object;
             freeTable(&instance->fields);
             FREE(ObjInstance, object);
+            break;
+        }
+        case OBJ_ENUM: 
+        {
+            ObjEnum* _enum = (ObjEnum*)object;
+            freeTable(&_enum->fields);
+            FREE(ObjEnum, object);
             break;
         }
         case OBJ_BOUND_METHOD:

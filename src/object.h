@@ -30,6 +30,9 @@
 #define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 
+#define IS_ENUM(value)         isObjType(value, OBJ_ENUM)
+#define AS_ENUM(value)         ((ObjEnum*)AS_OBJ(value))
+
 typedef enum {
     OBJ_STRING,
     OBJ_UPVALUE,
@@ -39,7 +42,8 @@ typedef enum {
     OBJ_LIST,
     OBJ_CLASS,
     OBJ_INSTANCE,
-    OBJ_BOUND_METHOD
+    OBJ_BOUND_METHOD,
+    OBJ_ENUM
 } ObjType;
 
 struct Obj {
@@ -105,6 +109,14 @@ typedef struct {
     Table fields; 
 } ObjInstance;
 
+typedef struct
+{
+    Obj obj;
+    ObjString* name;
+    Table fields;
+    int counter;
+} ObjEnum;
+
 typedef struct {
     Obj obj;
     Value receiver;
@@ -122,6 +134,7 @@ ObjString* copyString(const char* chars, int length);
 ObjString* copyStringRaw(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
 ObjList* newList();
+ObjEnum* newEnum(ObjString* name);
 bool compareStrings(char* chars, int length, ObjString* compareString);
 //void printObject(Value value);
 int stringifyObject(Value value, char* str);

@@ -1,0 +1,20 @@
+enum Token
+{
+    LeftParan,
+    RightParan,
+    LeftBrace,
+    RightBrace
+}
+
+print Token.LeftBrace
+print Token.RightBrace
+//expect:2
+//expect:3
+
+enum test2 { one }
+print test2.one
+//expect:0
+
+enum test3 {one,two,}
+print test3.two
+//expect:1
