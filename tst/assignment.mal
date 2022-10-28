@@ -1,0 +1,42 @@
+{
+    var a = "a"
+    var b = "b"
+    a = b = "chain"
+    print a
+    print b
+
+//expect:chain
+//expect:chain
+
+    var c = a = "var"
+    print a
+    print c
+
+//expect:var
+//expect:var
+}
+
+{
+    var a = "a"
+    var b = "b"
+    var c = "c"
+    a=b=c
+    print "%{a}%{b}%{c}"
+//expect:ccc
+}
+
+fn local()
+{
+    var a = "before"
+    print a
+    a = "after"
+    print a
+    print a="arg"
+    print a
+}
+local()
+//expect:before
+//expect:after
+//expect:arg
+//expect:arg
+
