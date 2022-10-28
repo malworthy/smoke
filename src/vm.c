@@ -583,6 +583,13 @@ static InterpretResult run()
                 time_t a = AS_DATETIME(pop()); \
                 push(valueType(a op b)); \
             } \
+            else if (IS_STRING(peek(0)) && IS_STRING(peek(1))) \
+            { \
+                char* b = AS_CSTRING(pop()); \
+                char* a = AS_CSTRING(pop()); \
+                int result = strcmp(a, b); \
+                push(valueType(result op 0)); \
+            } \
             else \
             { \
                 runtimeError("Operands must be numbers or dates."); \
