@@ -37,6 +37,8 @@ add_test(NAME assignment COMMAND python ../test_runner.py "mal.exe" "../tst/assi
 add_test(NAME pop COMMAND python ../test_runner.py "mal.exe" "../tst/pop.mal" "//expect:")
 add_test(NAME comparison COMMAND python ../test_runner.py "mal.exe" "../tst/comparison.mal" "//expect:")
 add_test(NAME enum COMMAND python ../test_runner.py "mal.exe" "../tst/enum.mal" "//expect:")
+add_test(NAME shovel COMMAND python ../test_runner.py "mal.exe" "../tst/shovel.mal" "//expect:")
+add_test(NAME shovel_method COMMAND python ../test_runner.py "mal.exe" "../tst/shovel_method.mal" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/inc_string.mal" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/dec_string.mal" "//expect:")

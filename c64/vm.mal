@@ -1,0 +1,30 @@
+class Vm
+{
+    init(chunk)
+    {
+        me.chunk = chunk
+        me.ip = 0
+        me.stack = []
+        me.variables = []
+        for x in [0..65536]
+            me.variables << 0
+    }
+
+    run()
+    {
+        while true do
+        {
+            var instr = me.chunk[me.ip++]
+
+            if instr.op == OpCode.OpReturn then
+            {
+                return true
+            }
+            else if instr.op == OpCode.OpConstant then
+            {
+                print instr.operand
+            }
+        }
+    }
+
+}

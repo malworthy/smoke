@@ -1,0 +1,13 @@
+#inc scanner.mal
+
+const program = [
+"10 I = 1",
+"20 print \"TEST NR.\";I",
+"30 I = I + 1",
+"40 if I<=10 goto 20"
+]
+
+//const program = ["10 2)"]
+const scanner = Scanner(program)
+for t in scanner.scanTokens()
+    print t.toString()

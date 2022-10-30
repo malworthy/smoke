@@ -1,0 +1,30 @@
+class Token 
+{
+
+}
+
+class Scanner
+{
+    makeToken(n)
+    {
+        if n == 0 then
+        {
+            var result = Token()
+            result.word = "hello"
+            return result
+        }
+        return 47
+    }
+
+    scan()
+    {
+        var result = []
+        for i in [0..3]
+            result << me.makeToken(i)
+
+        return result
+    }
+}
+const testing = Scanner()
+print testing.scan()
+//expect:[Token instance, 47, 47, 47]

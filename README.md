@@ -65,7 +65,9 @@ for c in "this is a string" print c;
 // Lists can only be added to. (Hint: Use slicing to remove items from a list)
 
 const list = [];
-add(list, "hello") // adds "hello" to the end of the list
+list << "hello" // adds "hello" to the end of the list
+
+var item = list[>>] // 'pop' item of end of list. 
 
 // Slicing
 const list [1,2,3,4,5,6];
@@ -89,6 +91,18 @@ Format strings are passed as is to the C code. See C documentation on strftime f
 ```
 var interpolated = "Value: %{1+1}" // "Value: 2"
 var withFormatting = "%{100.1234|0.2f}" // "100.12"
+```
+
+
+## Enums
+You can define enums as below:
+```
+enum Animal
+{
+  Dog, // value = 0
+  Cat, // value = 1
+  Fish // value = 2
+}
 ```
 
 ## Native functions

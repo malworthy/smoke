@@ -1,0 +1,35 @@
+enum OpCode
+{
+    OpNone,
+    OpPrint,
+    OpAdd,
+    OpReturn,
+}
+
+class Instruction
+{
+    writeByte(op)
+    {
+        me.op = op
+    }
+
+    writeBytes(op, operand)
+    {
+        me.op = op
+        me.operand = operand
+    }
+}
+
+class Compiler
+{
+    init(tokens)
+    {
+        me.tokens = tokens;
+        me.chunk = []
+    }
+
+    compile()
+    {
+        return me.chunk
+    }
+}

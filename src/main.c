@@ -93,7 +93,28 @@ static char* readFile(const char* path)
 // TODO: Need to add all the error handling!
 static bool preProcessFile(const char* filename, const char* rootFilename)
 {    
-    char* buffer = readFile(filename);
+    char adjustedFilename[256];
+    if (strcmp(filename, rootFilename) != 0)
+    {
+        for(int i=strlen(rootFilename)-1; i>0; i--)
+        {
+            if (rootFilename[i] == '/' || rootFilename[i] == '\\')
+            {
+                memcpy(adjustedFilename, rootFilename, i+1);
+                memcpy(adjustedFilename + i+1, filename, strlen(filename)+1);
+                adjustedFilename[i+strlen(filename)+1] = '\0';
+                break;
+            }
+        }
+    }
+    else
+    {
+        memcpy(adjustedFilename, filename, strlen(filename)+1);
+    }
+
+    //printf("Adjusted Filename: %s\n", adjustedFilename);
+
+    char* buffer = readFile(adjustedFilename);
 
     char* localIncludeFiles[MAX_INCS];
     char* current = buffer;

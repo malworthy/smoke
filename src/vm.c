@@ -779,15 +779,16 @@ static InterpretResult run()
                 break;
             }
             case OP_LIST_ADD: {
-                Value val = pop();
-                if (!IS_LIST(peek(0)))
+                Value val = peek(0); // pop();
+                if (!IS_LIST(peek(1)))
                 {
                     runtimeError("Expect list");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjList* list = AS_LIST(peek(0));
+                ObjList* list = AS_LIST(peek(1));
 
                 writeValueArray(&list->elements, val);
+                pop();
 
                 break;
             }

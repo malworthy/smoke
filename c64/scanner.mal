@@ -1,0 +1,188 @@
+enum TokenType
+{
+    None,
+    Print,
+    Goto,
+    If,
+    LessEqual,
+    GreaterEqual,
+    Less,
+    Greater,
+    Equals,
+    Plus,
+    Minus,
+    Times,
+    Divide,
+    LeftParan,
+    RightParan,
+    SemiColon,
+    Colon,
+    Identifier, 
+    String, 
+    Number,
+}
+
+class Token
+{
+    init()
+    {
+        me.line_number = 0
+        me.token_type = TokenType.None
+        me.lexeme = ""
+    }
+
+    toString()
+    {
+        return "line: %{me.line_number} type:%{me.token_type} lexeme:%{me.lexeme}"
+    }
+}
+
+class Scanner
+{
+    init(lines)
+    {
+        me.lines = lines
+        me.start = 0
+        me.current = 0
+        me.line_count = 0
+        me.tokens = []
+        me.keywords = ["print","goto","if","<=", ">=","<",">", "=","+","-","*","/","(",")",";",":"]
+    }
+
+    scanTokens()
+    {
+        for line in me.lines
+        {
+            var t = me.scanLine(line)
+            me.tokens = me.tokens + t
+
+            me.current = 0
+            me.start = 0
+        }
+        return me.tokens
+    }
+
+    getLineNumber(line)
+    {
+        var lineNum = ""
+
+        for char in line
+        {
+            if char >= "0" and char <= "9" then 
+                lineNum = lineNum + char
+            else
+                return lineNum
+
+            me.start++
+        }
+
+        return lineNum
+    }
+
+    skipWhitespace(line)
+    {
+        while (line[me.current] == " " or line[me.current] == "\t") and me.current < len(line)-1 do
+            me.current++
+    }
+
+    makeToken(line, line_number)
+    {
+        //print "Scanning %{line[me.current]}"
+        var count = 1
+        var result = Token()
+        result.line_number = line_number
+
+        // keywords
+        //me.skipWhitespace(line)
+
+        for word in me.keywords
+        {       
+            if len(word)+me.current <= len(line) and line[me.current:me.current+len(word)] == word  then
+            {
+                //print me.current
+                result.token_type = count
+                result.lexeme = word
+                result.line_number = line_number
+                me.current = me.current + len(word)
+
+                return result
+            }
+            count++
+        }
+
+        // numbers
+        if me.isNumber(line[me.current]) then
+        {
+            while !me.isAtEnd(line) and me.isNumber(line[me.current]) do
+            {
+                //print "number: %{line[me.current]} current: %{me.current} len: %{len(line)}"
+                result.token_type = TokenType.Number
+                result.lexeme = result.lexeme + line[me.current]
+                me.current++
+                //print "In Number"
+            }
+            //result.lexeme = result.lexeme + line[me.current]
+        }
+        // strings
+        else if line[me.current] == "\"" then //"
+        {
+            result.token_type = TokenType.String
+            me.current++
+            while !me.isAtEnd(line) and line[me.current] != "\"" do //"
+                result.lexeme = result.lexeme + line[me.current++]
+            me.current++
+        }
+        // identifier
+        else if me.isAlpha(line[me.current]) then
+        {
+            result.token_type = TokenType.Identifier
+            while !me.isAtEnd(line) and (me.isNumber(line[me.current]) or me.isAlpha(line[me.current]))  do
+            {
+                //print "number: %{line[me.current]} current: %{me.current} len: %{len(line)}"
+                
+                result.lexeme = result.lexeme + line[me.current]
+                me.current++
+            }
+            //result.lexeme = result.lexeme + line[me.current]
+        }
+        else
+            me.current++
+
+        return result
+    }
+
+    isAtEnd(line)
+    {
+        return !(me.current < len(line))
+    }
+
+    isNumber(char) =>  char >= "0" and char <= "9"
+    //{
+    //    return char >= "0" and char <= "9"
+   // }
+
+    isAlpha(c)  =>
+        (c >= "a" and c <= "z") or
+        (c >= "A" and c <= "Z") 
+
+    scanLine(line)
+    {
+        var result = []
+        var line_number = me.getLineNumber(line)
+        me.current = me.start
+
+        while(me.current < len(line)) do
+        {
+            var token = me.makeToken(line, line_number)
+            if token.token_type != TokenType.None then result << token
+            //print "After token: %{me.current}"
+        }
+        return result
+    }
+    
+}
+
+//const program = ["10 print \"hello\" ", "15 x = x + 1 * 2 + (5 - 2) / 7", "20 goto 10"]
+
+
+

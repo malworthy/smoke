@@ -9,5 +9,17 @@ const y = [1,2,3]
 
 y << "hello"
 print y
-//expect [1, 2, 3, hello]
+//expect:[1, 2, 3, hello]
+
+fn test(num)
+{
+    if num == 0 then return "test"
+    return 45
+}
+
+const lst = []
+for n in [0..1]
+    lst << test(n)
+print lst
+//expect:[test, 45]
 
