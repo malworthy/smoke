@@ -20,6 +20,8 @@ enum TokenType
     Identifier, 
     String, 
     Number,
+    Error,
+    Eof
 }
 
 class Token
@@ -59,6 +61,9 @@ class Scanner
             me.current = 0
             me.start = 0
         }
+        var eofToken = Token()
+        eofToken.token_type = TokenType.Eof
+        me.tokens << eofToken
         return me.tokens
     }
 

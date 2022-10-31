@@ -3,11 +3,44 @@ enum OpCode
     OpNone,
     OpPrint,
     OpAdd,
+    OpSubtract,
+    OpMultiply,
+    OpDivide,
+    OpNegate,
+    OpConstant,
+    OpPrint,
+    OpPop,
+    OpGetVariable,
+    OpSetVariable,
     OpReturn,
 }
 
+enum Precedence
+{
+    None,
+    Assignment,
+    Or,
+    And,
+    Equality,
+    Comparison,
+    Term,
+    Factor,
+    Unary,
+    Call,
+    Primary
+}
+
+// placeholder
+fn num(value) => value
+
 class Instruction
 {
+    init()
+    {
+        me.op = OpCode.OpNone
+        me.operand = 0
+    }
+
     writeByte(op)
     {
         me.op = op
@@ -18,6 +51,44 @@ class Instruction
         me.op = op
         me.operand = operand
     }
+
+    toString()
+    {
+        return "%{me.op} %{me.operand}"
+    }
+}
+
+class Chunk
+{
+    init()
+    {
+        me.instructions = []
+    }
+
+    writeByte(op)
+    {
+        const instr = Instruction()
+        instr.writeByte(op)
+        me.instructions << instr
+    }
+
+    writeBytes(op, operand)
+    {
+        const instr = Instruction()
+        instr.writeBytes(op, operand)
+        me.instructions << instr
+    }
+}
+
+class ParseRule
+{
+    init(token, prefix, infix, precedence)
+    {
+        me.token = token
+        me.prefix = prefix
+        me.infix = infix
+        me.precedence = precedence
+    }
 }
 
 class Compiler
@@ -25,11 +96,211 @@ class Compiler
     init(tokens)
     {
         me.tokens = tokens;
-        me.chunk = []
+        me.current = tokens[0]
+        me.chunk = Chunk()
+        me.token_index = 0
+        me.had_error = false
+        me.rules = [
+            ParseRule(TokenType.None, false, false, Precedence.None),
+            ParseRule(TokenType.Print, false, false, Precedence.None),
+            ParseRule(TokenType.Goto, false, false, Precedence.None),
+            ParseRule(TokenType.If, false, false, Precedence.None),
+            ParseRule(TokenType.LessEqual, false, false, Precedence.None),
+            ParseRule(TokenType.GreaterEqual, false, false, Precedence.None),
+            ParseRule(TokenType.Less, false, false, Precedence.None),
+            ParseRule(TokenType.Greater, false, false, Precedence.None),
+            ParseRule(TokenType.Equals, false, false, Precedence.None),
+            ParseRule(TokenType.Plus, false, me.binary, Precedence.Term),
+            ParseRule(TokenType.Minus, me.unary, me.binary, Precedence.Term),
+            ParseRule(TokenType.Times, false, me.binary, Precedence.Factor),
+            ParseRule(TokenType.Divide, false, me.binary, Precedence.Factor),
+            ParseRule(TokenType.LeftParan, me.grouping, false, Precedence.None),
+            ParseRule(TokenType.RightParan, false, false, Precedence.None),
+            ParseRule(TokenType.SemiColon, false, false, Precedence.None),
+            ParseRule(TokenType.Colon, false, false, Precedence.None),
+            ParseRule(TokenType.Identifier,  me.variable, false, Precedence.None),
+            ParseRule(TokenType.String,  me.string, false, Precedence.None),
+            ParseRule(TokenType.Number, me.number, false, Precedence.None),
+            ParseRule(TokenType.Error, false, false, Precedence.None),
+            ParseRule(TokenType.Eof,  false, false, Precedence.None)
+        ]
+    }
+
+
+
+    endCompiler()
+    {
+        me.chunk.writeByte(OpCode.OpReturn)
     }
 
     compile()
     {
+        me.advance()
+        
+        while (!me.match(TokenType.Eof)) do
+            me.declaration();
+
+        me.endCompiler()
+
         return me.chunk
+    }
+
+    declaration()
+    {
+        me.statement()
+    }
+
+    expressionStatement()
+    {
+        me.expression()
+        me.chunk.writeByte(OpCode.OpPop)
+    }
+
+    statement()
+    {
+        if me.match(TokenType.Print) then 
+            me.printStatement()
+        else
+            me.expressionStatement()
+    }
+
+    printStatement()
+    {
+        me.expression()
+        me.chunk.writeByte(OpCode.OpPrint)
+    }
+
+    match(type)
+    {
+        if !me.check(type) then return false
+        me.advance()
+        return true
+    }
+
+    check(type)
+    {
+        return me.current.token_type == type
+    }
+
+    advance()
+    {
+        if me.token_index >= len(me.tokens) then return
+
+        me.current = me.tokens[me.token_index++]
+        if me.current != TokenType.Error then return
+        me.error("?SYNTAX ERROR - error token")
+    }
+
+    previous()
+    {
+        return me.tokens[me.token_index-2]
+    }
+
+    expression()
+    {
+        me.parsePrecedence(Precedence.Assignment)
+    }
+
+    parsePrecedence(precedence)
+    {
+        me.advance()
+        const prefixRule = me.getRule(me.previous().token_type).prefix
+        print "Prefix rule: %{prefixRule}"
+        if (!prefixRule) then 
+        { 
+            me.error("?SYNTAX ERROR - no prefix rule")
+            return
+        }
+        prefixRule()
+        print "after prefix rule token: %{me.current.token_type}"
+        while precedence <= me.getRule(me.current.token_type).precedence do
+        {
+            print "parsing precedence"
+            me.advance()
+            const infixRule = me.getRule(me.previous().token_type).infix 
+            infixRule()
+        }
+    }
+
+    getRule(type)
+    {
+        // this is slow, but hey it's a c64, and safer than having to keep the indexes of the list in line
+        const rule = me.rules[type] //me.rules where x => x.token == type
+        //print "rule: %{rule.token}"
+
+        return rule
+    }
+
+
+
+    unary()
+    {
+        const op = me.previous().token_type
+
+        me.expression()
+        me.parsePrecedence(Precedence.Unary)
+        if op == TokenType.Minus then me.chunk.writeByte(OpCode.OpNegate)
+    }
+
+    binary()
+    {
+        const op = me.previous().token_type
+        const rule = me.getRule(op)
+        me.parsePrecedence(rule.precedence+1)
+
+        if op == TokenType.Plus then me.chunk.writeByte(OpCode.OpAdd)
+        if op == TokenType.Minus then me.chunk.writeByte(OpCode.OpSubtract)
+        if op == TokenType.Times then me.chunk.writeByte(OpCode.OpMultiply)
+        if op == TokenType.Divide then me.chunk.writeByte(OpCode.OpDivide)
+    }
+
+    number()
+    {
+        const token = me.previous()
+        const number = num(token.lexeme)
+        me.chunk.writeBytes(OpCode.OpConstant, number)
+    }
+
+    string()
+    {
+        const token = me.previous()
+        me.chunk.writeBytes(OpCode.OpConstant, token.lexeme)
+    }
+
+    grouping()
+    {
+        me.expression()
+        me.consume(TokenType.RightParan,"?SYNTAX ERROR - grouping")
+    }
+
+    variable()
+    {
+        const name = me.previous().lexeme
+        if me.match(TokenType.Equals) then
+        {
+            me.expression()
+            me.chunk.writeBytes(OpCode.OpSetVariable, name)
+        }
+        else
+        {
+            me.chunk.writeBytes(OpCode.OpGetVariable, name)
+        }
+        
+    }
+
+    consume(type, message)
+    {
+        if me.current.token_type == type then
+        {
+            me.advance()
+            return
+        }
+        me.error(message)
+    }
+
+    error(message)
+    {
+        me.had_error = true
+        print message
     }
 }

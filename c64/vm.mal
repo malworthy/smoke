@@ -10,6 +10,9 @@ class Vm
             me.variables << 0
     }
 
+    //TODO: placeholder
+    getVariableIndex(name) => 0
+
     run()
     {
         while true do
@@ -18,11 +21,62 @@ class Vm
 
             if instr.op == OpCode.OpReturn then
             {
+                //print me.stack[>>]
                 return true
             }
             else if instr.op == OpCode.OpConstant then
             {
-                print instr.operand
+                me.stack << instr.operand
+            }
+            else if instr.op == OpCode.OpNegate then
+            {
+                me.stack << -me.stack[>>]
+            }
+            else if instr.op == OpCode.OpAdd then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a + b)
+            }
+            else if instr.op == OpCode.OpSubtract then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a - b)
+            }
+            else if instr.op == OpCode.OpMultiply then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a * b)
+            }
+            else if instr.op == OpCode.OpDivide then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a / b)
+            }
+            else if instr.op == OpCode.OpPrint then
+            {
+                print me.stack[>>]
+            }
+            else if instr.op == OpCode.OpPop then
+            {
+                me.stack[>>]
+            }
+            else if instr.op == OpCode.OpGetVariable then
+            {
+                me.stack << me.variables[me.getVariableIndex(instr.operand)] //TODO
+            }
+            else if instr.op == OpCode.OpSetVariable then
+            {
+                const index = me.getVariableIndex(instr.operand)
+                const value = me.stack[-1]
+                if index == 0 then
+                    me.variables = ([] << value) + me.variables[1:0]
+                else
+                    me.variables = (me.variables[0:index] << value) + me.variables[index+1:0]
+                
             }
         }
     }

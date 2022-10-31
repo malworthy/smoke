@@ -1,4 +1,6 @@
 #inc scanner.mal
+#inc compiler.mal
+#inc vm.mal
 
 const program = [
 "10 I = 1",
@@ -7,7 +9,41 @@ const program = [
 "40 if I<=10 goto 20"
 ]
 
-//const program = ["10 2)"]
-const scanner = Scanner(program)
-for t in scanner.scanTokens()
+const program2 = ["10 print \"hello, world\" ", "20 1+1", "25 i = 666 + 2", "30 print i"]
+const scanner = Scanner(program2)
+const tokens = scanner.scanTokens()
+// print tokens
+for t in tokens
     print t.toString()
+const compiler = Compiler(tokens)
+const chunk = compiler.compile()
+
+
+print ""
+print "--- BYTECODE ---"
+for ins in chunk.instructions
+    print ins.toString()
+
+print ""
+print "--- PROGRAM OUTPUT ---"
+const vm = Vm(chunk.instructions)
+vm.run()
+
+
+
+//const compiler = Compiler(tokens)
+
+//const chunk = Chunk()
+//chunk.writeBytes(OpCode.OpConstant, 1.2)
+//chunk.writeBytes(OpCode.OpConstant, 1.8)
+//chunk.writeByte(OpCode.OpDivide)
+//chunk.writeByte(OpCode.OpReturn)
+
+//print chunk.instructions
+
+//const vm = Vm(chunk.instructions)
+//vm.run()
+
+// print tokens
+//for t in tokens
+//    print t.toString()
