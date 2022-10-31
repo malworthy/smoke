@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "common.h"
 #include "vm.h"
@@ -35,6 +36,47 @@ static bool sleepNative(int argCount, Value* args)
     CHECK_NUM(0, "Sleep expects number as parameter.");
     sleep(AS_NUMBER(args[0]));
 
+    return true;
+}
+
+static bool numNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "num expects a string as parameter.");
+    double val = atof(AS_CSTRING(args[0]));
+    args[-1] = NUMBER_VAL(val);
+
+    return true;
+}
+
+static bool asciiNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "ascii expects a string as parameter.");
+    
+    char* string = AS_CSTRING(args[0]);
+    if (string[0] == '\0')
+    {
+        NATIVE_ERROR("Cannet get ascii value for an empty string");
+    }
+    double val = string[0];
+
+    args[-1] = NUMBER_VAL(val);
+    
+    return true;
+}
+
+static bool upperNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "ascii expects a string as parameter.");
+    
+    ObjString* string = AS_STRING(args[0]);
+    char *result = ALLOCATE(char, string->length+1);
+
+    for (int i=0; i<string->length; i++)
+        result[i] = toupper(string->chars[i]);
+    result[string->length] = '\0';
+
+    args[-1] = OBJ_VAL(takeString(result, string->length));
+    
     return true;
 }
 
@@ -164,6 +206,9 @@ void initVM()
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
     defineNative("rand", randNative, 1);
+    defineNative("num", numNative, 1);
+    defineNative("ascii", asciiNative, 1);
+    defineNative("upper", upperNative, 1);
 
     // Dates
     defineNative("now", nowNative, 0);

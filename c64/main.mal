@@ -9,7 +9,7 @@ const program = [
 "40 if I<=10 goto 20"
 ]
 
-const program2 = ["10 print \"hello, world\" ", "20 1+1", "25 i = 666 + 2", "30 print i"]
+const program2 = ["10 print \"hello, world\" ", "20 1+1", "25 i = i + 1", "30 print i","40 goto 10"]
 const scanner = Scanner(program2)
 const tokens = scanner.scanTokens()
 // print tokens

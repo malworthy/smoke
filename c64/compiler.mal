@@ -12,6 +12,7 @@ enum OpCode
     OpPop,
     OpGetVariable,
     OpSetVariable,
+    OpGoto,
     OpReturn,
 }
 
@@ -31,14 +32,15 @@ enum Precedence
 }
 
 // placeholder
-fn num(value) => value
+//fn num(value) => value
 
 class Instruction
 {
-    init()
+    init(line_number)
     {
         me.op = OpCode.OpNone
         me.operand = 0
+        me.line_number = line_number
     }
 
     writeByte(op)
@@ -54,7 +56,21 @@ class Instruction
 
     toString()
     {
-        return "%{me.op} %{me.operand}"
+        const ops = ["OpNone",
+            "OpPrint",
+            "OpAdd",
+            "OpSubtract",
+            "OpMultiply",
+            "OpDivide",
+            "OpNegate",
+            "OpConstant",
+            "OpPrint",
+            "OpPop",
+            "OpGetVariable",
+            "OpSetVariable",
+            "OpGoto",
+            "OpReturn"]
+        return "%{me.line_number} %{ops[me.op]} %{me.operand}"
     }
 }
 
@@ -63,18 +79,24 @@ class Chunk
     init()
     {
         me.instructions = []
+        me.line_number = 0
+    }
+
+    setLine(line_number)
+    {
+        me.line_number = num(line_number)
     }
 
     writeByte(op)
     {
-        const instr = Instruction()
+        const instr = Instruction(me.line_number)
         instr.writeByte(op)
         me.instructions << instr
     }
 
     writeBytes(op, operand)
     {
-        const instr = Instruction()
+        const instr = Instruction(me.line_number)
         instr.writeBytes(op, operand)
         me.instructions << instr
     }
@@ -138,7 +160,11 @@ class Compiler
         me.advance()
         
         while (!me.match(TokenType.Eof)) do
-            me.declaration();
+        {
+            me.chunk.setLine(me.current.line_number)
+            me.declaration()
+        }
+            
 
         me.endCompiler()
 
@@ -156,10 +182,30 @@ class Compiler
         me.chunk.writeByte(OpCode.OpPop)
     }
 
+    gotoStatement()
+    {
+        me.consume(TokenType.Number, "?SYNTAX ERROR - line number expected")
+        me.chunk.writeBytes(OpCode.OpGoto, num(me.previous().lexeme))
+    }
+
+    ifStatement()
+    {
+        expression()
+        if match(TokenType.Then) then
+        {
+            me.chunk.writeByte(OpCode.OpJumpIfFalse)
+            statement()
+        }
+    }
+
     statement()
     {
         if me.match(TokenType.Print) then 
             me.printStatement()
+        else if me.match(TokenType.Goto) then
+            me.gotoStatement()
+        //else if me.match(TokenType.If) then
+        //    me.ifStatement()
         else
             me.expressionStatement()
     }
@@ -187,6 +233,7 @@ class Compiler
         if me.token_index >= len(me.tokens) then return
 
         me.current = me.tokens[me.token_index++]
+        //me.chunk.setLine(me.current.line_number)
         if me.current != TokenType.Error then return
         me.error("?SYNTAX ERROR - error token")
     }
@@ -205,17 +252,17 @@ class Compiler
     {
         me.advance()
         const prefixRule = me.getRule(me.previous().token_type).prefix
-        print "Prefix rule: %{prefixRule}"
+        //print "Prefix rule: %{prefixRule}"
         if (!prefixRule) then 
         { 
             me.error("?SYNTAX ERROR - no prefix rule")
             return
         }
         prefixRule()
-        print "after prefix rule token: %{me.current.token_type}"
+        //print "after prefix rule token: %{me.current.token_type}"
         while precedence <= me.getRule(me.current.token_type).precedence do
         {
-            print "parsing precedence"
+            //print "parsing precedence"
             me.advance()
             const infixRule = me.getRule(me.previous().token_type).infix 
             infixRule()
@@ -230,8 +277,6 @@ class Compiler
 
         return rule
     }
-
-
 
     unary()
     {

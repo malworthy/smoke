@@ -11,7 +11,50 @@ class Vm
     }
 
     //TODO: placeholder
-    getVariableIndex(name) => 0
+    getVariableIndex(name)
+    {
+        var byte1 = 0
+        var byte2 = 0
+
+        name = upper(name)
+
+        if len(name) == 1 then 
+        {
+            byte1 = 0
+            byte2 = ascii(name[0])
+        }
+        else
+        {
+            byte1 = ascii(name[0])
+            byte2 = ascii(name[1])
+        }
+
+        return byte1 * 128 + byte2
+        
+    }
+    runtimeError(message)
+    {
+        me.error = message
+        print message
+    }
+
+    gotoLine(number)
+    {
+        var startip = 0
+        if number > me.chunk[me.ip].line_number and me.ip < len(me.chunk)-1 then startip = me.ip + 1
+        //print "len chunk: %{len(me.chunk)}"
+        for i in [startip..len(me.chunk)-1]
+        {
+            //print "i: %{i}"
+            if me.chunk[i].line_number == number then
+            {
+                me.ip = i
+                return true
+            }
+        }
+        runtimeError("?UNDEF'D STATEMENT ERROR")
+        return false
+    }
 
     run()
     {
@@ -77,6 +120,10 @@ class Vm
                 else
                     me.variables = (me.variables[0:index] << value) + me.variables[index+1:0]
                 
+            }
+            else if instr.op == OpCode.OpGoto then
+            {
+                if !me.gotoLine(instr.operand) then return false
             }
         }
     }
