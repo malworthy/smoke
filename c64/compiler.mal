@@ -20,6 +20,7 @@ enum OpCode
     OpGreater,
     OpGreaterEqual,
     OpConcat,
+    OpInput,
     OpReturn
 }
 
@@ -83,6 +84,7 @@ class Instruction
             "OpGreater",
             "OpGreaterEqual",
             "OpConcat",
+            "OpInput",
             "OpReturn"]
         return "%{me.line_number} %{ops[me.op]} %{me.operand}"
     }
@@ -138,6 +140,7 @@ class Compiler
         me.had_error = false
         me.rules = [
             ParseRule(TokenType.None, false, false, Precedence.None),
+            ParseRule(TokenType.Input, false, false, Precedence.None),
             ParseRule(TokenType.Print, false, false, Precedence.None),
             ParseRule(TokenType.Goto, false, false, Precedence.None),
             ParseRule(TokenType.If, false, false, Precedence.None),
@@ -228,15 +231,39 @@ class Compiler
             me.gotoStatement()
         else if me.match(TokenType.If) then
             me.ifStatement()
+        else if me.match(TokenType.Input) then
+            me.inputStatement()
         else
             me.expressionStatement()
+    }
+
+    inputStatement()
+    {
+        if me.match(TokenType.String) then
+        {
+            me.string(false)
+            me.chunk.writeBytes(OpCode.OpPrint, "? ")
+            me.consume(TokenType.SemiColon, "?SYNTAX ERROR")
+        }
+        me.match(TokenType.Identifier)
+        const name = me.previous().lexeme
+        me.chunk.writeBytes(OpCode.OpInput, false)
+        me.chunk.writeBytes(OpCode.OpSetVariable, name)
+
+        while me.match(TokenType.Comma) do
+        {
+            me.consume(TokenType.Identifier, "?SYNTAX ERROR")
+            const name = me.previous().lexeme
+            me.chunk.writeBytes(OpCode.OpInput, true)
+            me.chunk.writeBytes(OpCode.OpSetVariable, name)
+        }
     }
 
     printStatement()
     {
         var trailing = "\n"
         me.expression(true)
-        while me.match(TokenType.SemiColon) or me.match(TokenType.Comma) do
+        while me.match(TokenType.SemiColon) or me.match(TokenType.Comma) or !me.endOfLine() do
         {
             //print "current: %{me.current.toString()}"
             const isComma = me.previous().token_type == TokenType.Comma

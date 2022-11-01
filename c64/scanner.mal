@@ -1,6 +1,7 @@
 enum TokenType
 {
     None,
+    Input,
     Print,
     Goto,
     If,
@@ -50,7 +51,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["print","goto","if","then", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
+        me.keywords = ["input", "print","goto","if","then", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 
     scanTokens()

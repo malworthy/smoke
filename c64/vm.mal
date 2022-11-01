@@ -193,6 +193,12 @@ class Vm
                         return true // no more code so just end program
                 }
             }
+            else if instr.op == OpCode.OpInput then
+            {
+                if instr.operand then write("?? ")
+                const val = input()
+                me.stack << val
+            }
         }
     }
 
