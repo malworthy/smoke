@@ -10,7 +10,7 @@ enum TokenType
     Less,
     Greater,
     Equals,
-    Plus,
+    Plus, //10
     Minus,
     Times,
     Divide,
@@ -18,8 +18,9 @@ enum TokenType
     RightParan,
     SemiColon,
     Colon,
+    Comma,
     Identifier, 
-    String, 
+    String, //20 
     Number,
     Error,
     Eof,
@@ -49,7 +50,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["print","goto","if","then", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":"]
+        me.keywords = ["print","goto","if","then", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 
     scanTokens()

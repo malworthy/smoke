@@ -76,6 +76,13 @@ fn repl()
             //print "in debug"
             list(program)
         }
+        else if line == "test" then
+        {
+            //print "in debug"
+            program = readlines("../c64/test.mal")
+            list(program)
+        }
+
 
     }
 }

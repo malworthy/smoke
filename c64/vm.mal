@@ -120,7 +120,8 @@ class Vm
             }
             else if instr.op == OpCode.OpPrint then
             {
-                print me.stack[>>]
+                write("%{me.stack[>>]}")
+                write("%{instr.operand}")
             }
             else if instr.op == OpCode.OpPop then
             {
@@ -173,6 +174,15 @@ class Vm
                 const b = me.stack[>>]
                 const a = me.stack[>>]
                 me.stack << (a <= b)
+            }
+            else if instr.op == OpCode.OpConcat then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                if instr.operand then
+                    me.stack << "%{a}\t%{b}"
+                else
+                    me.stack << "%{a}%{b}"
             }
             else if instr.op == OpCode.OpJumpIfFalse then
             {

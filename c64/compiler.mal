@@ -19,6 +19,7 @@ enum OpCode
     OpLessEqual,
     OpGreater,
     OpGreaterEqual,
+    OpConcat,
     OpReturn
 }
 
@@ -81,6 +82,7 @@ class Instruction
             "OpLessEqual",
             "OpGreater",
             "OpGreaterEqual",
+            "OpConcat",
             "OpReturn"]
         return "%{me.line_number} %{ops[me.op]} %{me.operand}"
     }
@@ -153,6 +155,7 @@ class Compiler
             ParseRule(TokenType.RightParan, false, false, Precedence.None),
             ParseRule(TokenType.SemiColon, false, false, Precedence.None),
             ParseRule(TokenType.Colon, false, false, Precedence.None),
+            ParseRule(TokenType.Comma, false, false, Precedence.None),
             ParseRule(TokenType.Identifier,  me.variable, false, Precedence.None),
             ParseRule(TokenType.String,  me.string, false, Precedence.None),
             ParseRule(TokenType.Number, me.number, false, Precedence.None),
@@ -160,8 +163,6 @@ class Compiler
             ParseRule(TokenType.Eof,  false, false, Precedence.None)
         ]
     }
-
-
 
     endCompiler()
     {
@@ -207,7 +208,15 @@ class Compiler
         if me.match(TokenType.Then) then
         {
             me.chunk.writeByte(OpCode.OpJumpIfFalse)
-            me.statement()
+            if me.check(TokenType.Number) then
+                me.gotoStatement()
+            else
+                me.statement()
+        }
+        else if me.match(TokenType.Goto) then
+        {
+            me.chunk.writeByte(OpCode.OpJumpIfFalse)
+            me.gotoStatement()
         }
     }
 
@@ -225,9 +234,27 @@ class Compiler
 
     printStatement()
     {
+        var trailing = "\n"
         me.expression(true)
-        me.chunk.writeByte(OpCode.OpPrint)
+        while me.match(TokenType.SemiColon) or me.match(TokenType.Comma) do
+        {
+            //print "current: %{me.current.toString()}"
+            const isComma = me.previous().token_type == TokenType.Comma
+            if !me.endOfLine() then
+            {
+                me.expression(true)
+                me.chunk.writeBytes(OpCode.OpConcat, isComma)
+            }
+            else
+            {
+                if isComma then trailing = "\t" else trailing = ""
+            }
+            
+        }
+        me.chunk.writeBytes(OpCode.OpPrint, trailing)
     }
+
+    endOfLine() => (me.current.line_number != me.previous().line_number) or me.check(TokenType.Eof)
 
     match(type)
     {
