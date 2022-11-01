@@ -682,6 +682,7 @@ static void subscript(bool canAssign)
 {
     if (match(TOKEN_GREATER_GREATER))
     {
+        consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
         emitByte(OP_POP_LIST);
     }
     else
@@ -691,16 +692,27 @@ static void subscript(bool canAssign)
 
         if (!match(TOKEN_COLON))
         {
-            emitByte(OP_SUBSCRIPT);
+            consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
+            if (match(TOKEN_EQUAL))
+            {
+                expression();
+                emitByte(OP_SUBSCRIPT_SET);
+            }
+            else
+            {
+                emitByte(OP_SUBSCRIPT);
+            }
+            
         }
         else
         {
             expression();
-            emitByte(OP_SLICE);
+            consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
+            emitByte(OP_SLICE);           
         }
     }
     
-    consume(TOKEN_RIGHT_BRACKET,"Expect ']'");
+    
 }
 
 // Interpolation is syntactic sugar for calling "join()" on a list. So the

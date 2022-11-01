@@ -505,6 +505,40 @@ static void concatenateList()
     push(OBJ_VAL(result));
 }
 
+bool set(Value listVal, Value item, Value index)
+{
+    if (!IS_LIST(listVal))
+    {
+        runtimeError("Expect list");
+        return false;
+    }
+
+    if (!IS_NUMBER(index))
+    {
+        runtimeError("Index must be a number");
+        return false;
+    }
+
+    if (IS_LIST(item) && AS_LIST(item) == AS_LIST(listVal))
+    {
+        runtimeError("You can't do that");
+        return false;
+    }
+
+    int i = (int)AS_NUMBER(index);
+
+    ObjList* list = AS_LIST(listVal);    
+    if (i < 0 ) i = list->elements.count + i;
+    if (i >= list->elements.count  || i < 0)
+    {
+        runtimeError("Index outside the bounds of the list");
+        return false;
+    }
+    list->elements.values[i] = item;
+
+    return true;
+}
+
 Value get(Value item, Value index)
 {
     if (!(IS_LIST(item) || IS_STRING(item)))
@@ -808,6 +842,17 @@ static InterpretResult run()
                 if(IS_NIL(result))
                     return INTERPRET_RUNTIME_ERROR;
                 push(result);
+
+                break;
+            }
+            case OP_SUBSCRIPT_SET: {
+                
+                Value value = pop();
+                Value index = pop();
+                Value list = peek(0);
+                if (!set(list, value, index))
+                    return INTERPRET_RUNTIME_ERROR;
+                //pop();
 
                 break;
             }

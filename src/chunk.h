@@ -27,6 +27,7 @@ typedef enum {
     OP_DEFINE_GLOBAL,
     OP_GET_GLOBAL,
     OP_SUBSCRIPT,
+    OP_SUBSCRIPT_SET,
     OP_SLICE,
     OP_SET_GLOBAL,
     OP_GET_LOCAL,

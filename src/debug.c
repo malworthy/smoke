@@ -189,6 +189,8 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return constantInstruction("OP_ENUM", chunk, offset);
         case OP_ENUM_FIELD:
             return constantInstruction("OP_ENUM_FIELD", chunk, offset);
+        case OP_SUBSCRIPT_SET:
+            return simpleInstruction("OP_SUBSCRIPT_SET", offset);
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;
