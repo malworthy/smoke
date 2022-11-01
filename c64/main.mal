@@ -2,48 +2,82 @@
 #inc compiler.mal
 #inc vm.mal
 
-const program = [
-"10 I = 1",
-"20 print \"TEST NR.\";I",
-"30 I = I + 1",
-"40 if I<=10 goto 20"
-]
+//const program = [
+//"10 I = 1",
+//"20 print \"TEST NR.\";I",
+//"30 I = I + 1",
+//"40 if I<=10 goto 20"
+//]
 
-const program2 = ["10 print \"hello, world\" ", "20 1+1", "25 i = i + 1", "30 print i","40 goto 10"]
-const scanner = Scanner(program2)
-const tokens = scanner.scanTokens()
-// print tokens
-for t in tokens
-    print t.toString()
-const compiler = Compiler(tokens)
-const chunk = compiler.compile()
+//const program2 = ["10 print \"hello, world\" ", "20 1+1", "25 i = i + 1", "30 print i","40 if i < 10 then goto 10"]
 
+fn runProgram(program, debug) 
+{
+    const scanner = Scanner(program)
+    const tokens = scanner.scanTokens()
+    // print tokens
+    if debug then 
+    {
+        print ""
+        print "--- TOKENS ---"
+        for t in tokens
+            print t.toString()
+    }
+    const compiler = Compiler(tokens)
+    const chunk = compiler.compile()
 
-print ""
-print "--- BYTECODE ---"
-for ins in chunk.instructions
-    print ins.toString()
+    if debug then
+    {
+        print ""
+        print "--- BYTECODE ---"
+        for ins in chunk.instructions
+            print ins.toString()
 
-print ""
-print "--- PROGRAM OUTPUT ---"
-const vm = Vm(chunk.instructions)
-vm.run()
+        print ""
+        print "--- PROGRAM OUTPUT ---"
+    }
+    const vm = Vm(chunk.instructions)
+    vm.run()
+}
 
+fn list(program)
+{
+    for line in program print line
+}
 
+fn repl()
+{
+    clear()
+    print "COMMODORE 64 BASIC V2 (c) Retro Software 2022"
+    print "Version 0.01"
+    print ""
+    var program = []
+    while true do
+    {
+        const line = input()
+        //print "Line: %{line}"
+        if line != "" and line[0] >= "0" and line[0] <= "9" then
+        {
+            program << line
+            //print "program: %{program}"
+        }
+        else if line == "run" then
+        {
+            //print "in run"
+            runProgram(program, false)
+        }
+        else if line == "debug" then
+        {
+            //print "in debug"
+            runProgram(program, true)
+        }
+        else if line == "list" then
+        {
+            //print "in debug"
+            list(program)
+        }
 
-//const compiler = Compiler(tokens)
+    }
+}
 
-//const chunk = Chunk()
-//chunk.writeBytes(OpCode.OpConstant, 1.2)
-//chunk.writeBytes(OpCode.OpConstant, 1.8)
-//chunk.writeByte(OpCode.OpDivide)
-//chunk.writeByte(OpCode.OpReturn)
-
-//print chunk.instructions
-
-//const vm = Vm(chunk.instructions)
-//vm.run()
-
-// print tokens
-//for t in tokens
-//    print t.toString()
+repl()

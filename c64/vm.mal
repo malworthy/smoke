@@ -56,6 +56,25 @@ class Vm
         return false
     }
 
+    jumpLine()
+    {
+        //print "*** IN JUMP LINE ***"
+        const current = me.chunk[me.ip].line_number
+        var line = current
+        var p = me.ip
+        while line == current and p < len(me.chunk)  do
+        {
+            p++
+            if p >= len(me.chunk) then return false
+            line = me.chunk[p].line_number  
+            //print "jump line: %{line} curr: %{current} p: %{p}"
+        }
+        //if p >= len(me.chunk) then return false
+        me.ip = p 
+
+        return true
+    }
+
     run()
     {
         while true do
@@ -124,6 +143,45 @@ class Vm
             else if instr.op == OpCode.OpGoto then
             {
                 if !me.gotoLine(instr.operand) then return false
+            }
+            else if instr.op == OpCode.OpEqual then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a == b)
+            }
+            else if instr.op == OpCode.OpGreater then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a > b)
+            }
+            else if instr.op == OpCode.OpGreaterEqual then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a >= b)
+            }
+            else if instr.op == OpCode.OpLess then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a < b)
+            }
+            else if instr.op == OpCode.OpLessEqual then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a <= b)
+            }
+            else if instr.op == OpCode.OpJumpIfFalse then
+            {
+                //print "top of stack: %{me.stack[-1]}"
+                if !me.stack[-1] then 
+                {
+                    if !me.jumpLine() then
+                        return true // no more code so just end program
+                }
             }
         }
     }

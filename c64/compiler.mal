@@ -13,7 +13,13 @@ enum OpCode
     OpGetVariable,
     OpSetVariable,
     OpGoto,
-    OpReturn,
+    OpEqual,
+    OpJumpIfFalse,
+    OpLess,
+    OpLessEqual,
+    OpGreater,
+    OpGreaterEqual,
+    OpReturn
 }
 
 enum Precedence
@@ -69,6 +75,12 @@ class Instruction
             "OpGetVariable",
             "OpSetVariable",
             "OpGoto",
+            "OpEqual",
+            "OpJumpIfFalse",
+            "OpLess",
+            "OpLessEqual",
+            "OpGreater",
+            "OpGreaterEqual",
             "OpReturn"]
         return "%{me.line_number} %{ops[me.op]} %{me.operand}"
     }
@@ -127,11 +139,12 @@ class Compiler
             ParseRule(TokenType.Print, false, false, Precedence.None),
             ParseRule(TokenType.Goto, false, false, Precedence.None),
             ParseRule(TokenType.If, false, false, Precedence.None),
-            ParseRule(TokenType.LessEqual, false, false, Precedence.None),
-            ParseRule(TokenType.GreaterEqual, false, false, Precedence.None),
-            ParseRule(TokenType.Less, false, false, Precedence.None),
-            ParseRule(TokenType.Greater, false, false, Precedence.None),
-            ParseRule(TokenType.Equals, false, false, Precedence.None),
+            ParseRule(TokenType.Then, false, false, Precedence.None),
+            ParseRule(TokenType.LessEqual, false, me.binary, Precedence.Comparison),
+            ParseRule(TokenType.GreaterEqual, false, me.binary, Precedence.Comparison),
+            ParseRule(TokenType.Less, false, me.binary, Precedence.Comparison),
+            ParseRule(TokenType.Greater, false, me.binary, Precedence.Comparison),
+            ParseRule(TokenType.Equals, false, me.binary, Precedence.Equality),
             ParseRule(TokenType.Plus, false, me.binary, Precedence.Term),
             ParseRule(TokenType.Minus, me.unary, me.binary, Precedence.Term),
             ParseRule(TokenType.Times, false, me.binary, Precedence.Factor),
@@ -178,7 +191,7 @@ class Compiler
 
     expressionStatement()
     {
-        me.expression()
+        me.expression(false)
         me.chunk.writeByte(OpCode.OpPop)
     }
 
@@ -190,11 +203,11 @@ class Compiler
 
     ifStatement()
     {
-        expression()
-        if match(TokenType.Then) then
+        me.expression(true)
+        if me.match(TokenType.Then) then
         {
             me.chunk.writeByte(OpCode.OpJumpIfFalse)
-            statement()
+            me.statement()
         }
     }
 
@@ -204,15 +217,15 @@ class Compiler
             me.printStatement()
         else if me.match(TokenType.Goto) then
             me.gotoStatement()
-        //else if me.match(TokenType.If) then
-        //    me.ifStatement()
+        else if me.match(TokenType.If) then
+            me.ifStatement()
         else
             me.expressionStatement()
     }
 
     printStatement()
     {
-        me.expression()
+        me.expression(true)
         me.chunk.writeByte(OpCode.OpPrint)
     }
 
@@ -243,14 +256,15 @@ class Compiler
         return me.tokens[me.token_index-2]
     }
 
-    expression()
+    expression(dontAssign)
     {
-        me.parsePrecedence(Precedence.Assignment)
+        me.parsePrecedence(Precedence.Assignment, dontAssign)
     }
 
-    parsePrecedence(precedence)
+    parsePrecedence(precedence, dontAssign)
     {
         me.advance()
+        //print "Check rule for token: %{me.previous().token_type}"
         const prefixRule = me.getRule(me.previous().token_type).prefix
         //print "Prefix rule: %{prefixRule}"
         if (!prefixRule) then 
@@ -258,72 +272,80 @@ class Compiler
             me.error("?SYNTAX ERROR - no prefix rule")
             return
         }
-        prefixRule()
+        var canAssign = precedence <= Precedence.Assignment and !dontAssign
+        prefixRule(canAssign)
         //print "after prefix rule token: %{me.current.token_type}"
         while precedence <= me.getRule(me.current.token_type).precedence do
         {
             //print "parsing precedence"
             me.advance()
             const infixRule = me.getRule(me.previous().token_type).infix 
-            infixRule()
+            infixRule(canAssign)
         }
     }
 
     getRule(type)
     {
         // this is slow, but hey it's a c64, and safer than having to keep the indexes of the list in line
-        const rule = me.rules[type] //me.rules where x => x.token == type
+        //const rule = me.rules[type] 
+        const rule = me.rules where x => x.token == type
         //print "rule: %{rule.token}"
 
-        return rule
+        return rule[0]
     }
 
-    unary()
+    unary(canAssign)
     {
         const op = me.previous().token_type
 
-        me.expression()
+        me.expression(false)
         me.parsePrecedence(Precedence.Unary)
         if op == TokenType.Minus then me.chunk.writeByte(OpCode.OpNegate)
     }
 
-    binary()
+    binary(canAssign)
     {
         const op = me.previous().token_type
         const rule = me.getRule(op)
-        me.parsePrecedence(rule.precedence+1)
+        me.parsePrecedence(rule.precedence+1, false)
 
         if op == TokenType.Plus then me.chunk.writeByte(OpCode.OpAdd)
         if op == TokenType.Minus then me.chunk.writeByte(OpCode.OpSubtract)
         if op == TokenType.Times then me.chunk.writeByte(OpCode.OpMultiply)
         if op == TokenType.Divide then me.chunk.writeByte(OpCode.OpDivide)
+        if op == TokenType.Equals then me.chunk.writeByte(OpCode.OpEqual)
+
+        if op == TokenType.Less then me.chunk.writeByte(OpCode.OpLess)
+        if op == TokenType.LessEqual then me.chunk.writeByte(OpCode.OpLessEqual)
+        if op == TokenType.Greater then me.chunk.writeByte(OpCode.OpGreater)
+        if op == TokenType.GreaterEqual then me.chunk.writeByte(OpCode.OpGreaterEqual)
     }
 
-    number()
+    number(canAssign)
     {
         const token = me.previous()
         const number = num(token.lexeme)
         me.chunk.writeBytes(OpCode.OpConstant, number)
     }
 
-    string()
+    string(canAssign)
     {
         const token = me.previous()
         me.chunk.writeBytes(OpCode.OpConstant, token.lexeme)
     }
 
-    grouping()
+    grouping(canAssign)
     {
-        me.expression()
+        me.expression(false)
         me.consume(TokenType.RightParan,"?SYNTAX ERROR - grouping")
     }
 
-    variable()
+    variable(canAssign)
     {
         const name = me.previous().lexeme
-        if me.match(TokenType.Equals) then
+        if canAssign and me.match(TokenType.Equals)  then
         {
-            me.expression()
+            me.expression(false)
             me.chunk.writeBytes(OpCode.OpSetVariable, name)
         }
         else
