@@ -146,7 +146,7 @@ class Compiler
             ParseRule(TokenType.Goto, false, false, Precedence.None),
             ParseRule(TokenType.If, false, false, Precedence.None),
             ParseRule(TokenType.Then, false, false, Precedence.None),
-            ParseRule(TokenType.Not, me.unary, false, Precedence.Term), //None
+            ParseRule(TokenType.Not, me.not, false, Precedence.None),
             ParseRule(TokenType.LessEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.GreaterEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Less, false, me.binary, Precedence.Comparison),
@@ -351,16 +351,25 @@ class Compiler
         return rule[0]
     }
 
-    unary(canAssign)
+    not(canAssign)
     {
         const op = me.previous().token_type
 
         me.expression(true)
-        //me.parsePrecedence(Precedence.Unary, true)
-        if op == TokenType.Minus then 
-            me.chunk.writeByte(OpCode.OpNegate)
-        else if op == TokenType.Not then
-            me.chunk.writeByte(OpCode.OpNot)
+        me.chunk.writeByte(OpCode.OpNot)
+    }
+
+    unary(canAssign)
+    {
+        const op = me.previous().token_type
+
+        me.parsePrecedence(Precedence.Unary, true)
+        me.chunk.writeByte(OpCode.OpNegate)
+
+        //if op == TokenType.Minus then 
+        //    me.chunk.writeByte(OpCode.OpNegate)
+        //else if op == TokenType.Not then
+        //    me.chunk.writeByte(OpCode.OpNot)
         
     }
 
