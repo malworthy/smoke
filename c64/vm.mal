@@ -135,10 +135,11 @@ class Vm
             {
                 const index = me.getVariableIndex(instr.operand)
                 const value = me.stack[-1]
-                if index == 0 then
-                    me.variables = ([] << value) + me.variables[1:0]
-                else
-                    me.variables = (me.variables[0:index] << value) + me.variables[index+1:0]
+                me.variables[index] = value
+                //if index == 0 then
+                //    me.variables = ([] << value) + me.variables[1:0]
+                //else
+                //    me.variables = (me.variables[0:index] << value) + me.variables[index+1:0]
                 
             }
             else if instr.op == OpCode.OpGoto then
@@ -195,7 +196,9 @@ class Vm
             }
             else if instr.op == OpCode.OpInput then
             {
-                if instr.operand then write("?? ")
+                write("?")
+                if instr.operand then write("?")
+                write(" ")
                 const val = input()
                 me.stack << val
             }

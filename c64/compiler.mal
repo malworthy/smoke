@@ -86,7 +86,7 @@ class Instruction
             "OpConcat",
             "OpInput",
             "OpReturn"]
-        return "%{me.line_number} %{ops[me.op]} %{me.operand}"
+        return "%{me.line_number} %{OpCode.name(me.op)} %{me.operand}"
     }
 }
 
@@ -239,10 +239,11 @@ class Compiler
 
     inputStatement()
     {
+        
         if me.match(TokenType.String) then
         {
             me.string(false)
-            me.chunk.writeBytes(OpCode.OpPrint, "? ")
+            me.chunk.writeBytes(OpCode.OpPrint, "")
             me.consume(TokenType.SemiColon, "?SYNTAX ERROR")
         }
         me.match(TokenType.Identifier)

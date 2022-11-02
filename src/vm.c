@@ -365,9 +365,35 @@ static bool invokeFromClass(ObjClass* klass, ObjString* name,
     return call(AS_CLOSURE(method), argCount);
 }
 
+static bool getEnumName(Value enumInstance)
+{
+    //printf("in get enumName\n");
+    Value enumValue = pop();
+    ObjEnum* _enum = AS_ENUM(enumInstance);
+    for (int i=0; i < _enum->fields.capacity; i++)
+    {
+        //printf("looping i is %d\n",i);
+        Value val = _enum->fields.entries[i].value;
+        if (IS_NUMBER(val) && AS_NUMBER(val) == AS_NUMBER(enumValue))
+        {
+            ObjString* key = _enum->fields.entries[i].key;
+            pop();
+            push(OBJ_VAL(key));
+            return true;
+        }
+    }
+    runtimeError("No enum matches that value");
+    return false;
+}
+
 static bool invoke(ObjString* name, int argCount) 
 {
     Value receiver = peek(argCount);
+
+    if (IS_ENUM(receiver) && compareStrings("name", 4, name)); // name->chars[0] == 'n')
+    {
+        return getEnumName(receiver);
+    }
 
     if (!IS_INSTANCE(receiver)) 
     {

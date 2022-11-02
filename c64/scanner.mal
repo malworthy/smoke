@@ -38,7 +38,7 @@ class Token
 
     toString()
     {
-        return "line: %{me.line_number} type:%{me.token_type} lexeme:%{me.lexeme}"
+        return "line: %{me.line_number} type:%{TokenType.name(me.token_type)} lexeme:%{me.lexeme}"
     }
 }
 
