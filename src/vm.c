@@ -389,12 +389,16 @@ static bool getEnumName(Value enumInstance)
 static bool invoke(ObjString* name, int argCount) 
 {
     Value receiver = peek(argCount);
-
-    if (IS_ENUM(receiver) && compareStrings("name", 4, name)); // name->chars[0] == 'n')
+    if (IS_ENUM(receiver))
     {
-        return getEnumName(receiver);
+        if (compareStrings("name", 4, name))// && name->chars[0] == 'n')
+        {
+            //printf("Thinks this is an enum %s\n", name->chars);
+            return getEnumName(receiver);
+        }
+        //printf("this is an enum\n");
     }
-
+   
     if (!IS_INSTANCE(receiver)) 
     {
         runtimeError("Only instances have methods.");
