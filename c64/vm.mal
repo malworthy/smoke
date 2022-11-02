@@ -1,3 +1,13 @@
+class NativeFunction
+{
+    init(name, function)
+    {
+        me.name = name
+        me.function = function
+    }
+}
+
+
 class Vm
 {
     init(chunk)
@@ -6,11 +16,24 @@ class Vm
         me.ip = 0
         me.stack = []
         me.variables = []
+        me.functions = [NativeFunction("abs", me.absNative)]
+        
         for x in [0..65536]
             me.variables << 0
+
     }
 
-    //TODO: placeholder
+    absNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        if num >= 0 then return [true, num] else return [true, -num]
+    }
+
     getVariableIndex(name)
     {
         var byte1 = 0
@@ -32,6 +55,20 @@ class Vm
         return byte1 * 128 + byte2
         
     }
+
+    getVariable(name)
+    {
+        const func = me.functions where x => x.name == name
+        if len(func) == 1 then 
+        { 
+            me.stack << func[0].function
+            return true
+        }
+        const index = getVariableIndex(name)
+        me.stack << me.variables[index]
+        return true
+    }
+
     runtimeError(message)
     {
         me.error = message
@@ -129,22 +166,28 @@ class Vm
             }
             else if instr.op == OpCode.OpGetVariable then
             {
-                me.stack << me.variables[me.getVariableIndex(instr.operand)] //TODO
+                me.getVariable(instr.operand)
+                //me.stack << me.variables[me.getVariableIndex(instr.operand)] //TODO
             }
             else if instr.op == OpCode.OpSetVariable then
             {
                 const index = me.getVariableIndex(instr.operand)
                 const value = me.stack[-1]
                 me.variables[index] = value
-                //if index == 0 then
-                //    me.variables = ([] << value) + me.variables[1:0]
-                //else
-                //    me.variables = (me.variables[0:index] << value) + me.variables[index+1:0]
-                
             }
             else if instr.op == OpCode.OpGoto then
             {
                 if !me.gotoLine(instr.operand) then return false
+            }
+            else if instr.op == OpCode.OpCall then
+            {
+                var func = me.stack[-(instr.operand + 1)]
+                var params = me.stack[-instr.operand:0]
+                for i in [0..instr.operand] me.stack[>>]
+                const result = func(params)
+                if !result[0] then return false
+
+                me.stack << result[1]
             }
             else if instr.op == OpCode.OpEqual then
             {

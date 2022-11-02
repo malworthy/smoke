@@ -22,6 +22,7 @@ enum OpCode
     OpGreaterEqual,
     OpConcat,
     OpInput,
+    OpCall,
     OpReturn
 }
 
@@ -156,7 +157,7 @@ class Compiler
             ParseRule(TokenType.Minus, me.unary, me.binary, Precedence.Term),
             ParseRule(TokenType.Times, false, me.binary, Precedence.Factor),
             ParseRule(TokenType.Divide, false, me.binary, Precedence.Factor),
-            ParseRule(TokenType.LeftParan, me.grouping, false, Precedence.None),
+            ParseRule(TokenType.LeftParan, me.grouping, me.call, Precedence.Call),
             ParseRule(TokenType.RightParan, false, false, Precedence.None),
             ParseRule(TokenType.SemiColon, false, false, Precedence.None),
             ParseRule(TokenType.Colon, false, false, Precedence.None),
@@ -349,6 +350,29 @@ class Compiler
         //print "rule: %{rule.token}"
 
         return rule[0]
+    }
+
+    argumentList()
+    {
+        var argCount = 0
+        if(!me.check(TokenType.RightParan)) then
+        {
+            me.expression(true)
+            argCount++
+            while me.match(TokenType.Comma) do
+            {
+                me.expression()
+                argCount++
+            }
+        }
+        me.consume(TokenType.RightParan,"SYNTAX ERROR?")
+        return argCount
+    }
+
+    call(canAssign)
+    {
+        const argCount = me.argumentList()
+        me.chunk.writeBytes(OpCode.OpCall, argCount)
     }
 
     not(canAssign)

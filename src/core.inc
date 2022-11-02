@@ -4,4 +4,6 @@ static const char* coreModuleSource =
 " for item in list newList << func(item)\n"
 " return newList }\n"
 "\n"
-"fn filter(list, func) { var result = []; for i in list if func(i) then result << i; return result; }";
+"fn filter(list, func) { var result = []; for i in list if func(i) then result << i; return result; }"
+"\n"
+"enum Type {Bool, Number, DateTime, String, Upvalue, Function, Native, Closure, List, Class, Instance, Method, Enum }";

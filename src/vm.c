@@ -29,7 +29,18 @@
 #define sleep(x) usleep(((int)x)*1000)
 #endif
 
-VM vm; 
+VM vm;
+
+static bool typeNative(int argCount, Value* args)
+{
+    int t = args[0].type;
+    if (t == VAL_OBJ)
+    {
+        t = t + AS_OBJ(args[0])->type;
+    }
+    args[-1] = NUMBER_VAL((double)t);
+    return true;
+}
 
 static bool sleepNative(int argCount, Value* args)
 {
@@ -209,6 +220,7 @@ void initVM()
     defineNative("num", numNative, 1);
     defineNative("ascii", asciiNative, 1);
     defineNative("upper", upperNative, 1);
+    defineNative("type", typeNative, 1);
 
     // Dates
     defineNative("now", nowNative, 0);
