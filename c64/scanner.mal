@@ -6,6 +6,10 @@ enum TokenType
     Goto,
     If,
     Then,
+    And,
+    Or,
+    Not,
+    NotEqual,
     LessEqual,
     GreaterEqual,
     Less,
@@ -51,7 +55,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["input", "print","goto","if","then", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
+        me.keywords = ["input", "print", "goto", "if", "then", "and", "or", "not", "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 
     scanTokens()

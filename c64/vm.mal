@@ -80,7 +80,7 @@ class Vm
         while true do
         {
             var instr = me.chunk[me.ip++]
-
+            write("%{instr.toString()}   ")
             if instr.op == OpCode.OpReturn then
             {
                 //print me.stack[>>]
@@ -176,6 +176,10 @@ class Vm
                 const a = me.stack[>>]
                 me.stack << (a <= b)
             }
+            else if instr.op == OpCode.OpNot then
+            {
+                me.stack[-1] = !me.stack[-1]
+            }
             else if instr.op == OpCode.OpConcat then
             {
                 const b = me.stack[>>]
@@ -202,6 +206,7 @@ class Vm
                 const val = input()
                 me.stack << val
             }
+            print me.stack
         }
     }
 
