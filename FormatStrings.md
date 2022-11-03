@@ -1,3 +1,11 @@
+## Number Formatting
+
+
+- N[decimal places] - eg. N3 123456.123456 = 123456.123 
+- C[decimal places] - eg. C3 123456.123456 = 123,456.123 
+
+## Date Formatting
+
 |Format String|C Equivilent|Description|
 |-------------|------------|-----------|
 |ampm|	%P|	am/pm|
@@ -26,3 +34,5 @@ yd|	%j|	year day 001-366
 yy|	%y|	year 00-99
 yyyy|	%Y|	4 digit year
 zz|	%z|	timezone offset
+
+

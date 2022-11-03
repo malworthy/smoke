@@ -4,8 +4,9 @@ A scripting language based on the clox interpreter from Bob Nystrom's excellent 
 
 Although the underlying code is based on clox, MAL is a very different language.
 
-Compiling
-# for a better repl experience on linux install the readline library
+## Compiling
+for a better repl experience on linux install the readline library
+
 sudo apt-get install libreadline-dev
 
 ## Data types
@@ -86,7 +87,7 @@ print addNumbers(1,1); // prints 2
 Anything between '%{' and '}' is evaluated and embedded into the string.
 You can also include a format string to format the evaluated value.  Format strings only work on numbers and dates. For other data types the format string will be ignored. Use a pipe '|' after the expression to add a format string.  The format string is anything between the '|' and the closing '}'.
 
-Format strings are passed as is to the C code. See C documentation on strftime for date formats, and printf for number formats.
+See FormatStrings.md for details
 
 ```
 var interpolated = "Value: %{1+1}" // "Value: 2"
@@ -120,7 +121,7 @@ Dates
 - now() // returns the current date/time in current timezone
 - date(datestring) // creates a new date by converting datestring to a date.  Format for datestring is yyyy-mm-dd hh:MM:ss
 - dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy,  year, hour, min, sec
-
+- datediff(interval, startDate, endDate) // interval can be day, hour, minute, second
 
 Lists
 - add(list, item) // add item to list
@@ -132,6 +133,8 @@ System
 - run(path)
 
 String Functions
+- ascii(string) // gets the ascii value of the first character of a string
+- upper(string) // converts a string to upper case
 - split(str, delim) // split a string on delimeter.  a returns list
 - splitlines(str) // split a string on newline.  a returns list
 
@@ -139,5 +142,15 @@ File IO
 - readlines(path) // reads a text file and returns a list of all the lines in file 
 
 Utils
+- args() // returns a list of command line arguments passed to the scripts
 - clock() // number of seconds since program started
+- num(string) // converts a string to a number
 - rand(max) // gets a random number from 0 to max-1
+- sleep(milliseconds) // suspend thread 
+- type(variable) // gets the type of a variable.  Returns "Type" enum
+  Types: Bool, Number, DateTime, String, Upvalue, Function, Native, Closure, List, Class, Instance, Method, Enum 
+
+Math/Bitwise Operations
+- bitand(value1, value2) // performs a bitwise and
+
+
