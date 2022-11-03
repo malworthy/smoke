@@ -14,6 +14,7 @@ enum OpCode
     OpGetVariable,
     OpSetVariable,
     OpGoto,
+    OpGosub,
     OpEqual,
     OpJumpIfFalse,
     OpLess,
@@ -23,6 +24,8 @@ enum OpCode
     OpConcat,
     OpInput,
     OpCall,
+    OpAnd,
+    OpReturnSub,
     OpReturn
 }
 
@@ -66,28 +69,6 @@ class Instruction
 
     toString()
     {
-        const ops = ["OpNone",
-            "OpPrint",
-            "OpAdd",
-            "OpSubtract",
-            "OpMultiply",
-            "OpDivide",
-            "OpNegate",
-            "OpConstant",
-            "OpPrint",
-            "OpPop",
-            "OpGetVariable",
-            "OpSetVariable",
-            "OpGoto",
-            "OpEqual",
-            "OpJumpIfFalse",
-            "OpLess",
-            "OpLessEqual",
-            "OpGreater",
-            "OpGreaterEqual",
-            "OpConcat",
-            "OpInput",
-            "OpReturn"]
         return "%{me.line_number} %{OpCode.name(me.op)} %{me.operand}"
     }
 }
@@ -145,9 +126,12 @@ class Compiler
             ParseRule(TokenType.Input, false, false, Precedence.None),
             ParseRule(TokenType.Print, false, false, Precedence.None),
             ParseRule(TokenType.Goto, false, false, Precedence.None),
+            ParseRule(TokenType.Gosub, false, false, Precedence.None),
+            ParseRule(TokenType.Return, false, false, Precedence.None),
             ParseRule(TokenType.If, false, false, Precedence.None),
             ParseRule(TokenType.Then, false, false, Precedence.None),
             ParseRule(TokenType.Not, me.not, false, Precedence.None),
+            ParseRule(TokenType.And, false, me.binary, Precedence.And),
             ParseRule(TokenType.LessEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.GreaterEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Less, false, me.binary, Precedence.Comparison),
@@ -208,6 +192,14 @@ class Compiler
         me.chunk.writeBytes(OpCode.OpGoto, num(me.previous().lexeme))
     }
 
+    gosubStatement()
+    {
+        me.consume(TokenType.Number, "?SYNTAX ERROR - line number expected")
+        
+        me.chunk.writeByte(OpCode.OpGosub)
+        me.chunk.writeBytes(OpCode.OpGoto, num(me.previous().lexeme))
+    }
+
     ifStatement()
     {
         me.expression(true)
@@ -232,6 +224,10 @@ class Compiler
             me.printStatement()
         else if me.match(TokenType.Goto) then
             me.gotoStatement()
+        else if me.match(TokenType.Gosub) then
+            me.gosubStatement()
+        else if me.match(TokenType.Return) then
+            me.chunk.writeByte(OpCode.OpReturnSub)
         else if me.match(TokenType.If) then
             me.ifStatement()
         else if me.match(TokenType.Input) then
@@ -345,9 +341,7 @@ class Compiler
     getRule(type)
     {
         // this is slow, but hey it's a c64, and safer than having to keep the indexes of the list in line
-        //const rule = me.rules[type] 
         const rule = me.rules where x => x.token == type
-        //print "rule: %{rule.token}"
 
         return rule[0]
     }
@@ -413,6 +407,8 @@ class Compiler
         if op == TokenType.LessEqual then me.chunk.writeByte(OpCode.OpLessEqual)
         if op == TokenType.Greater then me.chunk.writeByte(OpCode.OpGreater)
         if op == TokenType.GreaterEqual then me.chunk.writeByte(OpCode.OpGreaterEqual)
+
+        if op == TokenType.And then me.chunk.writeByte(OpCode.OpAnd)
     }
 
     number(canAssign)

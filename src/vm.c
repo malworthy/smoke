@@ -31,6 +31,37 @@
 
 VM vm;
 
+static bool bitandNative(int argCount, Value* args)
+{
+    if (!(IS_BOOL(args[0]) || IS_NUMBER(args[0])))
+    {
+        NATIVE_ERROR("bitand expects a Number or Boolean as parameter 1");
+    }    
+
+    if (!(IS_BOOL(args[1]) || IS_NUMBER(args[1])))
+    {
+        NATIVE_ERROR("bitand expects a Number or Boolean as parameter 2");
+    }
+    int a;
+    int b;
+
+    if(IS_BOOL(args[0])) 
+        a = (int)AS_BOOL(args[0]);
+    else 
+        a = (int)AS_NUMBER(args[0]);
+
+    if(IS_BOOL(args[1])) 
+        b = (int)AS_BOOL(args[1]);
+    else 
+        b = (int)AS_NUMBER(args[1]);
+
+    int result = a & b;
+
+    args[-1] = NUMBER_VAL((double)result);
+
+    return true;
+}
+
 static bool typeNative(int argCount, Value* args)
 {
     int t = args[0].type;
@@ -221,6 +252,7 @@ void initVM()
     defineNative("ascii", asciiNative, 1);
     defineNative("upper", upperNative, 1);
     defineNative("type", typeNative, 1);
+    defineNative("bitand", bitandNative, 2);
 
     // Dates
     defineNative("now", nowNative, 0);
