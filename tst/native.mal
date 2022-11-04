@@ -5,3 +5,44 @@ print len([1,2,3,4,5,6,7])
 
 print join(["hello",true,7,[1,2]])
 //expect:hellotrue7[1, 2]
+
+const arg = args() // returns a list of command line arguments passed to the scripts
+print Type.name(type(arg))
+//expect:List
+
+clock() // number of seconds since program started
+print num("123") // converts a string to a number
+//expect:123
+
+print num("nan")
+//expect:0
+
+print num("e+-,^nan")
+//expect:0
+
+print num("2.34234e+14")
+//expect:2.34234e+14
+
+print num("")
+//expect:0
+
+const r = rand(100) // gets a random number from 0 to max-1
+if r>=0 then write("random number generated\n")
+//expect:random number generated
+
+sleep(5) // suspend thread 
+
+print bitand(199, 64)
+//expect:64
+
+print bitand(true,true)
+//expect:1
+
+print ascii("A") // gets the ascii value of the first character of a string
+print upper("string") // converts a string to upper case
+print split("a,b,c", ",") // split a string on delimeter.  a returns list
+print splitlines("a\nb\nc") // split a string on newline.  a returns list
+//expect:65
+//expect:STRING
+//expect:[a, b, c]
+//expect:[a, b, c]

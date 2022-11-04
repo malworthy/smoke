@@ -18,6 +18,17 @@ else
 
 //expect:test has passed
 
+if x == (6 - 2)
+{
+    print "test has failed";
+}
+else
+{
+    print "test has passed";
+}
+
+//expect:test has passed
+
 if true or false then print "test passed";
 //expect:test passed
 

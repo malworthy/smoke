@@ -84,7 +84,14 @@ static bool sleepNative(int argCount, Value* args)
 static bool numNative(int argCount, Value* args)
 {
     CHECK_STRING(0, "num expects a string as parameter.");
-    double val = atof(AS_CSTRING(args[0]));
+    char *s = AS_CSTRING(args[0]);
+    
+    double val = atof(s);
+    
+    //stop making anything starting with 'nan' (eg nanny) NaN.  Should just be zero.
+    if(s[0] == 'n' || s[0] == 'N') val = 0;
+
+
     args[-1] = NUMBER_VAL(val);
 
     return true;

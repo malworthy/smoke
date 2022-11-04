@@ -1219,7 +1219,8 @@ static void forStatement()
 static void ifStatement() 
 {
     expression();
-    consume(TOKEN_THEN, "Expect 'then' after condition."); 
+    if(!check(TOKEN_LEFT_BRACE))
+        consume(TOKEN_THEN, "Expect 'then' after condition."); 
 
     int thenJump = emitJump(OP_JUMP_IF_FALSE);
     emitByte(OP_POP);
@@ -1267,10 +1268,10 @@ static void returnStatement()
 
 static void whileStatement() 
 {
-    //consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
     int loopStart = currentChunk()->count;
     expression();
-    consume(TOKEN_DO, "Expect 'do' after while.");
+    if(!check(TOKEN_LEFT_BRACE))
+        consume(TOKEN_DO, "Expect 'do' after while.");
 
     int exitJump = emitJump(OP_JUMP_IF_FALSE);
     emitByte(OP_POP);

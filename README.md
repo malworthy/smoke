@@ -104,6 +104,9 @@ enum Animal
   Cat, // value = 1
   Fish // value = 2
 }
+
+// To get the name of an enum value
+Animal.name(Animal.Dog) //returns "Dog"
 ```
 
 ## Native functions
@@ -115,6 +118,7 @@ Console
 - locate(x,y) // locates the cursor on the
 - textColor("red") // changes the console text colour 
 - write("string") // write to the console without printing a newline afterwards (unlike print)
+- getch() // gets the key in the keyboard buffer. Non-blocking.  If no key is present returns an empty string.
 
 Dates
 - dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])

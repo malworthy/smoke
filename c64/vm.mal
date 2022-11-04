@@ -243,8 +243,6 @@ class Vm
                     me.runtimeError("?NEXT WITHOUT FOR ERROR")
                     return false
                 }
-
-                //var item = me.stack[>>]
                 while !me.stack[-1].isReturn() and me.stack[-1].loopVariable != instr.operand and instr.operand != "" do
                 {
                     me.stack[>>]
@@ -253,8 +251,6 @@ class Vm
                         me.runtimeError("?NEXT WITHOUT FOR ERROR")
                         return false
                     }
-
-                    //item = me.stack[>>]
                 }
                 const item = me.stack[-1]
                 const index = me.getVariableIndex(item.loopVariable)
