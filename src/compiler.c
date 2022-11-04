@@ -1096,6 +1096,32 @@ static void classDeclaration()
 
     currentClass = currentClass->enclosing;
 }
+// modules are just classes you can't instantiate, and all methods are static
+static void modDeclaration() 
+{
+    consume(TOKEN_IDENTIFIER, "Expect module name.");
+    Token modName = parser.previous;
+    uint8_t nameConstant = identifierConstant(&parser.previous);
+    declareVariable(false);
+
+    emitBytes(OP_MODULE, nameConstant);
+    defineVariable(nameConstant);
+
+    ClassCompiler classCompiler;
+    classCompiler.enclosing = currentClass;
+    currentClass = &classCompiler;
+
+    namedVariable(modName, false);
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before mod body.");
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) 
+    {
+        method();
+    }
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after mod body.");
+    emitByte(OP_POP);
+
+    currentClass = currentClass->enclosing;
+}
 
 static void funDeclaration() 
 {
@@ -1291,6 +1317,7 @@ static void synchronize()
         if (parser.previous.type == TOKEN_SEMICOLON) return;
         switch (parser.current.type) {
         case TOKEN_CLASS:
+        case TOKEN_MOD:
         case TOKEN_FN:
         case TOKEN_VAR:
         case TOKEN_CONST:
@@ -1319,6 +1346,8 @@ static void declaration()
         varDeclaration(isConst);
     else if (match(TOKEN_CLASS))
         classDeclaration();
+    else if (match(TOKEN_MOD))
+        modDeclaration();
     else if (match(TOKEN_ENUM))
         enumDeclaration();
     else 

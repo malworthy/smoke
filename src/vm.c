@@ -360,6 +360,11 @@ static bool callValue(Value callee, int argCount)
             }
             case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
+                if (klass->module)
+                {
+                    runtimeError("Cannot create an instance of a module");
+                    return false;
+                }
                 vm.stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
                 Value initializer;
 
@@ -442,12 +447,16 @@ static bool invoke(ObjString* name, int argCount)
     Value receiver = peek(argCount);
     if (IS_ENUM(receiver))
     {
-        if (compareStrings("name", 4, name))// && name->chars[0] == 'n')
+        if (compareStrings("name", 4, name))
         {
-            //printf("Thinks this is an enum %s\n", name->chars);
             return getEnumName(receiver);
         }
-        //printf("this is an enum\n");
+    }
+
+    if (IS_CLASS(receiver))
+    {
+        ObjClass* klass = AS_CLASS(receiver);
+        return invokeFromClass(klass, name, argCount);
     }
    
     if (!IS_INSTANCE(receiver)) 
@@ -1101,6 +1110,9 @@ static InterpretResult run()
                 break;
             case OP_CLASS:
                 push(OBJ_VAL(newClass(READ_STRING())));
+                break;
+            case OP_MODULE:
+                push(OBJ_VAL(newMod(READ_STRING())));
                 break;
             case OP_GET_PROPERTY: {
                 if (IS_ENUM(peek(0)))

@@ -89,12 +89,23 @@ ObjList* newList()
     return list;
 }
 
-ObjClass* newClass(ObjString* name) 
+static ObjClass* createClass(ObjString* name, bool module) 
 {
     ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
     klass->name = name; 
+    klass->module = module;
     initTable(&klass->methods);
     return klass;
+}
+
+ObjClass* newClass(ObjString* name) 
+{
+    return createClass(name, false);
+}
+
+ObjClass* newMod(ObjString* name) 
+{
+    return createClass(name, true);
 }
 
 ObjEnum* newEnum(ObjString* name) 

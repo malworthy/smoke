@@ -101,6 +101,7 @@ typedef struct {
     Obj obj;
     ObjString* name;
     Table methods;
+    bool module;
 } ObjClass;
 
 typedef struct {
@@ -135,6 +136,8 @@ ObjString* copyStringRaw(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
 ObjList* newList();
 ObjEnum* newEnum(ObjString* name);
+ObjClass* newMod(ObjString* name);
+
 bool compareStrings(char* chars, int length, ObjString* compareString);
 //void printObject(Value value);
 int stringifyObject(Value value, char* str);

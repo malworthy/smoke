@@ -1,0 +1,15 @@
+mod Math 
+{
+    add(x,y) => (x + y)
+
+    subtract(a, b)
+    {
+        return a - b
+    }
+}
+
+print Math.add(1,1)
+//expect:2
+
+print Math.subtract(10,5)
+//expect:5

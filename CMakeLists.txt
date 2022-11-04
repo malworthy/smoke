@@ -40,6 +40,7 @@ add_test(NAME enum COMMAND python ../test_runner.py "mal.exe" "../tst/enum.mal" 
 add_test(NAME shovel COMMAND python ../test_runner.py "mal.exe" "../tst/shovel.mal" "//expect:")
 add_test(NAME shovel_method COMMAND python ../test_runner.py "mal.exe" "../tst/shovel_method.mal" "//expect:")
 add_test(NAME set COMMAND python ../test_runner.py "mal.exe" "../tst/set.mal" "//expect:")
+add_test(NAME module COMMAND python ../test_runner.py "mal.exe" "../tst/module.mal" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/inc_string.mal" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/dec_string.mal" "//expect:")
