@@ -26,6 +26,8 @@ fn runProgram(program, debug)
     const compiler = Compiler(tokens)
     const chunk = compiler.compile()
 
+    if compiler.hasError then return
+
     if debug then
     {
         print ""
@@ -37,7 +39,7 @@ fn runProgram(program, debug)
         print "--- PROGRAM OUTPUT ---"
     }
     const vm = Vm(chunk.instructions)
-    vm.run()
+    vm.run(debug)
 }
 
 fn list(program)

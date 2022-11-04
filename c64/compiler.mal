@@ -15,6 +15,8 @@ enum OpCode
     OpSetVariable,
     OpGoto,
     OpGosub,
+    OpFor,
+    OpNext,
     OpEqual,
     OpJumpIfFalse,
     OpLess,
@@ -120,7 +122,7 @@ class Compiler
         me.current = tokens[0]
         me.chunk = Chunk()
         me.token_index = 0
-        me.had_error = false
+        me.hasError = false
         me.rules = [
             ParseRule(TokenType.None, false, false, Precedence.None),
             ParseRule(TokenType.Input, false, false, Precedence.None),
@@ -150,7 +152,8 @@ class Compiler
             ParseRule(TokenType.String,  me.string, false, Precedence.None),
             ParseRule(TokenType.Number, me.number, false, Precedence.None),
             ParseRule(TokenType.Error, false, false, Precedence.None),
-            ParseRule(TokenType.Eof,  false, false, Precedence.None)
+            ParseRule(TokenType.Eof,  false, false, Precedence.None),
+            ParseRule(TokenType.To, false, false, Precedence.None)
         ]
     }
 
@@ -163,7 +166,7 @@ class Compiler
     {
         me.advance()
         
-        while (!me.match(TokenType.Eof)) do
+        while !me.match(TokenType.Eof) and !me.hasError do
         {
             me.chunk.setLine(me.current.line_number)
             me.declaration()
@@ -200,6 +203,38 @@ class Compiler
         me.chunk.writeBytes(OpCode.OpGoto, num(me.previous().lexeme))
     }
 
+    forStatement()
+    {
+        if !me.check(TokenType.Identifier) then
+        {
+            me.error("?SYNTAX ERROR")
+            return
+        }
+        var name = me.current.lexeme
+        me.expression(false)
+        me.chunk.writeByte(OpCode.OpPop)
+        //me.chunk.writeBytes(OpCode.OpSetVariable, name)
+
+        //print "for: current: %{me.current.toString()}"
+
+        //me.variable(true);
+        me.consume(TokenType.To, "?SYNTAX ERROR MISSING TO")
+        me.expression(true)
+        if (me.match(TokenType.Step)) then
+            me.expression(true)
+        else
+            me.chunk.writeBytes(OpCode.OpConstant, 1)
+
+        me.chunk.writeBytes(OpCode.OpFor, name)
+    }
+
+    nextStatement()
+    {
+        var name = ""
+        if me.match(TokenType.Identifier) then name = me.previous().lexeme
+        me.chunk.writeBytes(OpCode.OpNext, name)
+    }
+
     ifStatement()
     {
         me.expression(true)
@@ -232,6 +267,10 @@ class Compiler
             me.ifStatement()
         else if me.match(TokenType.Input) then
             me.inputStatement()
+        else if me.match(TokenType.For) then
+            me.forStatement()
+        else if me.match(TokenType.Next) then
+            me.nextStatement()
         else
             me.expressionStatement()
     }
@@ -305,6 +344,11 @@ class Compiler
         me.error("?SYNTAX ERROR - error token")
     }
 
+    peek(i)
+    {
+        return me.tokens[me.token_index+i]
+    }
+
     previous()
     {
         return me.tokens[me.token_index-2]
@@ -342,6 +386,8 @@ class Compiler
     {
         // this is slow, but hey it's a c64, and safer than having to keep the indexes of the list in line
         const rule = me.rules where x => x.token == type
+
+        if len(rule) == 0 then return ParseRule(TokenType.None, false, false, Precedence.None)
 
         return rule[0]
     }
@@ -457,7 +503,7 @@ class Compiler
 
     error(message)
     {
-        me.had_error = true
-        print message
+        me.hasError = true
+        print "%{message} IN LINE %{me.current.line_number}"
     }
 }

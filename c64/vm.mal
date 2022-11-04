@@ -9,10 +9,11 @@ class NativeFunction
 
 class ReturnItem
 {
-    init(loopVariable, stepSize, ip)
+    init(loopVariable, stepSize, to, ip)
     {
         me.loopVariable = loopVariable
         me.stepSize = stepSize
+        me.to = to
         me.ip = ip
     }
 
@@ -26,7 +27,7 @@ class Vm
         me.chunk = chunk
         me.ip = 0
         me.stack = []
-        me.returnStack = []
+        //me.returnStack = []
         me.variables = []
         me.functions = [NativeFunction("abs", me.absNative), NativeFunction("asc",me.ascNative)]
         
@@ -140,12 +141,12 @@ class Vm
         return true
     }
 
-    run()
+    run(debug)
     {
         while true do
         {
             var instr = me.chunk[me.ip++]
-            //write("%{instr.toString()}   ")
+            if debug then print "%{instr.toString()}"
             if instr.op == OpCode.OpReturn then
             {
                 //print me.stack[>>]
@@ -218,15 +219,53 @@ class Vm
                 if !me.gotoLine(instr.operand) then return false
             }
             else if instr.op == OpCode.OpGosub then
-                me.returnStack << (me.ip + 1)
+                me.stack << ReturnItem("return", 0, 0, (me.ip + 1))
             else if instr.op == OpCode.OpReturnSub then
             {
-                if len(me.returnStack) == 0 then
+                if len(me.stack) == 0 then
                 {
                     me.runtimeError("?RETURN WITHOUT GOSUB ERROR")
                     return false
                 }
-                me.ip = me.returnStack[>>]
+                const item = me.stack[>>]
+                me.ip = item.ip
+            }
+            else if instr.op == OpCode.OpFor then
+            {
+                const step = me.stack[>>]
+                const to = me.stack[>>]
+                me.stack << ReturnItem(instr.operand, step, to, me.ip)
+            }
+            else if instr.op == OpCode.OpNext then
+            {
+                if len(me.stack) == 0 then
+                {
+                    me.runtimeError("?NEXT WITHOUT FOR ERROR")
+                    return false
+                }
+
+                //var item = me.stack[>>]
+                while !me.stack[-1].isReturn() and me.stack[-1].loopVariable != instr.operand and instr.operand != "" do
+                {
+                    me.stack[>>]
+                    if len(me.stack) == 0 then
+                    {
+                        me.runtimeError("?NEXT WITHOUT FOR ERROR")
+                        return false
+                    }
+
+                    //item = me.stack[>>]
+                }
+                const item = me.stack[-1]
+                const index = me.getVariableIndex(item.loopVariable)
+                var value = me.variables[index]
+                value = value + item.stepSize
+                if value <= item.to then
+                {
+                    me.variables[index] = value
+                    me.ip = item.ip
+                }
+                
             }
             else if instr.op == OpCode.OpCall then
             {
@@ -298,7 +337,7 @@ class Vm
                 const val = input()
                 me.stack << val
             }
-            //print me.stack
+            if debug then print me.stack
         }
     }
 
