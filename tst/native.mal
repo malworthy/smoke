@@ -32,10 +32,10 @@ if r>=0 then write("random number generated\n")
 
 sleep(5) // suspend thread 
 
-print bitand(199, 64)
+print math.bitand(199, 64)
 //expect:64
 
-print bitand(true,true)
+print math.bitand(true,true)
 //expect:1
 
 print ascii("A") // gets the ascii value of the first character of a string

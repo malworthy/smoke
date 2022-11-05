@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
+
 
 #include "common.h"
 #include "vm.h"
@@ -20,6 +20,7 @@
 #include "native/stringutil.h"
 #include "native/date.h"
 #include "native/native.h"
+#include "native/mathmod.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -30,37 +31,6 @@
 #endif
 
 VM vm;
-
-static bool bitandNative(int argCount, Value* args)
-{
-    if (!(IS_BOOL(args[0]) || IS_NUMBER(args[0])))
-    {
-        NATIVE_ERROR("bitand expects a Number or Boolean as parameter 1");
-    }    
-
-    if (!(IS_BOOL(args[1]) || IS_NUMBER(args[1])))
-    {
-        NATIVE_ERROR("bitand expects a Number or Boolean as parameter 2");
-    }
-    int a;
-    int b;
-
-    if(IS_BOOL(args[0])) 
-        a = (int)AS_BOOL(args[0]);
-    else 
-        a = (int)AS_NUMBER(args[0]);
-
-    if(IS_BOOL(args[1])) 
-        b = (int)AS_BOOL(args[1]);
-    else 
-        b = (int)AS_NUMBER(args[1]);
-
-    int result = a & b;
-
-    args[-1] = NUMBER_VAL((double)result);
-
-    return true;
-}
 
 static bool typeNative(int argCount, Value* args)
 {
@@ -94,38 +64,6 @@ static bool numNative(int argCount, Value* args)
 
     args[-1] = NUMBER_VAL(val);
 
-    return true;
-}
-
-static bool asciiNative(int argCount, Value* args)
-{
-    CHECK_STRING(0, "ascii expects a string as parameter.");
-    
-    char* string = AS_CSTRING(args[0]);
-    if (string[0] == '\0')
-    {
-        NATIVE_ERROR("Cannet get ascii value for an empty string");
-    }
-    double val = string[0];
-
-    args[-1] = NUMBER_VAL(val);
-    
-    return true;
-}
-
-static bool upperNative(int argCount, Value* args)
-{
-    CHECK_STRING(0, "ascii expects a string as parameter.");
-    
-    ObjString* string = AS_STRING(args[0]);
-    char *result = ALLOCATE(char, string->length+1);
-
-    for (int i=0; i<string->length; i++)
-        result[i] = toupper(string->chars[i]);
-    result[string->length] = '\0';
-
-    args[-1] = OBJ_VAL(takeString(result, string->length));
-    
     return true;
 }
 
@@ -229,6 +167,30 @@ static void defineNative(const char* name, NativeFn function, int arity)
     pop();
 }
 
+static void defineNativeMod(const char* name, const char* module,  NativeFn function, int arity) 
+{
+    Value value;
+    //stack: 0 = module name, 1 = module, 2 = function name, 3 = navtive function 
+    push(OBJ_VAL(copyStringRaw(module, (int)strlen(module)))); 
+    if (!tableGet(&vm.globals, AS_STRING(vm.stack[0]), &value)) 
+    {   
+        push(OBJ_VAL(newMod(AS_STRING(vm.stack[0]))));
+        tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    }
+    else
+    {
+        push(value);
+    }
+    ObjClass* klass = AS_CLASS(vm.stack[1]);
+    push(OBJ_VAL(copyStringRaw(name, (int)strlen(name))));
+    push(OBJ_VAL(newNative(function, arity)));
+    tableSet(&klass->methods, AS_STRING(vm.stack[2]), vm.stack[3]);
+    pop();
+    pop();
+    pop();
+    pop();
+}
+
 void initVM() 
 {
     resetStack();
@@ -259,7 +221,12 @@ void initVM()
     defineNative("ascii", asciiNative, 1);
     defineNative("upper", upperNative, 1);
     defineNative("type", typeNative, 1);
-    defineNative("bitand", bitandNative, 2);
+    //defineNative("bitand", bitandNative, 2);
+
+    // Math
+    defineNativeMod("bitand", "math", bitandNative, 2);
+    defineNativeMod("bitor", "math", bitorNative, 2);
+    defineNativeMod("atan", "math", atanNative, 1);
 
     // Dates
     defineNative("now", nowNative, 0);
@@ -386,7 +353,7 @@ static bool callValue(Value callee, int argCount)
                 ObjNative* native = AS_NATIVE(callee);
                 if (native->arity != argCount)
                 {
-                    runtimeError("Expected %d arguments but got %d.", native->arity, argCount);
+                    runtimeError("Expected %d arguments but got %d. (N)", native->arity, argCount);
                     return false;
                 }
                 
@@ -418,7 +385,13 @@ static bool invokeFromClass(ObjClass* klass, ObjString* name,
         runtimeError("Undefined property '%s'.", name->chars);
         return false;
     }
-    return call(AS_CLOSURE(method), argCount);
+    if (IS_CLOSURE(method))
+        return call(AS_CLOSURE(method), argCount);
+    else if (IS_NATIVE(method))
+        return callValue(method, argCount);
+    
+    runtimeError("Not a valid function");
+    return false;
 }
 
 static bool getEnumName(Value enumInstance)

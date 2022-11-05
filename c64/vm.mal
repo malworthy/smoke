@@ -29,11 +29,37 @@ class Vm
         me.stack = []
         //me.returnStack = []
         me.variables = []
-        me.functions = [NativeFunction("abs", me.absNative), NativeFunction("asc",me.ascNative)]
+        me.functions = [
+            NativeFunction("abs", me.absNative), 
+            NativeFunction("asc",me.ascNative),
+            NativeFunction("atn",me.atnNative)
+            ]
         
         for x in [0..65536]
             me.variables << 0
 
+    }
+
+    atnNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, math.atan(num)] 
+    }
+
+    absNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        if num >= 0 then return [true, num] else return [true, -num]
     }
 
     absNative(params)
@@ -193,7 +219,18 @@ class Vm
                     me.runtimeError("?TYPE MISMATCH ERROR")
                     return false
                 }
-                me.stack << bitand(a, b)
+                me.stack << math.bitand(a, b)
+            }
+            else if instr.op == OpCode.OpOr then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                if type(a) == Type.String or type(b) == Type.String then
+                {
+                    me.runtimeError("?TYPE MISMATCH ERROR")
+                    return false
+                }
+                me.stack << math.bitor(a, b)
             }
             else if instr.op == OpCode.OpPrint then
             {

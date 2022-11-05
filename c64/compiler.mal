@@ -46,9 +46,6 @@ enum Precedence
     Primary
 }
 
-// placeholder
-//fn num(value) => value
-
 class Instruction
 {
     init(line_number)
@@ -134,6 +131,7 @@ class Compiler
             ParseRule(TokenType.Then, false, false, Precedence.None),
             ParseRule(TokenType.Not, me.not, false, Precedence.None),
             ParseRule(TokenType.And, false, me.binary, Precedence.And),
+            ParseRule(TokenType.Or, false, me.binary, Precedence.Or),
             ParseRule(TokenType.LessEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.GreaterEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Less, false, me.binary, Precedence.Comparison),
@@ -213,11 +211,6 @@ class Compiler
         var name = me.current.lexeme
         me.expression(false)
         me.chunk.writeByte(OpCode.OpPop)
-        //me.chunk.writeBytes(OpCode.OpSetVariable, name)
-
-        //print "for: current: %{me.current.toString()}"
-
-        //me.variable(true);
         me.consume(TokenType.To, "?SYNTAX ERROR MISSING TO")
         me.expression(true)
         if (me.match(TokenType.Step)) then
@@ -226,6 +219,8 @@ class Compiler
             me.chunk.writeBytes(OpCode.OpConstant, 1)
 
         me.chunk.writeBytes(OpCode.OpFor, name)
+        print "matching colon"
+        me.match(TokenType.Colon)
     }
 
     nextStatement()
@@ -320,7 +315,7 @@ class Compiler
         me.chunk.writeBytes(OpCode.OpPrint, trailing)
     }
 
-    endOfLine() => (me.current.line_number != me.previous().line_number) or me.check(TokenType.Eof)
+    endOfLine() => (me.current.line_number != me.previous().line_number) or me.check(TokenType.Eof) or me.match(TokenType.Colon)
 
     match(type)
     {
@@ -367,7 +362,7 @@ class Compiler
         //print "Prefix rule: %{prefixRule}"
         if (!prefixRule) then 
         { 
-            me.error("?SYNTAX ERROR - no prefix rule")
+            me.error("?SYNTAX ERROR - no prefix rule. Token: %{TokenType.name(me.previous().token_type)}")
             return
         }
         var canAssign = precedence <= Precedence.Assignment and !dontAssign
@@ -455,6 +450,7 @@ class Compiler
         if op == TokenType.GreaterEqual then me.chunk.writeByte(OpCode.OpGreaterEqual)
 
         if op == TokenType.And then me.chunk.writeByte(OpCode.OpAnd)
+        if op == TokenType.Or then me.chunk.writeByte(OpCode.OpOr)
     }
 
     number(canAssign)

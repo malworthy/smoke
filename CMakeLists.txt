@@ -50,7 +50,7 @@ add_test(NAME var_global COMMAND python ../test_runner.py "mal.exe" "../tst/erro
 add_test(NAME shovel_not_a_list COMMAND python ../test_runner.py "mal.exe" "../tst/error/shovel_not_a_list.mal" "//expect:")
 
 
-add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c)
+add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c src/native/mathmod.c)
 #target_link_options(mal PRIVATE -lm -lreadline)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

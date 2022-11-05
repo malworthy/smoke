@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "../common.h"
 #include "../value.h"
 #include "../object.h"
 #include "../vm.h"
+#include "../memory.h"
 #include "native.h"
 
 #define ITEM_BUFFER_SIZE 100
@@ -132,5 +134,37 @@ bool splitNative(int argCount, Value* args)
     pop();
     free(item);
 
+    return true;
+}
+
+bool asciiNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "ascii expects a string as parameter.");
+    
+    char* string = AS_CSTRING(args[0]);
+    if (string[0] == '\0')
+    {
+        NATIVE_ERROR("Cannet get ascii value for an empty string");
+    }
+    double val = string[0];
+
+    args[-1] = NUMBER_VAL(val);
+    
+    return true;
+}
+
+bool upperNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "ascii expects a string as parameter.");
+    
+    ObjString* string = AS_STRING(args[0]);
+    char *result = ALLOCATE(char, string->length+1);
+
+    for (int i=0; i<string->length; i++)
+        result[i] = toupper(string->chars[i]);
+    result[string->length] = '\0';
+
+    args[-1] = OBJ_VAL(takeString(result, string->length));
+    
     return true;
 }
