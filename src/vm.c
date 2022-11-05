@@ -722,7 +722,7 @@ static InterpretResult run()
         (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
 
     #define READ_CONSTANT() \
-        (frame->closure->function->chunk.constants.values[READ_BYTE()])
+        (frame->closure->function->chunk.constants.values[READ_SHORT()])
         
     #define COMPARE_OP(valueType, op) \
         do { \

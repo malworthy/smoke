@@ -87,8 +87,8 @@ static void statement();
 static void declaration();
 static uint8_t argumentList(); 
 static void function(FunctionType type);
-static uint8_t parseVariable(const char* errorMessage, bool isConst);
-static void defineVariable(uint8_t global);
+static uint16_t parseVariable(const char* errorMessage, bool isConst);
+static void defineVariable(uint16_t global);
 static void block();
 
 static Chunk* currentChunk() 
@@ -179,6 +179,13 @@ static void emitBytes(uint8_t byte1, uint8_t byte2)
     emitByte(byte2);
 }
 
+static void emitBytes16(uint8_t byte1, uint16_t byte2) 
+{
+    emitByte(byte1);
+    emitByte((byte2 >> 8) & 0xff);
+    emitByte(byte2 & 0xff);
+}
+
 static void emitLoop(int loopStart) 
 {
     emitByte(OP_LOOP);
@@ -199,10 +206,10 @@ static int emitJump(uint8_t instruction)
     return currentChunk()->count - 2;
 }
 
-static uint8_t makeConstant(Value value) 
+static uint16_t makeConstant(Value value) 
 {
     int constant = addConstant(currentChunk(), value);
-    if (constant > UINT8_T_MAX) 
+    if (constant > UINT16_T_MAX) 
     {
         error("Too many constants in one chunk.");
         return 0;
@@ -211,10 +218,10 @@ static uint8_t makeConstant(Value value)
     return (uint8_t)constant;
 }
 
-static uint8_t emitConstant(Value value) 
+static uint16_t emitConstant(Value value) 
 {
-    uint8_t constant = makeConstant(value);
-    emitBytes(OP_CONSTANT, constant);
+    uint16_t constant = makeConstant(value);
+    emitBytes16(OP_CONSTANT, constant);
 
     return constant;
 }
@@ -354,7 +361,7 @@ static void call(bool canAssign)
     emitBytes(OP_CALL, argCount);
 }
 
-static uint8_t identifierConstant(Token* name) 
+static uint16_t identifierConstant(Token* name) 
 {
     return makeConstant(OBJ_VAL(copyStringRaw(name->start,
                                            name->length)));
@@ -363,30 +370,30 @@ static uint8_t identifierConstant(Token* name)
 static void dot(bool canAssign) 
 {
     consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-    uint8_t name = identifierConstant(&parser.previous);
+    uint16_t name = identifierConstant(&parser.previous);
 
     if (canAssign && match(TOKEN_EQUAL)) 
     {
         expression();
-        emitBytes(OP_SET_PROPERTY, name);
+        emitBytes16(OP_SET_PROPERTY, name);
     } 
     else if (canAssign && match(TOKEN_PLUS_PLUS))
     {
-        emitBytes(OP_INC_PROPERTY, name);
+        emitBytes16(OP_INC_PROPERTY, name);
     } 
     else if (canAssign && match(TOKEN_MINUS_MINUS))
     {
-        emitBytes(OP_DEC_PROPERTY, name);
+        emitBytes16(OP_DEC_PROPERTY, name);
     } 
     else if (match(TOKEN_LEFT_PAREN)) 
     {
         uint8_t argCount = argumentList();
-        emitBytes(OP_INVOKE, name);
+        emitBytes16(OP_INVOKE, name);
         emitByte(argCount);
     }
     else 
     {
-        emitBytes(OP_GET_PROPERTY, name);
+        emitBytes16(OP_GET_PROPERTY, name);
     }
 }
 
@@ -446,7 +453,7 @@ static void formatString(bool canAssign)
                                     parser.previous.length - 1)));
 }
 
-static uint8_t stringConstant(char* name) 
+static uint16_t stringConstant(char* name) 
 {
     return makeConstant(OBJ_VAL(copyStringRaw(name,strlen(name))));
 }
@@ -611,7 +618,10 @@ static void namedVariable(Token name, bool canAssign)
     } 
     else 
     {
-        emitBytes(getOp, (uint8_t)arg);
+        if (getOp == OP_GET_GLOBAL)
+            emitBytes16(getOp, (uint16_t)arg);
+        else
+            emitBytes(getOp, (uint8_t)arg);
     }
 }
 
@@ -774,7 +784,7 @@ static void where(bool canAssign)
     initCompiler(&compiler, TYPE_ANON);
     beginScope(); 
 
-    uint8_t constant = parseVariable("Expect parameter name.", false);
+    uint16_t constant = parseVariable("Expect parameter name.", false);
     defineVariable(constant);
     current->function->arity = 1;
 
@@ -790,7 +800,7 @@ static void where(bool canAssign)
     }
 
     ObjFunction* function = endCompiler();
-    emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+    emitBytes16(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
 
     for (int i = 0; i < function->upvalueCount; i++) 
     {
@@ -807,7 +817,7 @@ static void _select(bool canAssign)
     initCompiler(&compiler, TYPE_ANON);
     beginScope(); 
 
-    uint8_t constant = parseVariable("Expect parameter name.", false);
+    uint16_t constant = parseVariable("Expect parameter name.", false);
     defineVariable(constant);
     current->function->arity = 1;
 
@@ -823,7 +833,7 @@ static void _select(bool canAssign)
     }
 
     ObjFunction* function = endCompiler();
-    emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+    emitBytes16(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
 
     for (int i = 0; i < function->upvalueCount; i++) 
     {
@@ -948,7 +958,7 @@ static void markInitialized()
       current->scopeDepth;
 }
 
-static void defineVariable(uint8_t global) 
+static void defineVariable(uint16_t global) 
 {
     if (current->scopeDepth > 0) 
     {
@@ -956,7 +966,7 @@ static void defineVariable(uint8_t global)
         return;
     }
     
-    emitBytes(OP_DEFINE_GLOBAL, global);
+    emitBytes16(OP_DEFINE_GLOBAL, global);
 }
 
 static uint8_t argumentList() 
@@ -976,7 +986,7 @@ static uint8_t argumentList()
     return argCount;
 }
 
-static uint8_t parseVariable(const char* errorMessage, bool isConst) 
+static uint16_t parseVariable(const char* errorMessage, bool isConst) 
 {
     consume(TOKEN_IDENTIFIER, errorMessage);
 
@@ -1006,7 +1016,7 @@ static void function(FunctionType type)
             if (current->function->arity > 255) 
                 errorAtCurrent("Can't have more than 255 parameters.");
             
-            uint8_t constant = parseVariable("Expect parameter name.", false);
+            uint16_t constant = parseVariable("Expect parameter name.", false);
             defineVariable(constant);
         } while (match(TOKEN_COMMA));
     }
@@ -1025,7 +1035,7 @@ static void function(FunctionType type)
     }
 
     ObjFunction* function = endCompiler();
-    emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+    emitBytes16(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
 
     for (int i = 0; i < function->upvalueCount; i++) 
     {
@@ -1037,32 +1047,32 @@ static void function(FunctionType type)
 static void method() 
 {
     consume(TOKEN_IDENTIFIER, "Expect method name.");
-    uint8_t constant = identifierConstant(&parser.previous);
+    uint16_t constant = identifierConstant(&parser.previous);
     FunctionType type = TYPE_METHOD;
     if (parser.previous.length == 4 && memcmp(parser.previous.start, "init", 4) == 0) 
     {
         type = TYPE_INITIALIZER;
     } 
     function(type);
-    emitBytes(OP_METHOD, constant);
+    emitBytes16(OP_METHOD, constant);
 }
 
 static void enumDeclaration()
 {
     consume(TOKEN_IDENTIFIER, "Expect enum name.");
     Token enumName = parser.previous;
-    uint8_t nameConstant = identifierConstant(&parser.previous);
+    uint16_t nameConstant = identifierConstant(&parser.previous);
     declareVariable(false);
 
-    emitBytes(OP_ENUM, nameConstant);
+    emitBytes16(OP_ENUM, nameConstant);
     defineVariable(nameConstant);
     namedVariable(enumName, false);
     consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
     while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) 
     {
         consume(TOKEN_IDENTIFIER, "Expect enum name.");
-        uint8_t fieldConstant = identifierConstant(&parser.previous);
-        emitBytes(OP_ENUM_FIELD, fieldConstant);
+        uint16_t fieldConstant = identifierConstant(&parser.previous);
+        emitBytes16(OP_ENUM_FIELD, fieldConstant);
         if (check(TOKEN_RIGHT_BRACE))
             break;
         consume(TOKEN_COMMA,"Expect ',' after enum field");
@@ -1075,10 +1085,10 @@ static void classDeclaration()
 {
     consume(TOKEN_IDENTIFIER, "Expect class name.");
     Token className = parser.previous;
-    uint8_t nameConstant = identifierConstant(&parser.previous);
+    uint16_t nameConstant = identifierConstant(&parser.previous);
     declareVariable(false);
 
-    emitBytes(OP_CLASS, nameConstant);
+    emitBytes16(OP_CLASS, nameConstant);
     defineVariable(nameConstant);
 
     ClassCompiler classCompiler;
@@ -1096,15 +1106,16 @@ static void classDeclaration()
 
     currentClass = currentClass->enclosing;
 }
+
 // modules are just classes you can't instantiate, and all methods are static
 static void modDeclaration() 
 {
     consume(TOKEN_IDENTIFIER, "Expect module name.");
     Token modName = parser.previous;
-    uint8_t nameConstant = identifierConstant(&parser.previous);
+    uint16_t nameConstant = identifierConstant(&parser.previous);
     declareVariable(false);
 
-    emitBytes(OP_MODULE, nameConstant);
+    emitBytes16(OP_MODULE, nameConstant);
     defineVariable(nameConstant);
 
     ClassCompiler classCompiler;
@@ -1125,7 +1136,7 @@ static void modDeclaration()
 
 static void funDeclaration() 
 {
-    uint8_t global = parseVariable("Expect function name.", true);
+    uint16_t global = parseVariable("Expect function name.", true);
     markInitialized();
     function(TYPE_FUNCTION);
     defineVariable(global);
@@ -1134,7 +1145,7 @@ static void funDeclaration()
 static void loopVarDeclaration(char* name) 
 {
     // this does what parse variable does
-    uint8_t global = 0; 
+    uint16_t global = 0; 
     declareLoopVariable(name);
 
     defineVariable(global);
@@ -1142,7 +1153,7 @@ static void loopVarDeclaration(char* name)
 
 static void varDeclaration(bool isConst) 
 {
-    uint8_t global = parseVariable("Expect variable name.", isConst);
+    uint16_t global = parseVariable("Expect variable name.", isConst);
 
     if (match(TOKEN_EQUAL)) 
         expression();
@@ -1157,7 +1168,7 @@ static void varDeclaration(bool isConst)
 
 static void varDeclaration2(bool isConst) 
 {
-    uint8_t global = parseVariable("Expect variable name.", isConst);
+    uint16_t global = parseVariable("Expect variable name.", isConst);
     emitConstant(NUMBER_VAL(0));
     defineVariable(global);
 }
@@ -1208,7 +1219,7 @@ static void forStatement()
     // Get function name
     char* fnName = "len";
     int arg = stringConstant(fnName);
-    emitBytes(OP_GET_GLOBAL, (uint8_t)arg);
+    emitBytes16(OP_GET_GLOBAL, (uint16_t)arg);
 
     // parameter 1 - the list or string we're getting the length of
     emitBytes(OP_GET_LOCAL, list);
