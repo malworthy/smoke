@@ -1,31 +1,31 @@
-print split("1,2,3",",");
+print string.split("1,2,3",",");
 //expect:[1, 2, 3]
 
-print split("1,2,,3,,",",");
+print string.split("1,2,,3,,",",");
 //expect:[1, 2, 3]
 
-print split(",,1,2,3",",");
+print string.split(",,1,2,3",",");
 //expect:[1, 2, 3]
 
-print split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",",");
+print string.split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",",");
 //expect:[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]
 
-print split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd,xxxx",",");
+print string.split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd,xxxx",",");
 //expect:[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd, xxxx]
 
-print split("one**two**three**four","**");
+print string.split("one**two**three**four","**");
 //expect:[one, two, three, four]
 
 
-print splitlines("1\n2\n3");
+print string.splitlines("1\n2\n3");
 //expect:[1, 2, 3]
 
-print splitlines("1\n2\n\n3\n\n");
+print string.splitlines("1\n2\n\n3\n\n");
 //expect:[1, 2, 3]
 
-print splitlines("\n\n1\n2\n3");
+print string.splitlines("\n\n1\n2\n3");
 //expect:[1, 2, 3]
 
 
-print splitlines("1\r\n2\r\n3");
+print string.splitlines("1\r\n2\r\n3");
 //expect:[1, 2, 3]

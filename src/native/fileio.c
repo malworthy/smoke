@@ -10,6 +10,74 @@
 #include "native.h"
 
 #define BUFFER_SIZE 200
+#define MAX_FILES 255
+
+static FILE* files[MAX_FILES];
+static int fileCount = 0;
+
+bool openNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "Parameter 1 must be a string for function open()");
+    CHECK_STRING(1, "Parameter 2 must be a string for function open()");
+
+    if (fileCount >= MAX_FILES)
+    {
+        //TODO: File a blank space in the array, if there are none then error
+        NATIVE_ERROR("Too many open files");
+    }
+
+    FILE* file = fopen(AS_CSTRING(args[0]), AS_CSTRING(args[1]));
+    files[fileCount] = file;
+
+    args[-1] = NUMBER_VAL((double)fileCount);
+    fileCount++;
+
+    return true;
+}
+
+bool closeNative(int argCount, Value* args)
+{
+    CHECK_NUM(0, "Parameter 1 must be a number for function close()");
+
+    int index = (int)AS_NUMBER(args[0]);
+
+    if (index >= fileCount) return true;
+
+    FILE* fp = files[index];
+
+    if (fp == NULL) return true;
+
+    fclose(fp);
+
+    files[index] = NULL;
+
+    if (index == fileCount - 1) fileCount--;
+
+    return true;
+}
+
+bool writeFileNative(int argCount, Value* args)
+{
+    CHECK_NUM(0, "Parameter 1 must be a number for function write()");
+
+    int result = 0;
+
+    args[-1] = NUMBER_VAL(0);
+
+    int index = (int)AS_NUMBER(args[0]);
+    if (index >= fileCount) return true;
+    FILE* fp = files[index];
+    if (fp == NULL) return true;
+
+    if (IS_STRING(args[1]))
+    {
+        int result = fprintf(fp, "%s", AS_CSTRING(args[1]));
+    }
+
+    args[-1] = NUMBER_VAL(result);
+
+    return true;
+}
 
 bool readlinesNative(int argCount, Value* args)
 {

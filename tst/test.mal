@@ -1,7 +1,20 @@
-fn test()
+class test
 {
-    fn test2() { print "hi" }
-    var test2 = 45
-    test2()
-    print test2
+    init()
+    {
+         me.functions = [
+            NativeFunction("abs", me.absNative), 
+            NativeFunction("asc",me.ascNative),
+            NativeFunction("atn",me.atnNative),
+            NativeFunction("chr$", fn(params) => {
+                const num = params[0]
+                if type(num) != Type.Number 
+                {
+                    me.runtimeError("?TYPE MISMATCH")
+                    return [false]
+                }
+                return [true, string.char(num)] 
+            })
+            ]
+    }
 }

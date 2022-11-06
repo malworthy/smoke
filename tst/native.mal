@@ -38,11 +38,13 @@ print math.bitand(199, 64)
 print math.bitand(true,true)
 //expect:1
 
-print ascii("A") // gets the ascii value of the first character of a string
-print upper("string") // converts a string to upper case
-print split("a,b,c", ",") // split a string on delimeter.  a returns list
-print splitlines("a\nb\nc") // split a string on newline.  a returns list
+print string.ascii("A") // gets the ascii value of the first character of a string
+print string.upper("string") // converts a string to upper case
+print string.split("a,b,c", ",") // split a string on delimeter.  a returns list
+print string.splitlines("a\nb\nc") // split a string on newline.  a returns list
+print string.char(65)
 //expect:65
 //expect:STRING
 //expect:[a, b, c]
 //expect:[a, b, c]
+//expect:A

@@ -32,7 +32,16 @@ class Vm
         me.functions = [
             NativeFunction("abs", me.absNative), 
             NativeFunction("asc",me.ascNative),
-            NativeFunction("atn",me.atnNative)
+            NativeFunction("atn",me.atnNative),
+            NativeFunction("chr$", fn(params) {
+                const num = params[0]
+                if type(num) != Type.Number 
+                {
+                    me.runtimeError("?TYPE MISMATCH")
+                    return [false]
+                }
+                return [true, string.char(num)] 
+            })
             ]
         
         for x in [0..65536]
@@ -86,7 +95,7 @@ class Vm
             me.runtimeError("?ILLEGAL QUANTITY ERROR")
             return [false]
         }
-        return [true, ascii(s)]
+        return [true, string.ascii(s)]
     }
 
     getVariableIndex(name)
@@ -94,17 +103,17 @@ class Vm
         var byte1 = 0
         var byte2 = 0
 
-        name = upper(name)
+        name = string.upper(name)
 
         if len(name) == 1 then 
         {
             byte1 = 0
-            byte2 = ascii(name[0])
+            byte2 = string.ascii(name[0])
         }
         else
         {
-            byte1 = ascii(name[0])
-            byte2 = ascii(name[1])
+            byte1 = string.ascii(name[0])
+            byte2 = string.ascii(name[1])
         }
 
         return byte1 * 128 + byte2

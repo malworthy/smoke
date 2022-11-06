@@ -217,11 +217,15 @@ void initVM()
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
     defineNative("rand", randNative, 1);
-    defineNative("num", numNative, 1);
-    defineNative("ascii", asciiNative, 1);
-    defineNative("upper", upperNative, 1);
+    defineNative("num", numNative, 1);   
     defineNative("type", typeNative, 1);
-    //defineNative("bitand", bitandNative, 2);
+
+    // STRING
+    defineNativeMod("splitlines", "string", splitlinesNative, 1);
+    defineNativeMod("split", "string", splitNative, 2);
+    defineNativeMod("ascii", "string", asciiNative, 1);
+    defineNativeMod("upper", "string", upperNative, 1);
+    defineNativeMod("char", "string", charNative, 1);
 
     // Math
     defineNativeMod("bitand", "math", bitandNative, 2);
@@ -257,11 +261,11 @@ void initVM()
     defineNative("run", runNative, 1);
 
     // FILEIO
-    defineNative("readlines", readlinesNative, 1);
-
-    // STRING
-    defineNative("splitlines", splitlinesNative, 1);
-    defineNative("split", splitNative, 2);
+    defineNativeMod("readlines", "file", readlinesNative, 1);
+    defineNativeMod("open", "file", openNative, 2);
+    defineNativeMod("close", "file", closeNative, 1);
+    defineNativeMod("write", "file", writeFileNative, 2);
+    
 }
 
 void freeVM() 

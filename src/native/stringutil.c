@@ -153,6 +153,23 @@ bool asciiNative(int argCount, Value* args)
     return true;
 }
 
+bool charNative(int argCount, Value* args)
+{
+    CHECK_NUM(0, "char expects a number as parameter.");
+
+    int val = (int)AS_NUMBER(args[0]);
+    if (val < 0 || val > 255)
+    {
+        NATIVE_ERROR("char expect a number between 0 and 255");
+    }
+    char c[1];
+    c[0] = val;
+    //c[1] = '\0';
+    args[-1] = OBJ_VAL(copyStringRaw(c, 1));
+
+    return true;
+}
+
 bool upperNative(int argCount, Value* args)
 {
     CHECK_STRING(0, "ascii expects a string as parameter.");

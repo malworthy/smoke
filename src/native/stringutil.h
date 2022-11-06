@@ -5,5 +5,6 @@ bool splitlinesNative(int argCount, Value* args);
 bool splitNative(int argCount, Value* args);
 bool asciiNative(int argCount, Value* args);
 bool upperNative(int argCount, Value* args);
+bool charNative(int argCount, Value* args);
 
 #endif

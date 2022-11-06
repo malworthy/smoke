@@ -108,6 +108,23 @@ enum Animal
 // To get the name of an enum value
 Animal.name(Animal.Dog) //returns "Dog"
 ```
+## Modules
+Modules are a grouping of functions. See example below.
+```
+mod foo
+{
+  doSomething()
+  {
+    print "something"
+  }
+
+  doAnotherThing()
+  {
+    return 123
+  }
+}
+```
+
 
 ## Native functions
 
@@ -137,10 +154,11 @@ System
 - run(path)
 
 String Functions
-- ascii(string) // gets the ascii value of the first character of a string
-- upper(string) // converts a string to upper case
-- split(str, delim) // split a string on delimeter.  a returns list
-- splitlines(str) // split a string on newline.  a returns list
+- string.ascii(string) // gets the ascii value of the first character of a string
+- string.upper(string) // converts a string to upper case
+- string.split(str, delim) // split a string on delimeter.  a returns list
+- string.splitlines(str) // split a string on newline.  a returns list
+- string.char(num) // converts an ascii value into a 1 character string
 
 File IO
 - readlines(path) // reads a text file and returns a list of all the lines in file 
@@ -155,6 +173,8 @@ Utils
   Types: Bool, Number, DateTime, String, Upvalue, Function, Native, Closure, List, Class, Instance, Method, Enum 
 
 Math/Bitwise Operations
-- bitand(value1, value2) // performs a bitwise and
+- math.bitand(value1, value2) // performs a bitwise and
+- math.bitor(value1, value2) // bitwise or
+- math.atan(value)
 
 

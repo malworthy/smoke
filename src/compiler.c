@@ -98,7 +98,11 @@ static Chunk* currentChunk()
 
 static void errorAt(Token* token, const char* message) 
 {
+    static char* lastMessage;
     if (parser.panicMode) return;
+
+    if (parser.hadError && message == lastMessage) return;
+    lastMessage = message;
     parser.panicMode = true;
     fprintf(stderr, "[line %d] Error", token->line);
 
@@ -1324,23 +1328,26 @@ static void synchronize()
 {
     parser.panicMode = false;
 
-    while (parser.current.type != TOKEN_EOF) {
-        if (parser.previous.type == TOKEN_SEMICOLON) return;
-        switch (parser.current.type) {
-        case TOKEN_CLASS:
-        case TOKEN_MOD:
-        case TOKEN_FN:
-        case TOKEN_VAR:
-        case TOKEN_CONST:
-        case TOKEN_FOR:
-        case TOKEN_IF:
-        case TOKEN_WHILE:
-        case TOKEN_PRINT:
-        case TOKEN_RETURN:
-            return;
+    while (parser.current.type != TOKEN_EOF) 
+    {
+        //if (parser.previous.line != parser.current.line) return;
+        //printf("In Syncronize\n");
+        switch (parser.current.type) 
+        {
+            case TOKEN_CLASS:
+            case TOKEN_MOD:
+            case TOKEN_FN:
+            case TOKEN_VAR:
+            case TOKEN_CONST:
+            case TOKEN_FOR:
+            case TOKEN_IF:
+            case TOKEN_WHILE:
+            case TOKEN_PRINT:
+            case TOKEN_RETURN:
+                return;
 
-        default:
-            ; // Do nothing.
+            default:
+                ; // Do nothing.
         }
 
         advance();
