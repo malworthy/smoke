@@ -232,6 +232,15 @@ void initVM()
     defineNativeMod("bitor", "math", bitorNative, 2);
     defineNativeMod("atan", "math", atanNative, 1);
 
+    defineNativeMod("cos", "math", cosNative, 1);
+    defineNativeMod("sin", "math", sinNative, 1);
+    defineNativeMod("tan", "math", tanNative, 1);
+    defineNativeMod("exp", "math", expNative, 1);
+    defineNativeMod("log", "math", logNative, 1);
+    defineNativeMod("sqrt", "math", sqrtNative, 1);
+    defineNativeMod("floor", "math", floorNative, 1);
+    defineNativeMod("ceil", "math", ceilNative, 1);
+
     // Dates
     defineNative("now", nowNative, 0);
     defineNative("date", dateNative, 1);

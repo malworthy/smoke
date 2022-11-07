@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(mal VERSION 0.1.0)
 
 include(CTest)
-# add_executable(test_table src/test_table.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c)
 enable_testing()
-# add_test(NAME test_table COMMAND test_table)
 add_test(NAME variables COMMAND python ../test_runner.py "mal.exe" "../tst/variable.mal" "//expect:")
 add_test(NAME scope COMMAND python ../test_runner.py "mal.exe" "../tst/scope.mal" "//expect:")
 add_test(NAME if COMMAND python ../test_runner.py "mal.exe" "../tst/if.mal" "//expect:")
@@ -51,7 +49,7 @@ add_test(NAME shovel_not_a_list COMMAND python ../test_runner.py "mal.exe" "../t
 
 
 add_executable(mal src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c src/native/mathmod.c)
-target_link_options(mal PRIVATE -lm -lreadline)
+#target_link_options(mal PRIVATE -lm -lreadline)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

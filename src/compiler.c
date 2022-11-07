@@ -955,8 +955,8 @@ static void block()
     {
         declaration();
     }
-
-    consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+    if (!parser.hadError)
+        consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
 static void markInitialized() 

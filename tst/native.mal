@@ -48,3 +48,20 @@ print string.char(65)
 //expect:[a, b, c]
 //expect:[a, b, c]
 //expect:A
+
+print math.sin(1)
+//expect:0.841471
+print math.tan(1)
+//expect:1.55741
+print math.exp(1)
+//expect:2.71828
+print math.log(1)
+//expect:0
+print math.log(2.3)
+//expect:0.832909
+print math.sqrt(9) 
+//expect:3
+print math.floor(1.123123)
+//expect:1
+print math.ceil(1.123123)  
+//expect:2

@@ -162,6 +162,9 @@ String Functions
 
 File IO
 - readlines(path) // reads a text file and returns a list of all the lines in file 
+- file.open(filename, mode) // opens a file using mode ('r','w', etc). return reference to file (a number 0-255)
+- file.write(fileref, text) // write to file opend by file.open
+- file.close(fileref) // close file
 
 Utils
 - args() // returns a list of command line arguments passed to the scripts
@@ -175,6 +178,17 @@ Utils
 Math/Bitwise Operations
 - math.bitand(value1, value2) // performs a bitwise and
 - math.bitor(value1, value2) // bitwise or
+
+// Math functions from C standard library
 - math.atan(value)
+- math.cos(value)
+- math.sin(value)
+- math.tan(value)
+- math.exp(value)
+- math.log(value)
+- math.sqrt(value)
+- math.floor(value)
+- math.ceil(value)
+
 
 

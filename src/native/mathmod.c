@@ -10,6 +10,23 @@
 #include "../memory.h"
 #include "native.h"
 
+#define MATH_FN(name, cname) \
+bool name(int argCount, Value* args) { \
+    CHECK_NUM(0, "Argument 1 must be a number"); \
+    args[-1] = NUMBER_VAL(cname(AS_NUMBER(args[0]))); \
+    return true; }
+
+MATH_FN(atanNative, atan);
+MATH_FN(cosNative, cos);
+MATH_FN(sinNative, sin);
+MATH_FN(tanNative, tan);
+MATH_FN(expNative, exp);
+MATH_FN(logNative, log);
+MATH_FN(sqrtNative, sqrt); 
+MATH_FN(floorNative, floor); 
+MATH_FN(ceilNative, ceil); 
+
+/*
 bool atanNative(int argCount, Value* args)
 {
     CHECK_NUM(0, "Argument 1 must be a number");
@@ -17,7 +34,7 @@ bool atanNative(int argCount, Value* args)
     args[-1] = NUMBER_VAL(atan(AS_NUMBER(args[0])));
 
     return true;
-}
+}*/
 
 bool bitandNative(int argCount, Value* args)
 {
