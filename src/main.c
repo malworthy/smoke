@@ -54,7 +54,7 @@ static void repl()
             break;
         }
 #endif
-        interpret(line);
+        interpret(line,"");
     }
 }
 
@@ -196,7 +196,7 @@ static int runFile(const char* path)
     for (int i = 0;  i < fileContentsCount; i++ )
     {
         //printf("Running file %d of %d: %s\n", i+1, fileContentsCount, fileContents[i]);
-        InterpretResult result = interpret(fileContents[i]);
+        InterpretResult result = interpret(fileContents[i], includeFiles[i]);
     
         if (result == INTERPRET_COMPILE_ERROR) return 65;
         if (result == INTERPRET_RUNTIME_ERROR) return 70;
@@ -219,7 +219,7 @@ int main (int argc, const char* argv[])
 
     initVM();
 
-    InterpretResult result = interpret(coreModuleSource);
+    InterpretResult result = interpret(coreModuleSource, "core");
     if (result != INTERPRET_OK)
     {
         //If there are errors in the core library obvously I've stuffed up, but let me know.

@@ -29,6 +29,9 @@ enum OpCode
     OpAnd,
     OpOr,
     OpReturnSub,
+    OpOpen,
+    OpPrintHash,
+    OpClose,
     OpReturn
 }
 
@@ -267,6 +270,12 @@ class Compiler
             me.forStatement()
         else if me.match(TokenType.Next) then
             me.nextStatement()
+        else if me.match(TokenType.Open) then
+            me.openStatement()
+        else if me.match(TokenType.PrintHash) then
+            me.printHashStatement()
+        else if me.match(TokenType.Close) then
+            me.closeStatement()
         else
             me.expressionStatement()
     }
@@ -293,6 +302,15 @@ class Compiler
             me.chunk.writeBytes(OpCode.OpSetVariable, name)
         }
     }
+    
+    //open file#, filename
+    openStatement()
+    {
+        me.expression(true) // file#
+        me.consume(TokenType.Comma, "?MISSING FILENAME");
+        me.expression(true) // file name
+        me.chunk.writeByte(OpCode.OpOpen)
+    }
 
     printStatement()
     {
@@ -314,6 +332,36 @@ class Compiler
             
         }
         me.chunk.writeBytes(OpCode.OpPrint, trailing)
+    }
+
+    printHashStatement()
+    {
+        var trailing = "\n"
+        me.expression(true)
+        me.consume(TokenType.Comma, "?SYNTAX ERROR")
+        me.expression(true)
+        while me.match(TokenType.SemiColon) or me.match(TokenType.Comma) or !me.endOfLine() do
+        {
+            //print "current: %{me.current.toString()}"
+            const isComma = me.previous().token_type == TokenType.Comma
+            if !me.endOfLine() then
+            {
+                me.expression(true)
+                me.chunk.writeBytes(OpCode.OpConcat, isComma)
+            }
+            else
+            {
+                if isComma then trailing = "\t" else trailing = ""
+            }
+            
+        }
+        me.chunk.writeBytes(OpCode.OpPrintHash, trailing)
+    }
+
+    closeStatement()
+    {
+        me.expression(true)
+        me.chunk.writeByte(OpCode.OpClose)
     }
 
     endOfLine() => (me.current.line_number != me.previous().line_number) or me.check(TokenType.Eof) or me.match(TokenType.Colon)

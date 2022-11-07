@@ -79,6 +79,7 @@ Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
 Chunk* compilingChunk;
+char* currentFilename;
 
 static void expression();
 static ParseRule* getRule(TokenType type);
@@ -104,6 +105,10 @@ static void errorAt(Token* token, const char* message)
     if (parser.hadError && message == lastMessage) return;
     lastMessage = message;
     parser.panicMode = true;
+
+    if (currentFilename[0] != '\0')
+        fprintf(stderr,"File '%s' ", currentFilename);
+
     fprintf(stderr, "[line %d] Error", token->line);
 
     if (token->type == TOKEN_EOF) {
@@ -1396,8 +1401,9 @@ static void statement()
         expressionStatement();
 }
 
-ObjFunction* compile(const char* source)
+ObjFunction* compile(const char* source, char* filename)
 {
+    currentFilename = filename;
     initScanner(source);
     Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT);

@@ -1249,9 +1249,9 @@ static InterpretResult run()
     #undef BINARY_OP_INT
 }
 
-InterpretResult interpret(const char* source) 
+InterpretResult interpret(const char* source, char* filename) 
 {
-    ObjFunction* function = compile(source);
+    ObjFunction* function = compile(source, filename);
     if (function == NULL) return INTERPRET_COMPILE_ERROR;
 
     push(OBJ_VAL(function));

@@ -27,7 +27,7 @@ class Vm
         me.chunk = chunk
         me.ip = 0
         me.stack = []
-        //me.returnStack = []
+        me.filePointers = []
         me.variables = []
         me.functions = [
             NativeFunction("abs", me.absNative), 
@@ -46,6 +46,9 @@ class Vm
         
         for x in [0..65536]
             me.variables << 0
+
+        for x in [0..255]
+            me.filePointers << 0
 
     }
 
@@ -240,6 +243,24 @@ class Vm
                     return false
                 }
                 me.stack << math.bitor(a, b)
+            }
+            else if instr.op == OpCode.OpOpen then
+            {
+                const filename = me.stack[>>]
+                const index = me.stack[>>]
+                me.filePointers[index] = file.open(filename,"w+")
+            }
+            else if instr.op == OpCode.OpPrintHash then
+            {
+                const text = me.stack[>>]
+                const fp = me.filePointers[me.stack[>>]]
+                file.write(fp, "%{text}")
+                file.write(fp, "%{instr.operand}")
+            }
+            else if instr.op == OpCode.OpClose then
+            {
+                const index = me.stack[>>]
+                file.close(me.filePointers[index])
             }
             else if instr.op == OpCode.OpPrint then
             {
