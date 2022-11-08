@@ -224,7 +224,7 @@ static uint16_t makeConstant(Value value)
         return 0;
     }
 
-    return (uint8_t)constant;
+    return (uint16_t)constant;
 }
 
 static uint16_t emitConstant(Value value) 

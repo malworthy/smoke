@@ -7,9 +7,12 @@
 void disassembleChunk(Chunk* chunk, const char* name) 
 {
     printf("== %s ==\n", name);
-
-    for (int offset = 0; offset < chunk->count;) 
+    //printf("Length of chunk %d\n", chunk->count);
+    for (int offset = 0; offset < chunk->count;)
+    {
+        //printf("In loop. offset is %d\n", offset);
         offset = disassembleInstruction(chunk, offset);
+    }
     
 }
 
@@ -53,12 +56,12 @@ static int constantInstruction(const char* name, Chunk* chunk,
 static int invokeInstruction(const char* name, Chunk* chunk,
                                 int offset) 
 {
-    uint8_t constant = chunk->code[offset + 1];
-    uint8_t argCount = chunk->code[offset + 2];
+    uint16_t constant = (chunk->code[offset + 1] << 8) | chunk->code[offset + 2];
+    uint8_t argCount = chunk->code[offset + 3];
     printf("%-16s (%d args) %4d '", name, argCount, constant);
     printValue(chunk->constants.values[constant]);
     printf("'\n");
-    return offset + 3;
+    return offset + 4;
 }
 
 int disassembleInstruction(Chunk* chunk, int offset) 
@@ -170,7 +173,7 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return invokeInstruction("OP_INVOKE", chunk, offset);
         case OP_CLOSURE: {
             offset++;
-            uint8_t constant = chunk->code[offset++];
+            uint16_t constant = (chunk->code[offset++] << 8) | chunk->code[offset++];
             printf("%-16s %4d ", "OP_CLOSURE", constant);
             printValue(chunk->constants.values[constant]);
             printf("\n");

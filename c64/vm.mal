@@ -4,6 +4,7 @@ class NativeFunction
     {
         me.name = name
         me.function = function
+        me.fntype = "native"
     }
 }
 
@@ -43,9 +44,12 @@ class Vm
                 return [true, string.char(num)] 
             })
             ]
-        
-        for x in [0..65536]
-            me.variables << 0
+        var i = 0
+        while i++ < 65536 do me.variables << 0
+        //me.variables = [0..65536]        
+
+        //for x in [0..65536]
+        //    me.variables << 0
 
         for x in [0..255]
             me.filePointers << 0
@@ -128,7 +132,7 @@ class Vm
         const func = me.functions where x => x.name == name
         if len(func) == 1 then 
         { 
-            me.stack << func[0].function
+            me.stack << func[0]
             return true
         }
         const index = me.getVariableIndex(name)
@@ -332,13 +336,24 @@ class Vm
             }
             else if instr.op == OpCode.OpCall then
             {
-                var func = me.stack[-(instr.operand + 1)]
-                var params = me.stack[-instr.operand:0]
-                for i in [0..instr.operand] me.stack[>>]
-                const result = func(params)
-                if !result[0] then return false
+                var func = me.stack[-(instr.operand + 1)].function
+                if func.fntype = "native"
+                {
+                    var params = me.stack[-instr.operand:0]
+                    for i in [0..instr.operand] me.stack[>>]
+                    const result = func(params)
+                    if !result[0] then return false
 
-                me.stack << result[1]
+                    me.stack << result[1]
+                }
+                else
+                {
+                    print "calling a user defined function"
+                }
+            }
+            else if instr.op == OpCode.OpDefFn then
+            {
+                me.functions << instr.operand
             }
             else if instr.op == OpCode.OpEqual then
             {

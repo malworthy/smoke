@@ -32,6 +32,7 @@ enum OpCode
     OpOpen,
     OpPrintHash,
     OpClose,
+    OpDefFn,
     OpReturn
 }
 
@@ -73,6 +74,17 @@ class Instruction
     toString()
     {
         return "%{me.line_number} %{OpCode.name(me.op)} %{me.operand}"
+    }
+}
+
+class Function
+{
+    init(chunk, name, placeholder)
+    {
+        me.chunk = chunk
+        me.name = name
+        me.placeholder = placeholder
+        me.fntype = "user"
     }
 }
 
@@ -134,6 +146,7 @@ class Compiler
             ParseRule(TokenType.If, false, false, Precedence.None),
             ParseRule(TokenType.Then, false, false, Precedence.None),
             ParseRule(TokenType.Not, me.not, false, Precedence.None),
+            ParseRule(TokenType.Fn, me.function, false, Precedence.None),
             ParseRule(TokenType.And, false, me.binary, Precedence.And),
             ParseRule(TokenType.Or, false, me.binary, Precedence.Or),
             ParseRule(TokenType.LessEqual, false, me.binary, Precedence.Comparison),
@@ -180,9 +193,33 @@ class Compiler
         return me.chunk
     }
 
+    fnDeclaration()
+    {
+        me.consume(TokenType.Fn, "?SYNTAX ERROR EXPECT FN")
+        me.consume(TokenType.Identifier, "?SYNTAX ERROR EXPECT FN NAME")
+        const name = me.previous().lexeme
+        me.consume(TokenType.LeftParan, "?SYNTAX ERROR EXPECT (")
+        me.consume(TokenType.Identifier, "?SYNTAX ERROR EXPECT VARIABLE NAME")
+        const placeholder = me.previous().lexeme
+        me.consume(TokenType.RightParan, "?SYNTAX ERROR EXPECT )")
+        me.consume(TokenType.Equals, "?SYNTAX ERROR EXPECT =")
+        const startFnCode = len(me.chunk.instructions) 
+        me.expression(true)
+        const func = Function(me.chunk.instructions[startFnCode:0], name, placeholder)
+        if startFnCode == 0 then 
+            me.chunk.instructions = []
+        else
+            me.chunk.instructions = me.chunk.instructions[0:startFnCode]
+
+        me.chunk.writeBytes(OpCode.OpDefFn, func)
+    }
+
     declaration()
     {
-        me.statement()
+        if me.match(TokenType.Def) then
+            me.fnDeclaration()
+        else
+            me.statement()
     }
 
     expressionStatement()
@@ -465,6 +502,11 @@ class Compiler
 
         me.expression(true)
         me.chunk.writeByte(OpCode.OpNot)
+    }
+
+    function(canAssign)
+    {
+        print "In function"
     }
 
     unary(canAssign)

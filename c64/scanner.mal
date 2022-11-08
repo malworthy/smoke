@@ -18,6 +18,8 @@ enum TokenType
     Next,
     Step,
     To,
+    Def,
+    Fn,
     NotEqual,
     LessEqual,
     GreaterEqual,
@@ -64,7 +66,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["open", "close", "print#", "input", "print", "goto", "gosub", "return", "if", "then", "and", "for", "or", "not", "next", "step", "to", "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
+        me.keywords = ["open", "close", "print#", "input", "print", "goto", "gosub", "return", "if", "then", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 
     scanTokens()
