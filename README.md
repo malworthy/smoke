@@ -26,45 +26,59 @@ var list = [1,"hello", true]
 var date = date("2022-02-01")
 ```
 
-<pre class="snippet">
-// Variables
+## Variables
 
+- Variables can be declared by using either var on const
+- var is not permitted at a global level, you can only use const
+- All variables must be initialized when declared
 
-// My Rules: 
-// 1) Global variables are not allowed.
-// 2) All variables must be initialised
+```
+var x // not allowed
+var x = 1 // all good
+```
 
-var number = 0;
-var string = "hello";
-var boolean = true;
-var list = [1,"hello", true];
+## Conditions: if then else
 
-// const 
-const str = "I cannot be changed";
+```
+// single line if, use 'then'
+if x == true then print "it's true"
 
-// if then else
-if x == true then print "it's true";
-if a == 1 and (b == 2 or c == 7) then
+// then not required if using block
+if a == 1 and (b == 2 or c == 7) 
 {
-  print "do something;
+  print "do something
 }
 else
 {
-  print "something else";
+  print "something else"
 }
+```
 
-// looping
-while a == 1 do { print "doing stuff"; }
+## Looping
 
+while
+```
+while a == 1 do print "doing stuff"
+
+while a < 10
+{
+  print "still doing suff"
+  a++
+}
+```
+
+for
+```
 for x in [1..100] print x // prints 1-100
 
 // use for to enumerate lists or strings
 for x in [1,2,3] print x; 
 for c in "this is a string" print c;
+```
 
-// Lists
-// Lists can only be added to. (Hint: Use slicing to remove items from a list)
+## Lists
 
+```
 const list = [];
 list << "hello" // adds "hello" to the end of the list
 
@@ -77,11 +91,37 @@ print list[2:4]; // prints [3, 4]
 // Ranges
 print [1..5]; // prints [1, 2, 3, 4, 5]
 
-// Functions
-fn addNumbers(a,b) { return a + b; }
+// filtering a list
+[1,2,3,4,5] where x => x >= 3 // returns [3, 4, 5]
 
+// transforming a list
+[1,2,3,4,5] select x => x * 10 // returns [10, 20, 30, 40, 50]
+
+// updating elements
+list[5] = "I've been updated!"
+
+```
+## Functions
+Functions are first class citizens.  They can be assigned to variables and passed in as parameters to functions.
+
+Examples of usage:
+```
+// Declare a function
+fn addNumbers(a,b) 
+{ 
+  return a + b; 
+}
+
+// Using 'arrow' notation
+fn addNumbers(a,b) => a + b
+
+// anonomous functions
+const addNumbers = fn(a,b) => a + b
+
+// calling a function
 print addNumbers(1,1); // prints 2
-</pre>
+```
+
 
 ## String interpolation
 Anything between '%{' and '}' is evaluated and embedded into the string.
@@ -92,6 +132,44 @@ See FormatStrings.md for details
 ```
 var interpolated = "Value: %{1+1}" // "Value: 2"
 var withFormatting = "%{100.1234|0.2f}" // "100.12"
+```
+
+## Classes
+
+Examples of use:
+```
+// declaring a class
+class Foo
+{
+  // Constructor
+  init(name)
+  {
+    me.name = name
+  }
+  
+  //Methods
+  doSomething()
+  {
+    print "hello"
+  }
+  
+  doSomethingElse()
+  {
+    print "goodbye"
+    return 123
+  }
+}
+
+// creating an instance
+const foo = Foo("testing")
+
+// using the instance
+foo.doSometing()
+print foo.name
+
+foo.someProperty = 5 // adds property
+print foo.doesNotExists // error as property does not exist yet
+
 ```
 
 
@@ -108,6 +186,8 @@ enum Animal
 // To get the name of an enum value
 Animal.name(Animal.Dog) //returns "Dog"
 ```
+
+
 ## Modules
 Modules are a grouping of functions. See example below.
 ```
@@ -123,6 +203,20 @@ mod foo
     return 123
   }
 }
+```
+
+
+## Using multiple files
+
+You can split your code over multiple files.  
+
+Example of how to import code from other files:
+
+```
+#inc codefile1.mal
+#inc codefile2.mal
+
+runFunctionInAnotherFile(123)
 ```
 
 
@@ -161,7 +255,7 @@ String Functions
 - string.char(num) // converts an ascii value into a 1 character string
 
 File IO
-- readlines(path) // reads a text file and returns a list of all the lines in file 
+- file.readlines(path) // reads a text file and returns a list of all the lines in file 
 - file.open(filename, mode) // opens a file using mode ('r','w', etc). return reference to file (a number 0-255)
 - file.write(fileref, text) // write to file opend by file.open
 - file.close(fileref) // close file
@@ -178,8 +272,6 @@ Utils
 Math/Bitwise Operations
 - math.bitand(value1, value2) // performs a bitwise and
 - math.bitor(value1, value2) // bitwise or
-
-// Math functions from C standard library
 - math.atan(value)
 - math.cos(value)
 - math.sin(value)
