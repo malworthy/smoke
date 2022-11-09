@@ -28,7 +28,7 @@ var date = date("2022-02-01")
 
 ## Variables
 
-- Variables can be declared by using either var on const
+- Variables can be declared by using either var or const
 - var is not permitted at a global level, you can only use const
 - All variables must be initialized when declared
 
@@ -238,11 +238,6 @@ Dates
 - dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy,  year, hour, min, sec
 - datediff(interval, startDate, endDate) // interval can be day, hour, minute, second
 
-Lists
-- add(list, item) // add item to list
-- len(list) // gets the length of a list or string
-- map(list, function(item))
-
 System
 - dir("path/to/folder") // returns a list of files (wip - currently broken :( )
 - run(path)
@@ -263,6 +258,7 @@ File IO
 Utils
 - args() // returns a list of command line arguments passed to the scripts
 - clock() // number of seconds since program started
+- len(list) // gets the length of a list or string
 - num(string) // converts a string to a number
 - rand(max) // gets a random number from 0 to max-1
 - sleep(milliseconds) // suspend thread 
