@@ -11,6 +11,7 @@ enum TokenType
     Return,
     If,
     Then,
+    Dim,
     And,
     For,
     Or,
@@ -66,7 +67,9 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["open", "close", "print#", "input", "print", "goto", "gosub", "return", "if", "then", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
+        me.keywords = ["open", "close", "print#", "input", "print", "goto", "gosub", "return", "if", "then", 
+            "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", 
+            "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 
     scanTokens()
@@ -136,7 +139,7 @@ class Scanner
         // numbers
         if me.isNumber(line[me.current]) then
         {
-            while !me.isAtEnd(line) and me.isNumber(line[me.current]) do
+            while !me.isAtEnd(line) and (me.isNumber(line[me.current]) or line[me.current] == ".") do
             {
                 //print "number: %{line[me.current]} current: %{me.current} len: %{len(line)}"
                 result.token_type = TokenType.Number

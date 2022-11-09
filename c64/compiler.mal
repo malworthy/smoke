@@ -3,6 +3,7 @@ enum OpCode
     OpNone,
     OpPrint,
     OpAdd,
+    OpArray,
     OpSubtract,
     OpMultiply,
     OpDivide,
@@ -26,6 +27,7 @@ enum OpCode
     OpConcat,
     OpInput,
     OpCall,
+    OpCallFn,
     OpAnd,
     OpOr,
     OpReturnSub,
@@ -81,6 +83,11 @@ class Function
 {
     init(chunk, name, placeholder)
     {
+        const instr = Instruction(0)
+        instr.writeByte(OpCode.OpReturn)
+
+        chunk << instr
+
         me.chunk = chunk
         me.name = name
         me.placeholder = placeholder
@@ -214,10 +221,28 @@ class Compiler
         me.chunk.writeBytes(OpCode.OpDefFn, func)
     }
 
+    arrayDeclaration()
+    {
+        me.consume(TokenType.Identifier, "?SYNTAX ERROR")
+        const name = me.previous().lexeme
+        me.consume(TokenType.LeftParan, "?SYNTAX ERROR EXPECT (")
+        me.expression(true)
+        var count = 1
+        while me.match(TokenType.Comma) 
+        {
+            me.expression(true)
+            count++
+        }
+        me.consume(TokenType.RightParan, "?SYNTAX ERROR EXPECT )")
+        me.chunk.writeBytes(OpCode.OpArray,[name, count])
+    }
+
     declaration()
     {
         if me.match(TokenType.Def) then
             me.fnDeclaration()
+        else if me.match(TokenType.Dim) then
+            me.arrayDeclaration()
         else
             me.statement()
     }
@@ -506,7 +531,12 @@ class Compiler
 
     function(canAssign)
     {
-        print "In function"
+        me.consume(TokenType.Identifier, "?SYNTAX ERROR EXPECT FN NAME")
+        const name = me.previous().lexeme
+        me.consume(TokenType.LeftParan, "?SYNTAX ERROR EXPECT (")
+        me.expression(true)
+        me.consume(TokenType.RightParan, "?SYNTAX ERROR EXPECT )")
+        me.chunk.writeBytes(OpCode.OpCallFn, name)
     }
 
     unary(canAssign)
@@ -515,12 +545,6 @@ class Compiler
 
         me.parsePrecedence(Precedence.Unary, true)
         me.chunk.writeByte(OpCode.OpNegate)
-
-        //if op == TokenType.Minus then 
-        //    me.chunk.writeByte(OpCode.OpNegate)
-        //else if op == TokenType.Not then
-        //    me.chunk.writeByte(OpCode.OpNot)
-        
     }
 
     binary(canAssign)

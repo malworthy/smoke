@@ -14,6 +14,8 @@ bool runNative(int argCount, Value* args)
 {
 #define BUFFER_SIZE 1024
 
+    CHECK_STRING(0, "Parameter 1 must be a string for function run()");
+
     char buffer[BUFFER_SIZE];
     char const* const fileName = AS_CSTRING(args[0]); 
 

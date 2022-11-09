@@ -25,6 +25,7 @@ class Vm
 {
     init(chunk)
     {
+        me.placeName = ""
         me.chunk = chunk
         me.ip = 0
         me.stack = []
@@ -135,10 +136,18 @@ class Vm
             me.stack << func[0]
             return true
         }
+
+        if me.placeName != "" and me.placeName == name 
+        {
+            me.stack << me.placeValue
+            return true
+        }
+
         const index = me.getVariableIndex(name)
         me.stack << me.variables[index]
         return true
     }
+
 
     runtimeError(message)
     {
@@ -181,6 +190,18 @@ class Vm
         me.ip = p 
 
         return true
+    }
+
+    runFunction(enclosing, placeName, placeValue)
+    {
+        me.variables = enclosing.variables
+        me.functions = enclosing.functions
+        me.placeName = placeName
+        me.placeValue = placeValue
+        const result = me.run(false) 
+        if result then enclosing.stack << me.stack[-1]
+
+        return result
     }
 
     run(debug)
@@ -334,21 +355,36 @@ class Vm
                 }
                 
             }
+            else if instr.op == OpCode.OpCallFn then
+            {
+                const func = me.functions where x => x.name == instr.operand
+                //print "Function is: %{func}"
+                if len(func) != 1
+                {
+                    me.runtimeError("?UNDEFINED FUNCTION")
+                    return false
+                }
+                //print "function code: %{func[0].chunk}"
+                const funcVm = Vm(func[0].chunk)
+                funcVm.runFunction(me, func[0].placeholder, me.stack[>>])
+                //print "function '%{func[0].name}' gets called"
+            }
             else if instr.op == OpCode.OpCall then
             {
-                var func = me.stack[-(instr.operand + 1)].function
+                var func = me.stack[-(instr.operand + 1)]
                 if func.fntype = "native"
                 {
                     var params = me.stack[-instr.operand:0]
                     for i in [0..instr.operand] me.stack[>>]
-                    const result = func(params)
+                    const result = func.function(params)
                     if !result[0] then return false
 
                     me.stack << result[1]
                 }
                 else
                 {
-                    print "calling a user defined function"
+                    me.runtimeError("?SYNTAX ERROR")
+                    return false
                 }
             }
             else if instr.op == OpCode.OpDefFn then
