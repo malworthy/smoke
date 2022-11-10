@@ -103,7 +103,7 @@ static void errorAt(Token* token, const char* message)
     if (parser.panicMode) return;
 
     if (parser.hadError && message == lastMessage) return;
-    lastMessage = message;
+    lastMessage = (char*) message;
     parser.panicMode = true;
 
     if (currentFilename[0] != '\0')
@@ -243,7 +243,8 @@ static void emitReturn()
     } 
     else 
     {
-        emitConstant(NUMBER_VAL(0));
+        //emitConstant(NUMBER_VAL(0));
+        emitConstant(NIL_VAL);
     }
     emitByte(OP_RETURN);
 }
@@ -412,6 +413,7 @@ static void literal(bool canAssign)
     {
         case TOKEN_FALSE: emitByte(OP_FALSE); break;
         case TOKEN_TRUE: emitByte(OP_TRUE); break;
+        case TOKEN_NIL: emitByte(OP_NIL); break;
         default: return; // Unreachable.
     }
 }
@@ -793,7 +795,7 @@ static void where(bool canAssign)
     initCompiler(&compiler, TYPE_ANON);
     beginScope(); 
 
-    uint16_t constant = parseVariable("Expect parameter name.", false);
+    uint16_t constant = parseVariable("Expect lambda expression.", false);
     defineVariable(constant);
     current->function->arity = 1;
 
@@ -826,7 +828,7 @@ static void _select(bool canAssign)
     initCompiler(&compiler, TYPE_ANON);
     beginScope(); 
 
-    uint16_t constant = parseVariable("Expect parameter name.", false);
+    uint16_t constant = parseVariable("Expect lambda expression.", false);
     defineVariable(constant);
     current->function->arity = 1;
 
@@ -896,7 +898,7 @@ ParseRule rules[] =
     [TOKEN_FOR]           = {NULL,     NULL,        PREC_NONE},
     [TOKEN_FN]            = {fn,       NULL,        PREC_NONE},
     [TOKEN_IF]            = {NULL,     NULL,        PREC_NONE},
-    //[TOKEN_NIL]           = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_NIL]           = {literal,  NULL,        PREC_NONE},
     [TOKEN_OR]            = {NULL,     or_,         PREC_OR},
     [TOKEN_PRINT]         = {NULL,     NULL,        PREC_NONE},
     [TOKEN_RETURN]        = {NULL,     NULL,        PREC_NONE},

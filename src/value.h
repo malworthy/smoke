@@ -8,11 +8,11 @@ typedef struct Obj Obj;
 typedef struct ObjString ObjString;
 
 typedef enum {
+    VAL_NIL,
     VAL_BOOL,
     VAL_NUMBER,
     VAL_DATETIME,
-    VAL_OBJ,
-    VAL_NIL
+    VAL_OBJ
 } ValueType;
 
 typedef struct {

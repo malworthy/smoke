@@ -54,6 +54,7 @@ bool valuesEqual(Value a, Value b)
         case VAL_NUMBER:    return AS_NUMBER(a) == AS_NUMBER(b);
         case VAL_OBJ:       return AS_OBJ(a) == AS_OBJ(b);
         case VAL_DATETIME:  return AS_DATETIME(a) == AS_DATETIME(b);
+        case VAL_NIL:       return true;
         default:            return false; // Unreachable.
     }
 }
@@ -66,7 +67,7 @@ int stringifyValue(Value value, char* str)
             return sprintf(str, "%s", AS_BOOL(value) ? "true" : "false");
         case VAL_NUMBER:
             return sprintf(str, "%g", AS_NUMBER(value));
-         case VAL_OBJ:
+        case VAL_OBJ:
             return stringifyObject(value, str);
         case VAL_NIL:
             return sprintf(str, "%s", "NIL");
@@ -99,7 +100,6 @@ int stringifyValueLength(Value value)
             struct tm *tm = localtime(&t);
             char str[64];
             return strftime(str, sizeof(str), DATE_FMT, tm);
-            //return strlen(str);
         }
     }
 }

@@ -537,7 +537,7 @@ static void defineEnumField(ObjString* name)
 static bool isFalsey(Value value) 
 {
     // 0 is false, all other numbers true
-    return (IS_NUMBER(value) && !AS_NUMBER(value)) || (IS_BOOL(value) && !AS_BOOL(value));
+    return IS_NIL(value) || (IS_NUMBER(value) && !AS_NUMBER(value)) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
 static void concatenate() 
@@ -615,22 +615,24 @@ bool set(Value listVal, Value item, Value index)
     return true;
 }
 
-Value get(Value item, Value index)
+Value get(Value item, Value index, bool* hasError)
 {
     if (!(IS_LIST(item) || IS_STRING(item)))
     {
         runtimeError("Subscript invalid for type");
+        *hasError = true;
         return NIL_VAL;
     }
     int i = (int)AS_NUMBER(index);
 
     if (IS_LIST(item))
     {
-        ObjList* list = AS_LIST(item);    
+        ObjList* list = AS_LIST(item);   
         if (i < 0 ) i = list->elements.count + i;
         if (i >= list->elements.count  || i < 0)
         {
             runtimeError("Index outside the bounds of the list");
+            *hasError = true;
             return NIL_VAL;
         }
         return list->elements.values[i];
@@ -642,6 +644,7 @@ Value get(Value item, Value index)
         if (i >= string->length || i < 0)
         {
             runtimeError("Index outside the bounds of the string");
+            *hasError = true;
             return NIL_VAL;
         }
         return OBJ_VAL(copyStringRaw(string->chars + i, 1));
@@ -825,6 +828,7 @@ static InterpretResult run()
                 push(constant);
                 break;
             }
+            case OP_NIL:        push(NIL_VAL); break;
             case OP_TRUE:       push(BOOL_VAL(true)); break;
             case OP_FALSE:      push(BOOL_VAL(false)); break;
             case OP_EQUAL: {
@@ -914,9 +918,9 @@ static InterpretResult run()
                 
                 Value index = pop();
                 Value item = pop();
-                Value result = get(item, index);
-                if(IS_NIL(result))
-                    return INTERPRET_RUNTIME_ERROR;
+                bool hasError = false;
+                Value result = get(item, index, &hasError);
+                if (hasError) return INTERPRET_RUNTIME_ERROR;
                 push(result);
 
                 break;

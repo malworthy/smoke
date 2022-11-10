@@ -13,6 +13,7 @@ enum OpCode
     OpPrint,
     OpPop,
     OpGetVariable,
+    OpGetCallable,
     OpSetVariable,
     OpGoto,
     OpGosub,
@@ -35,6 +36,7 @@ enum OpCode
     OpPrintHash,
     OpClose,
     OpDefFn,
+    OpSetArray,
     OpReturn
 }
 
@@ -446,7 +448,7 @@ class Compiler
 
         me.current = me.tokens[me.token_index++]
         //me.chunk.setLine(me.current.line_number)
-        if me.current != TokenType.Error then return
+        if me.current.token_type != TokenType.Error then return
         me.error("?SYNTAX ERROR - error token")
     }
 
@@ -518,7 +520,13 @@ class Compiler
     call(canAssign)
     {
         const argCount = me.argumentList()
-        me.chunk.writeBytes(OpCode.OpCall, argCount)
+        if me.match(TokenType.Equals)
+        {
+            me.expression(true)
+            me.chunk.writeBytes(OpCode.OpSetArray, argCount)
+        }
+        else
+            me.chunk.writeBytes(OpCode.OpCall, argCount)
     }
 
     not(canAssign)
@@ -597,7 +605,10 @@ class Compiler
         }
         else
         {
-            me.chunk.writeBytes(OpCode.OpGetVariable, name)
+            if me.peek(1).token_type == TokenType.RightParan then
+                me.chunk.writeBytes(OpCode.OpGetCallable, name)
+            else
+                me.chunk.writeBytes(OpCode.OpGetVariable, name)
         }
         
     }
