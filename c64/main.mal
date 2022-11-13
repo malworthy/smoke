@@ -38,7 +38,7 @@ fn runProgram(program, debug)
         print ""
         print "--- PROGRAM OUTPUT ---"
     }
-    const vm = Vm(chunk.instructions)
+    const vm = Vm(chunk)
     vm.run(debug)
 }
 

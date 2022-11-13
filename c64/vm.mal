@@ -59,7 +59,7 @@ class Array
     {
         // todo: check for out of bounds
         const index = me.getIndex(indexes)
-        print "index is: %{index}"
+        //print "index is: %{index}"
         if index >= len(me.items) then return [false]
 
         return [true, me.items[index]]
@@ -76,6 +76,7 @@ class Vm
     init(chunk)
     {
         me.placeName = ""
+        me.instr = chunk.instructions
         me.chunk = chunk
         me.ip = 0
         me.stack = []
@@ -94,7 +95,11 @@ class Vm
                     return [false]
                 }
                 return [true, string.char(num)] 
-            })
+            }),
+            NativeFunction("cos", me.cosNative),
+            NativeFunction("exp", me.expNative),
+            NativeFunction("fre", fn(dummy) => [true,65535]),
+            NativeFunction("int", fn(params) => me.mathFn(params[0], me.floor))
             ]
         
         var i = 0
@@ -114,6 +119,19 @@ class Vm
             me.filePointers << 0
     }
 
+    floor(num) => math.floor(num)
+    
+
+    mathFn(num, func)
+    {
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, func(num)]
+    }
+
     atnNative(params)
     {
         const num = params[0]
@@ -125,7 +143,7 @@ class Vm
         return [true, math.atan(num)] 
     }
 
-    absNative(params)
+    cosNative(params)
     {
         const num = params[0]
         if type(num) != Type.Number then
@@ -133,7 +151,18 @@ class Vm
             me.runtimeError("?TYPE MISMATCH")
             return [false]
         }
-        if num >= 0 then return [true, num] else return [true, -num]
+        return [true, math.cos(num)] 
+    }
+
+    expNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, math.exp(num)] 
     }
 
     absNative(params)
@@ -254,12 +283,12 @@ class Vm
     gotoLine(number)
     {
         var startip = 0
-        if number > me.chunk[me.ip].line_number and me.ip < len(me.chunk)-1 then startip = me.ip + 1
-        //print "len chunk: %{len(me.chunk)}"
-        for i in [startip..len(me.chunk)-1]
+        if number > me.instr[me.ip].line_number and me.ip < len(me.instr)-1 then startip = me.ip + 1
+        //print "len chunk: %{len(me.instr)}"
+        for i in [startip..len(me.instr)-1]
         {
             //print "i: %{i}"
-            if me.chunk[i].line_number == number then
+            if me.instr[i].line_number == number then
             {
                 me.ip = i
                 return true
@@ -272,17 +301,17 @@ class Vm
     jumpLine()
     {
         //print "*** IN JUMP LINE ***"
-        const current = me.chunk[me.ip].line_number
+        const current = me.instr[me.ip].line_number
         var line = current
         var p = me.ip
-        while line == current and p < len(me.chunk)  do
+        while line == current and p < len(me.instr)  do
         {
             p++
-            if p >= len(me.chunk) then return false
-            line = me.chunk[p].line_number  
+            if p >= len(me.instr) then return false
+            line = me.instr[p].line_number  
             //print "jump line: %{line} curr: %{current} p: %{p}"
         }
-        //if p >= len(me.chunk) then return false
+        //if p >= len(me.instr) then return false
         me.ip = p 
 
         return true
@@ -304,7 +333,7 @@ class Vm
     {
         while true do
         {
-            var instr = me.chunk[me.ip++]
+            var instr = me.instr[me.ip++]
             if debug then print "%{instr.toString()}"
             if instr.op == OpCode.OpReturn then
             {
@@ -479,7 +508,9 @@ class Vm
                     return false
                 }
                 //print "function code: %{func[0].chunk}"
-                const funcVm = Vm(func[0].chunk)
+                const chunk = Chunk()
+                chunk.instructions = func[0].chunk
+                const funcVm = Vm(chunk)
                 funcVm.runFunction(me, func[0].placeholder, me.stack[>>])
                 //print "function '%{func[0].name}' gets called"
             }
@@ -589,6 +620,11 @@ class Vm
                 write(" ")
                 const val = input()
                 me.stack << val
+            }
+            else if instr.op == OpCode.OpRead then
+            {
+                if me.chunk.canRead() then
+                    me.stack << me.chunk.readData()
             }
             if debug then print me.stack
         }

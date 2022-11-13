@@ -146,7 +146,7 @@ bool asciiNative(int argCount, Value* args)
     {
         NATIVE_ERROR("Cannet get ascii value for an empty string");
     }
-    double val = string[0];
+    double val = (double) (uint8_t)string[0];
 
     args[-1] = NUMBER_VAL(val);
     

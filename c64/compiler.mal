@@ -37,6 +37,7 @@ enum OpCode
     OpClose,
     OpDefFn,
     OpSetArray,
+    OpRead,
     OpReturn
 }
 
@@ -102,6 +103,8 @@ class Chunk
     init()
     {
         me.instructions = []
+        me.data = []
+        me.data_pointer = 0
         me.line_number = 0
     }
 
@@ -123,6 +126,15 @@ class Chunk
         instr.writeBytes(op, operand)
         me.instructions << instr
     }
+
+    addData(data)
+    {
+        me.data << data
+    }
+
+    readData() => me.data[me.data_pointer++]
+
+    canRead() => me.data_pointer < len(me.data)
 }
 
 class ParseRule
@@ -239,12 +251,19 @@ class Compiler
         me.chunk.writeBytes(OpCode.OpArray,[name, count])
     }
 
+    dataDeclaration()
+    {
+        me.chunk.addData(me.previous().lexeme)
+    }
+
     declaration()
     {
         if me.match(TokenType.Def) then
             me.fnDeclaration()
         else if me.match(TokenType.Dim) then
             me.arrayDeclaration()
+        else if me.match(TokenType.Data) then
+            me.dataDeclaration()
         else
             me.statement()
     }
@@ -340,32 +359,60 @@ class Compiler
             me.printHashStatement()
         else if me.match(TokenType.Close) then
             me.closeStatement()
+        else if me.match(TokenType.Read) then
+            me.readStatement()
+        else if me.match(TokenType.End) then
+            me.chunk.writeByte(OpCode.OpReturn)
         else
             me.expressionStatement()
     }
 
+    setVariable(op, operand)
+    {
+        me.consume(TokenType.Identifier, "?SYNTAX ERROR")
+        const name = me.previous().lexeme
+
+        // do arrays
+        if me.match(TokenType.LeftParan)
+        {
+            me.chunk.writeBytes(OpCode.OpGetCallable, name)
+            const argCount = me.argumentList()
+            me.chunk.writeBytes(op, operand)
+            me.chunk.writeBytes(OpCode.OpSetArray, argCount)
+        }
+        else
+        {
+            // do variable
+            me.chunk.writeBytes(op, operand)
+            me.chunk.writeBytes(OpCode.OpSetVariable, name)
+        }
+    }
+
     inputStatement()
     {
-        
         if me.match(TokenType.String) then
         {
             me.string(false)
             me.chunk.writeBytes(OpCode.OpPrint, "")
             me.consume(TokenType.SemiColon, "?SYNTAX ERROR")
         }
-        me.match(TokenType.Identifier)
-        const name = me.previous().lexeme
-        me.chunk.writeBytes(OpCode.OpInput, false)
-        me.chunk.writeBytes(OpCode.OpSetVariable, name)
-
+        
+        me.setVariable(OpCode.OpInput, false)
         while me.match(TokenType.Comma) do
         {
-            me.consume(TokenType.Identifier, "?SYNTAX ERROR")
-            const name = me.previous().lexeme
-            me.chunk.writeBytes(OpCode.OpInput, true)
-            me.chunk.writeBytes(OpCode.OpSetVariable, name)
+            me.setVariable(OpCode.OpInput, true)
         }
     }
+
+    readStatement()
+    {       
+        me.setVariable(OpCode.OpRead, false)
+        while me.match(TokenType.Comma) do
+        {
+            me.setVariable(OpCode.OpRead, true)
+        }
+    }
+
     
     //open file#, filename
     openStatement()
@@ -454,6 +501,8 @@ class Compiler
 
     peek(i)
     {
+        if me.token_index + i >= len(me.tokens) then
+            return me.tokens[-1]
         return me.tokens[me.token_index+i]
     }
 
