@@ -21,3 +21,19 @@ print test3.two
 
 print Token.name(Token.LeftBrace)
 //expect:LeftBrace
+
+enum Foo
+{
+    one = 1,
+    two = 2,
+    string = "some text",
+    three
+}
+print Foo.one
+print Foo.two
+print Foo.string
+print Foo.three
+//expect:1
+//expect:2
+//expect:some text
+//expect:3

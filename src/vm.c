@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-
+#include "quicksort.h"
 #include "common.h"
 #include "vm.h"
 #include "debug.h"
@@ -48,6 +48,15 @@ static bool sleepNative(int argCount, Value* args)
     CHECK_NUM(0, "Sleep expects number as parameter.");
     sleep(AS_NUMBER(args[0]));
 
+    return true;
+}
+
+static bool sortNative(int argCount, Value* args)
+{
+    CHECK_LIST(0, "Only lists can be sorted.");
+    ObjList* list = AS_LIST(args[0]);
+    sort(&list->elements);
+    args[-1] = args[0];
     return true;
 }
 
@@ -219,6 +228,7 @@ void initVM()
     defineNative("rand", randNative, 1);
     defineNative("num", numNative, 1);   
     defineNative("type", typeNative, 1);
+    defineNative("sort", sortNative, 1);
 
     // STRING
     defineNativeMod("splitlines", "string", splitlinesNative, 1);
@@ -532,6 +542,24 @@ static void defineEnumField(ObjString* name)
     
     tableSet(&_enum->fields, name, val);
     _enum->counter++;
+}
+
+static void setEnumField(ObjString* name) 
+{
+    //Value field = peek(0);
+    ObjEnum* _enum = AS_ENUM(peek(1));
+    Value val = pop();
+
+    //printf("Defining enum field: %s\n", name->chars);
+    
+    tableSet(&_enum->fields, name, val);
+
+    if(IS_NUMBER(val))
+    {
+        double numVal = AS_NUMBER(val);
+        if (numVal >= _enum->counter)
+            _enum->counter = ceil(numVal) + 1;
+    }
 }
 
 static bool isFalsey(Value value) 
@@ -1097,6 +1125,9 @@ static InterpretResult run()
                 break;
             case OP_ENUM_FIELD:
                 defineEnumField(READ_STRING());
+                break;
+            case OP_ENUM_FIELD_SET:
+                setEnumField(READ_STRING());
                 break;
             case OP_CLASS:
                 push(OBJ_VAL(newClass(READ_STRING())));

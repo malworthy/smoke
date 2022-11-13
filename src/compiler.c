@@ -146,15 +146,17 @@ static void advance()
     }
 }
 
-static void consume(TokenType type, const char* message) 
+static bool consume(TokenType type, const char* message) 
 {
     if (parser.current.type == type) 
     {
         advance();
-        return;
+        return true;
     }
-    if (type == TOKEN_SEMICOLON) return;
+    if (type == TOKEN_SEMICOLON) return true;
     errorAtCurrent(message);
+
+    return false;
 }
 
 static bool isReturnAtEndOfBlock()
@@ -1071,25 +1073,64 @@ static void method()
 static void enumDeclaration()
 {
     consume(TOKEN_IDENTIFIER, "Expect enum name.");
+    
+    Table dupeCheck;
     Token enumName = parser.previous;
     uint16_t nameConstant = identifierConstant(&parser.previous);
-    declareVariable(false);
+    Value dummyVal;
 
+    declareVariable(false);
     emitBytes16(OP_ENUM, nameConstant);
     defineVariable(nameConstant);
     namedVariable(enumName, false);
-    consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before enum body.");
+    initTable(&dupeCheck);
+    
     while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) 
     {
         consume(TOKEN_IDENTIFIER, "Expect enum name.");
         uint16_t fieldConstant = identifierConstant(&parser.previous);
-        emitBytes16(OP_ENUM_FIELD, fieldConstant);
+        ObjString* fieldName = copyStringRaw(parser.previous.start, parser.previous.length);
+        if (tableGet(&dupeCheck, fieldName, &dummyVal))
+        {
+            error("Duplicate enum field");
+            break;
+        }
+        tableSet(&dupeCheck, fieldName, NIL_VAL);
+
+        if (match(TOKEN_EQUAL))
+        {
+            //printf("in equals\n");
+            if (match(TOKEN_NUMBER)) 
+            {
+                //printf("matched number\n");
+                number(false);
+            }
+            else if (match(TOKEN_STRING))
+            {
+                //printf("string\n");
+                string(false);
+            }
+            else
+            {
+                errorAtCurrent("enum value must be a number or a string");
+                return;
+            }
+            emitBytes16(OP_ENUM_FIELD_SET, fieldConstant);
+        }
+        else
+        {
+            emitBytes16(OP_ENUM_FIELD, fieldConstant);
+        }
+        
         if (check(TOKEN_RIGHT_BRACE))
             break;
-        consume(TOKEN_COMMA,"Expect ',' after enum field");
+        if (!consume(TOKEN_COMMA, "Expect ',' after enum field"))
+            break;
     }
+    freeTable(&dupeCheck);
     emitByte(OP_POP);
-    consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after enum body.");
 }
 
 static void classDeclaration() 

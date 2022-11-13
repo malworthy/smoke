@@ -60,6 +60,7 @@ typedef enum {
     OP_POP_LIST,
     OP_ENUM,
     OP_ENUM_FIELD,
+    OP_ENUM_FIELD_SET,
     OP_ENUM_GET
 } OpCode;
 

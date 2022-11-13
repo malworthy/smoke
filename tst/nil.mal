@@ -1,0 +1,30 @@
+const x = nil
+print x
+//expect:NIL
+
+print x == nil
+//expect:true
+
+print x!=nil
+//expect:false
+
+const l = [nil, nil, nil]
+print l
+//expect:[NIL, NIL, NIL]
+
+print l[0]
+//expect:NIL
+
+print "*%{l[0]}*"
+//expect:*NIL*
+
+fn test() 
+{
+    print "statement"
+}
+
+const result = test()
+//expect:statement
+
+print result
+//expect:NIL
