@@ -49,6 +49,24 @@ print string.char(65)
 //expect:[a, b, c]
 //expect:A
 
+print string.trim(" aa  ") + "*"
+//expect:aa*
+
+print string.trim(" aa  a")
+//expect:aa  a
+
+print string.trim("") + "*"
+//expect:*
+
+print string.trim("abc")
+//expect:abc
+
+print string.trim("a  bb  c")
+//expect:a  bb  c
+
+
+
+
 print math.sin(1)
 //expect:0.841471
 print math.tan(1)
@@ -65,3 +83,4 @@ print math.floor(1.123123)
 //expect:1
 print math.ceil(1.123123)  
 //expect:2
+

@@ -2,16 +2,9 @@
 #inc compiler.mal
 #inc vm.mal
 
-//const program = [
-//"10 I = 1",
-//"20 print \"TEST NR.\";I",
-//"30 I = I + 1",
-//"40 if I<=10 goto 20"
-//]
+const directVM = Vm(Chunk())
 
-//const program2 = ["10 print \"hello, world\" ", "20 1+1", "25 i = i + 1", "30 print i","40 if i < 10 then goto 10"]
-
-fn runProgram(program, debug) 
+fn runProgram(program, debug, runDirect) 
 {
     const scanner = Scanner(program)
     const tokens = scanner.scanTokens()
@@ -38,13 +31,48 @@ fn runProgram(program, debug)
         print ""
         print "--- PROGRAM OUTPUT ---"
     }
-    const vm = Vm(chunk)
-    vm.run(debug)
+    if runDirect 
+    {
+        directVM.runDirect(chunk)
+    }
+    else
+    {
+        const vm = Vm(chunk)
+        vm.run(debug)
+    }
 }
 
 fn list(program)
 {
-    for line in program print line
+    for line in program print string.trim(line)
+}
+
+fn addToProgram(program, line)
+{
+    const lineNumber = num(line)
+    if lineNumber > 65535 
+    {
+        print "LINE NUMBER TOO LARGE"
+        return
+    }
+    
+    const padding = "     "[-(5-len("%{lineNumber}")):0]
+    line = padding + line
+
+    if len(program) > 0 
+    {
+        for i in [0..len(program)-1]
+        {
+            if num(line) == num(program[i])
+            {
+                program[i] = line
+                return
+            }
+        }
+    }
+    
+    program << line
+    sort(program)
 }
 
 fn repl()
@@ -60,32 +88,27 @@ fn repl()
         //print "Line: %{line}"
         if line != "" and line[0] >= "0" and line[0] <= "9" then
         {
-            program << line
-            //print "program: %{program}"
+            addToProgram(program, line)
         }
         else if line == "run" then
         {
             //print "in run"
-            runProgram(program, false)
+            runProgram(program, false, false)
         }
         else if line == "debug" then
         {
             //print "in debug"
-            runProgram(program, true)
+            runProgram(program, true, false)
         }
         else if line == "list" then
         {
             //print "in debug"
             list(program)
         }
-        else if line == "test" then
+        else if line != ""
         {
-            //print "in debug"
-            program = readlines("../c64/test.mal")
-            list(program)
+            runProgram([line], false, true)
         }
-
-
     }
 }
 

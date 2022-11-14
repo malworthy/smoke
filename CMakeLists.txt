@@ -40,6 +40,7 @@ add_test(NAME shovel_method COMMAND python ../test_runner.py "mal.exe" "../tst/s
 add_test(NAME set COMMAND python ../test_runner.py "mal.exe" "../tst/set.mal" "//expect:")
 add_test(NAME module COMMAND python ../test_runner.py "mal.exe" "../tst/module.mal" "//expect:")
 add_test(NAME nil COMMAND python ../test_runner.py "mal.exe" "../tst/nil.mal" "//expect:")
+add_test(NAME sort COMMAND python ../test_runner.py "mal.exe" "../tst/sort.mal" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/inc_string.mal" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "mal.exe" "../tst/error/dec_string.mal" "//expect:")

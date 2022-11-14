@@ -99,7 +99,10 @@ class Vm
             NativeFunction("cos", me.cosNative),
             NativeFunction("exp", me.expNative),
             NativeFunction("fre", fn(dummy) => [true,65535]),
-            NativeFunction("int", fn(params) => me.mathFn(params[0], me.floor))
+            NativeFunction("int", fn(params) => me.mathFn(params[0], me.floor)),
+            NativeFunction("left$", me.leftNative),
+            NativeFunction("right$", me.rightNative),
+            NativeFunction("len", me.lenNative)
             ]
         
         var i = 0
@@ -119,8 +122,71 @@ class Vm
             me.filePointers << 0
     }
 
-    floor(num) => math.floor(num)
-    
+    floor(num) => math.floor(num)   
+
+    lenNative(params)
+    {
+         if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        return [true, len(params[0])]
+    } 
+
+    leftNative(params)
+    {
+        if len(params) != 2 
+        {
+            me.runtimeError("?SYNTAX ERROR")
+            return [false]
+        }
+
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        if type(params[1]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        const str = params[0]
+        const length = params[1]
+        if length <=0 then return [true, ""]
+        if len(str) < length then return [true, str]
+        return [true, str[0:length]]
+    }
+
+    rightNative(params)
+    {
+        if len(params) != 2 
+        {
+            me.runtimeError("?SYNTAX ERROR")
+            return [false]
+        }
+
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        if type(params[1]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        const str = params[0]
+        const length = params[1]
+        if length <=0 then return [true, ""]
+        if len(str) < length then return [true, str]
+        return [true, str[-length:0]]
+    }
 
     mathFn(num, func)
     {
@@ -237,14 +303,14 @@ class Vm
 
     getVariable(name)
     {
-        const func = me.functions where x => x.name == name
+        const func = me.functions where x => string.upper(x.name) == string.upper(name)
         if len(func) == 1 then 
         { 
             me.stack << func[0]
             return true
         }
 
-        if me.placeName != "" and me.placeName == name 
+        if me.placeName != "" and string.upper(me.placeName) == string.upper(name) 
         {
             me.stack << me.placeValue
             return true
@@ -258,7 +324,7 @@ class Vm
 
     getCallable(name)
     {
-        const func = me.functions where x => x.name == name
+        const func = me.functions where x => string.upper(x.name) == string.upper(name)
         //print func
         if len(func) == 1 then 
         { 
@@ -327,6 +393,15 @@ class Vm
         if result then enclosing.stack << me.stack[-1]
 
         return result
+    }
+
+    runDirect(chunk)
+    {
+        me.placeName = ""
+        me.instr = chunk.instructions
+        me.chunk = chunk
+        me.ip = 0
+        me.run(false)
     }
 
     run(debug)

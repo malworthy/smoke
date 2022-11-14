@@ -10,7 +10,6 @@ enum OpCode
     OpNegate,
     OpNot,
     OpConstant,
-    OpPrint,
     OpPop,
     OpGetVariable,
     OpGetCallable,
@@ -182,7 +181,7 @@ class Compiler
             ParseRule(TokenType.LeftParan, me.grouping, me.call, Precedence.Call),
             ParseRule(TokenType.RightParan, false, false, Precedence.None),
             ParseRule(TokenType.SemiColon, false, false, Precedence.None),
-            ParseRule(TokenType.Colon, false, false, Precedence.None),
+            ParseRule(TokenType.Colon, me.ignore, me.ignore, Precedence.None),
             ParseRule(TokenType.Comma, false, false, Precedence.None),
             ParseRule(TokenType.Identifier,  me.variable, false, Precedence.None),
             ParseRule(TokenType.String,  me.string, false, Precedence.None),
@@ -191,6 +190,11 @@ class Compiler
             ParseRule(TokenType.Eof,  false, false, Precedence.None),
             ParseRule(TokenType.To, false, false, Precedence.None)
         ]
+    }
+
+    ignore(canAssign)
+    {
+
     }
 
     endCompiler()
@@ -271,6 +275,7 @@ class Compiler
     expressionStatement()
     {
         me.expression(false)
+        //print "emit pop"
         me.chunk.writeByte(OpCode.OpPop)
     }
 
@@ -337,6 +342,7 @@ class Compiler
 
     statement()
     {
+        //print "in statement %{me.current.toString()}"
         if me.match(TokenType.Print) then 
             me.printStatement()
         else if me.match(TokenType.Goto) then
@@ -363,8 +369,10 @@ class Compiler
             me.readStatement()
         else if me.match(TokenType.End) then
             me.chunk.writeByte(OpCode.OpReturn)
-        else
+        else if !me.match(TokenType.Colon) then {
+            //print "current: %{me.current.toString()}"
             me.expressionStatement()
+        }
     }
 
     setVariable(op, operand)
@@ -558,7 +566,7 @@ class Compiler
             argCount++
             while me.match(TokenType.Comma) do
             {
-                me.expression()
+                me.expression(true)
                 argCount++
             }
         }
@@ -654,7 +662,11 @@ class Compiler
         }
         else
         {
-            if me.peek(1).token_type == TokenType.RightParan then
+            //print "variable prev %{me.previous().toString()}"
+            //print "variable current %{me.current.toString()}"
+            //print "variable peek(1) %{me.peek(1).toString()}"
+            //if me.peek(1).token_type == TokenType.LeftParan then
+            if me.check(TokenType.LeftParan) then
                 me.chunk.writeBytes(OpCode.OpGetCallable, name)
             else
                 me.chunk.writeBytes(OpCode.OpGetVariable, name)

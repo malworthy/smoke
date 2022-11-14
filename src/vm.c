@@ -236,6 +236,7 @@ void initVM()
     defineNativeMod("ascii", "string", asciiNative, 1);
     defineNativeMod("upper", "string", upperNative, 1);
     defineNativeMod("char", "string", charNative, 1);
+    defineNativeMod("trim", "string", trimNative, 1);
 
     // Math
     defineNativeMod("bitand", "math", bitandNative, 2);

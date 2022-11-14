@@ -1,6 +1,7 @@
 enum TokenType
 {
     None,
+    Load,
     Open,
     Close,
     PrintHash,
@@ -70,7 +71,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["open", "close", "print#", "input", "print", "goto", "gosub", "return", "read",
+        me.keywords = ["load","open", "close", "print#", "input", "print", "goto", "gosub", "return", "read",
             "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end",
             "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
@@ -79,7 +80,7 @@ class Scanner
     {
         for line in me.lines
         {
-            var t = me.scanLine(line)
+            var t = me.scanLine(string.trim(line))
             me.tokens = me.tokens + t
 
             me.current = 0

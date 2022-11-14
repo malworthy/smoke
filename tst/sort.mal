@@ -1,0 +1,20 @@
+//rules for sort
+// only numbers and string are sorted
+// if list contains mixed types, items are sorted so items of the same type are grouped together
+// sort will mutate the list - it also returns the list
+
+print sort([9,8,7,6])
+//expect:[6, 7, 8, 9]
+
+print sort([3,2,"goat",14,"cat",true, false, 13])
+//expect:[true, false, 2, 3, 13, 14, cat, goat]
+
+print sort([[1,2,3], [3,2,2]])
+//expect:[[1, 2, 3], [3, 2, 2]]
+
+const list = ["orange","avacado","pear","apple"]
+sort(list)
+print list
+//expect:[apple, avacado, orange, pear]
+
+

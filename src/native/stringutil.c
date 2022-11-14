@@ -185,3 +185,24 @@ bool upperNative(int argCount, Value* args)
     
     return true;
 }
+
+bool trimNative(int argCount, Value* args)
+{
+    CHECK_STRING(0, "trim expects a string as parameter.");
+    
+    ObjString* string = AS_STRING(args[0]);
+
+    char* start = string->chars;
+    while(*start == ' ' && *start != '\0') start++;
+    char* end = string->chars + (string->length);// length =  string->length ;
+    while((*end == ' ' || *end == '\0') && end > start) end--;
+
+    int length = end - start;
+
+    if (length <= 0)
+        args[-1] = OBJ_VAL(copyStringRaw("", 0));
+    else
+        args[-1] = OBJ_VAL(copyStringRaw(start, length+1));
+    
+    return true;
+}
