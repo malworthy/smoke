@@ -263,8 +263,8 @@ void initVM()
     defineNative("write", writeNative, 1);
     defineNative("locate", locateNative, 2);
     defineNative("clear", clearNative, 0);
-    defineNative("textColor", textColorNative, 1);
-    defineNative("backColor", backColorNative, 1);
+    defineNative("textcolor", textColorNative, 1);
+    defineNative("backcolor", backColorNative, 1);
     defineNative("input", inputNative, 0);
     defineNative("kbhit", kbhitNative, 0);
     defineNative("getch", getchNative, 0);
@@ -277,14 +277,15 @@ void initVM()
     defineNative("join", joinNative, 1);
 
     // FILESYS
-    defineNative("dir", dirNative, 1);
-    defineNative("run", runNative, 1);
+    defineNativeMod("dir", "sys", dirNative, 1);
+    defineNativeMod("run", "sys", runNative, 1);
 
     // FILEIO
     defineNativeMod("readlines", "file", readlinesNative, 1);
     defineNativeMod("open", "file", openNative, 2);
     defineNativeMod("close", "file", closeNative, 1);
     defineNativeMod("write", "file", writeFileNative, 2);
+    defineNativeMod("readchar", "file", readcharNative, 1);
     
 }
 

@@ -223,11 +223,11 @@ runFunctionInAnotherFile(123)
 ## Native functions
 
 Console
-- backColor("blue") // changes the console background colour
+- backcolor("blue") // changes the console background colour
 - clear() // clears the screen
 - input() // gets input from the console
 - locate(x,y) // locates the cursor on the
-- textColor("red") // changes the console text colour 
+- textcolor("red") // changes the console text colour 
 - write("string") // write to the console without printing a newline afterwards (unlike print)
 - getch() // gets the key in the keyboard buffer. Non-blocking.  If no key is present returns an empty string.
 
@@ -239,8 +239,8 @@ Dates
 - datediff(interval, startDate, endDate) // interval can be day, hour, minute, second
 
 System
-- dir("path/to/folder") // returns a list of files (wip - currently broken :( )
-- run(path)
+- sys.dir("path/to/folder") // returns a list of files
+- sys.run(path)
 
 String Functions
 - string.ascii(string) // gets the ascii value of the first character of a string
@@ -248,12 +248,14 @@ String Functions
 - string.split(str, delim) // split a string on delimeter.  a returns list
 - string.splitlines(str) // split a string on newline.  a returns list
 - string.char(num) // converts an ascii value into a 1 character string
+- string.trim(string)
 
 File IO
 - file.readlines(path) // reads a text file and returns a list of all the lines in file 
 - file.open(filename, mode) // opens a file using mode ('r','w', etc). return reference to file (a number 0-255)
 - file.write(fileref, text) // write to file opend by file.open
 - file.close(fileref) // close file
+- file.readchar(fileref) // reads 1 charater from a file. Returns nil if at end of file, or if can't read.
 
 Utils
 - args() // returns a list of command line arguments passed to the scripts

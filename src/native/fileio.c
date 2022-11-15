@@ -7,6 +7,7 @@
 #include "../value.h"
 #include "../object.h"
 #include "../vm.h"
+#include "../memory.h"
 #include "native.h"
 
 #define BUFFER_SIZE 200
@@ -75,6 +76,31 @@ bool writeFileNative(int argCount, Value* args)
     }
 
     args[-1] = NUMBER_VAL(result);
+
+    return true;
+}
+
+bool readcharNative(int argCount, Value* args)
+{
+    CHECK_NUM(0, "Parameter 1 must be a number for function read()");
+
+    int result = 0;
+
+    args[-1] = NIL_VAL;
+
+    int index = (int)AS_NUMBER(args[0]);
+    if (index >= fileCount) return true;
+    FILE* fp = files[index];
+    if (fp == NULL) return true;
+
+    int c = getc(fp);
+    if (c != EOF)
+    {
+        char s[2];
+        s[0] = c;
+        s[1] = '\0';
+        args[-1] = OBJ_VAL(copyStringRaw(s,1));
+    }
 
     return true;
 }
