@@ -75,6 +75,7 @@ class Vm
 {
     init(chunk)
     {
+        me.loadedProgram = nil
         me.placeName = ""
         me.instr = chunk.instructions
         me.chunk = chunk
@@ -648,6 +649,12 @@ class Vm
                 const a = me.stack[>>]
                 me.stack << (a > b)
             }
+            else if instr.op == OpCode.OpNotEqual then
+            {
+                const b = me.stack[>>]
+                const a = me.stack[>>]
+                me.stack << (a != b)
+            }
             else if instr.op == OpCode.OpGreaterEqual then
             {
                 const b = me.stack[>>]
@@ -682,7 +689,9 @@ class Vm
             else if instr.op == OpCode.OpJumpIfFalse then
             {
                 //print "top of stack: %{me.stack[-1]}"
-                if !me.stack[-1] then 
+                const condition = me.stack[>>]
+                //if !me.stack[-1] then 
+                if !condition
                 {
                     if !me.jumpLine() then
                         return true // no more code so just end program
@@ -700,6 +709,22 @@ class Vm
             {
                 if me.chunk.canRead() then
                     me.stack << me.chunk.readData()
+            }
+            else if instr.op == OpCode.OpGet then
+            {
+                const key = getch()
+                var char = ""
+                if key > 0 then char = string.char(key)
+                me.stack << char
+            }
+            else if instr.op == OpCode.OpLoad then
+            {
+                const filename = me.stack[>>]
+                me.loadedProgram = file.readlines(filename)
+            }
+            else if instr.op == OpCode.OpNone then
+            {
+                // do nothing
             }
             if debug then print me.stack
         }

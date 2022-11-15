@@ -233,7 +233,7 @@ int main (int argc, const char* argv[])
     {
         repl();
 
-        //runFile("c:\\Users\\malwo\\code\\min\\tst\\set.mal");
+        //runFile("c:\\Users\\malwo\\code\\min\\tst\\test.mal");
     } 
     else if (argc >= 2) 
     {

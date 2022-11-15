@@ -38,23 +38,77 @@ bool kbhitNative(int argCount, Value* args)
     return true;
 }
 
-bool getchNative(int argCount, Value* args)
+int getchWin()
 {
     char keyString[11];
-    //keyString[0] = '\0';
+    
+    int hit = _kbhit();
+    int key = 0;
+
+    if (hit != 0)
+    {
+        key = _getch();
+        if (key == 224)
+        {
+            int ctrlkey = _getch();
+            switch (ctrlkey)
+            {
+            case 72:
+                key = 130; //up
+                break;
+            case 80:
+                key = 131; //down
+                break;
+            case 75:
+                key = 128; //left
+                break;
+            case 77:
+                key = 129; //right
+                break;
+            case 73:
+                key = 132; //pgup
+                break;
+            case 81:
+                key = 133; //pgdn
+                break;
+            case 71:
+                key = 134; //home
+                break;
+            case 79:
+                key = 135; //home
+                break; 
+            
+            default:
+                break;
+            }
+        }
+    }
+
+    return key;
+}
+
+bool getchNative(int argCount, Value* args)
+{
+    /*char keyString[11];
+    
     int hits = _kbhit();
     for(int i=0; i < hits && i < 10; i++)
     {
         int key = _getch();
         if (key == 27) keyString[i] = '#'; else keyString[i] = key;
-        //keyString[i] = _getch();
     }
 
     keyString[hits] = '\0';
 
-    args[-1] = OBJ_VAL(copyStringRaw(keyString, hits));
+    args[-1] = OBJ_VAL(copyStringRaw(keyString, hits));*/
+
+    int key = getchWin();
+    args[-1] = NUMBER_VAL((double)key);
+
     return true;
 }
+
+
 
 bool getchNative_old(int argCount, Value* args) 
 {

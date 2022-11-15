@@ -11,6 +11,8 @@ enum TokenType
     Gosub,
     Return,
     Read,
+    GetHash,
+    Get,
     If,
     Then,
     Dim,
@@ -71,8 +73,8 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["load","open", "close", "print#", "input", "print", "goto", "gosub", "return", "read",
-            "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end",
+        me.keywords = ["load", "open", "close", "print#", "input", "print", "goto", "gosub", "return", "read",
+            "get#", "get", "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end",
             "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 
@@ -173,6 +175,8 @@ class Scanner
             count++
         }
 
+        
+
         // Data
         if len(line[me.current:0]) >= 4 and string.upper(line[me.current:me.current+4]) == "DATA"
         {
@@ -239,8 +243,27 @@ class Scanner
         (c >= "a" and c <= "z") or
         (c >= "A" and c <= "Z") 
 
+    removeRem(line)
+    {
+        //print "line length %{len(line)}"
+        if len(line) < 3 then return line
+        var quote = false
+        for i in [0..len(line)-4]
+        {
+            if line[i] == "\"" then quote = !quote // "
+            if string.upper(line[i:i+3]) == "REM" and !quote
+            {
+                return line[0:i]
+            }
+        }
+        return line
+    }
+
     scanLine(line)
     {
+        // strip rem from line
+        line = me.removeRem(line)
+        
         var result = []
         var line_number = me.getLineNumber(line)
         me.current = me.start
@@ -253,6 +276,12 @@ class Scanner
             else
                 if token.token_type != TokenType.None then result << token
             //print "After token: %{me.current}"
+        }
+        if len(result) == 0
+        {
+            const token = Token()
+            token.line_number = line_number
+            result << token
         }
         return result
     }

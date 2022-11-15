@@ -1,21 +1,6 @@
-class test
-{
-    duplicate()
-    {
-        print "dupe1"
-    }
-
-    duplicate()
-    {
-        print "dupe2"
-    }
-}
-
-fn dupy() => 34
-
-fn dupy() => 66
-
-const t = test()
-t.duplicate()
-
-print dupy()
+while true
+[
+    const ch = getch()
+    if ch != "" then print ch
+    sleep(100)
+]

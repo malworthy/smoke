@@ -34,6 +34,10 @@ fn runProgram(program, debug, runDirect)
     if runDirect 
     {
         directVM.runDirect(chunk)
+        if directVM.loadedProgram != nil
+        {
+            return directVM.loadedProgram
+        }
     }
     else
     {
@@ -107,7 +111,12 @@ fn repl()
         }
         else if line != ""
         {
-            runProgram([line], false, true)
+            const result = runProgram([line], false, true)
+            if result != nil
+            {
+                program = result
+                directVM.loadedProgram = nil
+            }
         }
     }
 }

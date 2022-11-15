@@ -106,7 +106,7 @@ static void errorAt(Token* token, const char* message)
     lastMessage = (char*) message;
     parser.panicMode = true;
 
-    if (currentFilename[0] != '\0')
+    if ( currentFilename != NULL && currentFilename[0] != '\0')
         fprintf(stderr,"File '%s' ", currentFilename);
 
     fprintf(stderr, "[line %d] Error", token->line);

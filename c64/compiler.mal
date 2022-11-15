@@ -24,8 +24,10 @@ enum OpCode
     OpLessEqual,
     OpGreater,
     OpGreaterEqual,
+    OpNotEqual,
     OpConcat,
     OpInput,
+    OpGet,
     OpCall,
     OpCallFn,
     OpAnd,
@@ -37,6 +39,7 @@ enum OpCode
     OpDefFn,
     OpSetArray,
     OpRead,
+    OpLoad,
     OpReturn
 }
 
@@ -173,6 +176,7 @@ class Compiler
             ParseRule(TokenType.GreaterEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Less, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Greater, false, me.binary, Precedence.Comparison),
+            ParseRule(TokenType.NotEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Equals, false, me.binary, Precedence.Equality),
             ParseRule(TokenType.Plus, false, me.binary, Precedence.Term),
             ParseRule(TokenType.Minus, me.unary, me.binary, Precedence.Term),
@@ -268,6 +272,11 @@ class Compiler
             me.arrayDeclaration()
         else if me.match(TokenType.Data) then
             me.dataDeclaration()
+        else if me.match(TokenType.None) then
+        {
+            //print "it should be in here!"
+            me.chunk.writeByte(OpCode.OpNone)
+        }
         else
             me.statement()
     }
@@ -291,6 +300,12 @@ class Compiler
         
         me.chunk.writeByte(OpCode.OpGosub)
         me.chunk.writeBytes(OpCode.OpGoto, num(me.previous().lexeme))
+    }
+
+    loadStatement()
+    {
+        me.expression(true)
+        me.chunk.writeByte(OpCode.OpLoad)
     }
 
     forStatement()
@@ -338,6 +353,7 @@ class Compiler
             me.chunk.writeByte(OpCode.OpJumpIfFalse)
             me.gotoStatement()
         }
+        //me.chunk.writeByte(OpCode.OpPop)
     }
 
     statement()
@@ -355,6 +371,8 @@ class Compiler
             me.ifStatement()
         else if me.match(TokenType.Input) then
             me.inputStatement()
+        else if me.match(TokenType.Get) then
+            me.getStatement()
         else if me.match(TokenType.For) then
             me.forStatement()
         else if me.match(TokenType.Next) then
@@ -369,6 +387,8 @@ class Compiler
             me.readStatement()
         else if me.match(TokenType.End) then
             me.chunk.writeByte(OpCode.OpReturn)
+        else if me.match(TokenType.Load) then
+            me.loadStatement()
         else if !me.match(TokenType.Colon) then {
             //print "current: %{me.current.toString()}"
             me.expressionStatement()
@@ -394,6 +414,7 @@ class Compiler
             me.chunk.writeBytes(op, operand)
             me.chunk.writeBytes(OpCode.OpSetVariable, name)
         }
+        me.chunk.writeByte(OpCode.OpPop)
     }
 
     inputStatement()
@@ -409,6 +430,15 @@ class Compiler
         while me.match(TokenType.Comma) do
         {
             me.setVariable(OpCode.OpInput, true)
+        }
+    }
+
+    getStatement()
+    {
+        me.setVariable(OpCode.OpGet, nil)
+        while me.match(TokenType.Comma) do
+        {
+            me.setVariable(OpCode.OpGet, nil)
         }
     }
 
@@ -433,24 +463,45 @@ class Compiler
 
     printStatement()
     {
+        //print "In print statement"
         var trailing = "\n"
-        me.expression(true)
-        while me.match(TokenType.SemiColon) or me.match(TokenType.Comma) or !me.endOfLine() do
+
+        // this is to handle the case where just write PRINT with no arguments.
+        if me.endOfLine() 
         {
+            //print "printing nothing"
+            me.chunk.writeBytes(OpCode.OpConstant, "")
+            me.chunk.writeBytes(OpCode.OpPrint, trailing)
+            return
+        }
+
+        me.expression(true)
+        //print "current: %{me.current.toString()} %{me.endOfLine()} %{me.check(TokenType.SemiColon)}"
+
+        //const wtf = (me.check(TokenType.SemiColon) or me.check(TokenType.Comma)) and !me.endOfLine()
+        //print wtf
+
+        while (me.check(TokenType.SemiColon) or me.check(TokenType.Comma)) and !me.endOfLine()
+        {
+            me.advance()
+            //print "you should be here if you are a semi-colon"
             //print "current: %{me.current.toString()}"
             const isComma = me.previous().token_type == TokenType.Comma
             if !me.endOfLine() then
             {
+                //print "Not the end of line"
                 me.expression(true)
                 me.chunk.writeBytes(OpCode.OpConcat, isComma)
             }
             else
             {
+                //print "Yes it IS the end of line"
                 if isComma then trailing = "\t" else trailing = ""
             }
             
         }
         me.chunk.writeBytes(OpCode.OpPrint, trailing)
+        //print "trailing is %{string.ascii(trailing)}"
     }
 
     printHashStatement()
@@ -459,8 +510,9 @@ class Compiler
         me.expression(true)
         me.consume(TokenType.Comma, "?SYNTAX ERROR")
         me.expression(true)
-        while me.match(TokenType.SemiColon) or me.match(TokenType.Comma) or !me.endOfLine() do
+        while (me.check(TokenType.SemiColon) or me.check(TokenType.Comma)) and !me.endOfLine()
         {
+            me.advance()
             //print "current: %{me.current.toString()}"
             const isComma = me.previous().token_type == TokenType.Comma
             if !me.endOfLine() then
@@ -628,6 +680,7 @@ class Compiler
         if op == TokenType.LessEqual then me.chunk.writeByte(OpCode.OpLessEqual)
         if op == TokenType.Greater then me.chunk.writeByte(OpCode.OpGreater)
         if op == TokenType.GreaterEqual then me.chunk.writeByte(OpCode.OpGreaterEqual)
+        if op == TokenType.NotEqual then me.chunk.writeByte(OpCode.OpNotEqual)
 
         if op == TokenType.And then me.chunk.writeByte(OpCode.OpAnd)
         if op == TokenType.Or then me.chunk.writeByte(OpCode.OpOr)
