@@ -102,8 +102,11 @@ class Vm
             NativeFunction("fre", fn(dummy) => [true,65535]),
             NativeFunction("int", fn(params) => me.mathFn(params[0], me.floor)),
             NativeFunction("left$", me.leftNative),
+            NativeFunction("log", fn(params) => me.mathFn(params[0], me.log)),  
+            NativeFunction("mid$", me.midNative),
             NativeFunction("right$", me.rightNative),
-            NativeFunction("len", me.lenNative)
+            NativeFunction("len", me.lenNative),
+            NativeFunction("sgn", me.sgnNative)
             ]
         
         var i = 0
@@ -124,16 +127,60 @@ class Vm
     }
 
     floor(num) => math.floor(num)   
+    log(num) => math.log(num)
+
+    sgnNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        var result = 0
+        if params[0] < 0 then result = -1
+        if params[0] > 0 then result = 1
+        return [true, result]
+    }
 
     lenNative(params)
     {
-         if type(params[0]) != Type.String
+        if type(params[0]) != Type.String
         {
             me.runtimeError("?TYPE MISMATCH ERROR")
             return [false]
         }
         return [true, len(params[0])]
     } 
+
+    midNative(params)
+    {
+        if len(params) < 2 or len(params) > 3 
+        {
+            me.runtimeError("?SYNTAX ERROR")
+            return [false]
+        }
+        if type(params[0]) != Type.String or type(params[1]) != Type.Number 
+            or (len(params) == 3 and type(params[2]) != Type.Number)
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        var str = params[0]
+        var start = params[1] - 1
+        var end = 0
+        if len(params) == 3 then end = start + params[2]
+
+        if start < 0 or (end < start and len(params) == 3) 
+        {
+             me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+
+        if start >= len(str) then return [true, ""]
+
+        return [true, str[start:end]]
+    }
 
     leftNative(params)
     {
@@ -304,6 +351,17 @@ class Vm
 
     getVariable(name)
     {
+        // system variables
+        if len(name) >= 2 and string.upper(name[0:2]) == "TI"
+        {
+            if name[-1] == "$" then
+                me.stack << "%{date.now()|HH:MM:ss}"
+            else
+                me.stack << clock()
+            return true
+        }
+
+
         const func = me.functions where x => string.upper(x.name) == string.upper(name)
         if len(func) == 1 then 
         { 
@@ -343,6 +401,8 @@ class Vm
 
     runtimeError(message)
     {
+        const line = me.instr[me.ip].line_number
+        if line > 0 then message = message + " IN LINE %{line}"
         me.error = message
         print message
     }
@@ -384,6 +444,37 @@ class Vm
         return true
     }
 
+    inputHash()
+    {
+        var quote = false
+        var notSep = fn(c) => c != nil and c != "," and c != ";" and c != ":" and c != "\n" and c != "\r" 
+        var result = ""
+        const fp = me.filePointers[me.stack[-1]]
+        var char = file.readchar(fp)
+
+        if char == "\"" //"
+        {
+            quote = !quote
+            char = file.readchar(fp)
+        }    
+        while (quote or notSep(char)) and char != nil  
+        {
+            //print "char is %{char}"
+            result = result + char
+            char = file.readchar(fp)
+            if char == "\"" //"
+            {
+                quote = !quote
+                char = file.readchar(fp)
+            } 
+        }
+        if notSep(char) then result = result + char
+
+        if char == nil and result == "" then result = string.char(199)
+  
+        me.stack << result
+    }
+
     runFunction(enclosing, placeName, placeValue)
     {
         me.variables = enclosing.variables
@@ -403,6 +494,11 @@ class Vm
         me.chunk = chunk
         me.ip = 0
         me.run(false)
+    }
+
+    c64Bool(bool)
+    {
+        if bool then return -1 else return 0
     }
 
     run(debug)
@@ -474,7 +570,17 @@ class Vm
             {
                 const filename = me.stack[>>]
                 const index = me.stack[>>]
-                me.filePointers[index] = file.open(filename,"w+")
+                const parts = string.split(filename, ",")
+                var mode = "r"
+                if len(parts) > 1 then mode = parts[1]
+                //print "filename %{filename[0]} mode %{mode}"
+                const fp = file.open(parts[0],mode)
+                if fp == nil
+                {
+                    me.runtimeError("?CANNOT OPEN FILE")
+                    return false
+                }
+                me.filePointers[index] = fp
             }
             else if instr.op == OpCode.OpPrintHash then
             {
@@ -593,6 +699,11 @@ class Vm
             else if instr.op == OpCode.OpCall then
             {
                 var func = me.stack[-(instr.operand + 1)]
+                if func == nil
+                {
+                    me.runtimeError("?SYNTAX ERROR")
+                    return false
+                }
                 if func.type == "native"
                 {
                     var params = me.stack[-instr.operand:0]
@@ -641,41 +752,41 @@ class Vm
             {
                 const b = me.stack[>>]
                 const a = me.stack[>>]
-                me.stack << (a == b)
+                me.stack << me.c64Bool(a == b)
             }
             else if instr.op == OpCode.OpGreater then
             {
                 const b = me.stack[>>]
                 const a = me.stack[>>]
-                me.stack << (a > b)
+                me.stack << me.c64Bool(a > b)
             }
             else if instr.op == OpCode.OpNotEqual then
             {
                 const b = me.stack[>>]
                 const a = me.stack[>>]
-                me.stack << (a != b)
+                me.stack << me.c64Bool(a != b)
             }
             else if instr.op == OpCode.OpGreaterEqual then
             {
                 const b = me.stack[>>]
                 const a = me.stack[>>]
-                me.stack << (a >= b)
+                me.stack << me.c64Bool(a >= b)
             }
             else if instr.op == OpCode.OpLess then
             {
                 const b = me.stack[>>]
                 const a = me.stack[>>]
-                me.stack << (a < b)
+                me.stack << me.c64Bool(a < b)
             }
             else if instr.op == OpCode.OpLessEqual then
             {
                 const b = me.stack[>>]
                 const a = me.stack[>>]
-                me.stack << (a <= b)
+                me.stack << me.c64Bool(a <= b)
             }
             else if instr.op == OpCode.OpNot then
             {
-                me.stack[-1] = !me.stack[-1]
+                me.stack[-1] = me.c64Bool(!me.stack[-1])
             }
             else if instr.op == OpCode.OpConcat then
             {
@@ -716,6 +827,18 @@ class Vm
                 var char = ""
                 if key > 0 then char = string.char(key)
                 me.stack << char
+            }
+            else if instr.op == OpCode.OpGetHash then
+            {
+                const fp = me.filePointers[me.stack[-1]]
+                var char = file.readchar(fp)
+                if !char then char = string.char(199)
+                
+                me.stack << char
+            }
+            else if instr.op == OpCode.OpInputHash then
+            {
+                me.inputHash()
             }
             else if instr.op == OpCode.OpLoad then
             {

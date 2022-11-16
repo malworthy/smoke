@@ -253,11 +253,11 @@ void initVM()
     defineNativeMod("ceil", "math", ceilNative, 1);
 
     // Dates
-    defineNative("now", nowNative, 0);
-    defineNative("date", dateNative, 1);
-    defineNative("dateadd", dateaddNative, 3);
-    defineNative("dateparts", datepartsNative, 1);
-    defineNative("datediff", datediffNative, 3);
+    defineNativeMod("now", "date", nowNative, 0);
+    defineNativeMod("date", "date", dateNative, 1);
+    defineNativeMod("dateadd", "date", dateaddNative, 3);
+    defineNativeMod("dateparts", "date", datepartsNative, 1);
+    defineNativeMod("datediff", "date", datediffNative, 3);
 
     // CONSOLE
     defineNative("write", writeNative, 1);

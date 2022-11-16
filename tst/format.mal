@@ -17,17 +17,17 @@ print "%{123|n1000000000}"
 print "%{123|n3 n2 n1 c3}"
 //expect:123.000
 
-const d = date("2022-10-24 14:58:34")
+const d = date.date("2022-10-24 14:58:34")
 
 print "%{d|ddd dddd mmm mmmm mm dd date HH hh yd MM AMPM ampm ss time1 time2 wd isowk wk yy yyyy d1}"
 //expect:Mon Monday Oct October 10 24 2022-10-24 14 02 297 58 PM PM 34 14:58:34 14:58 1 43 43 22 2022 24 
 
 //these depend of local settings, so just check that it doesn't crash and burn
-const test = "%{now()|def defdate deftime zz}"
+const test = "%{date.now()|def defdate deftime zz}"
 if len(test) > 1 then print "worked"
 //expect:worked
 
-const d2 = date("2001-01-01 01:01:01")
+const d2 = date.date("2001-01-01 01:01:01")
 
 print "%{d2|d1}"
 //expect: 1

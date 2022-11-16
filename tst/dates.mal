@@ -1,23 +1,23 @@
 fn printDate(dte)
 {
-    var parts = dateparts(dte)
+    var parts = date.dateparts(dte)
     print "date: %{parts[0]}-%{parts[1]}-%{parts[2]} %{parts[3]}:%{parts[4]}:%{parts[5]}"
 }
 
 fn start()
 {
-    var d = now()
+    var d = date.now()
     var strDate = "%{d}"
     if len(strDate) > 6 then print "worked"
 
-    d = date("2022-10-15 00:00:00")
+    d = date.date("2022-10-15 00:00:00")
     printDate(d)
-    printDate(dateadd(d,"day",2))
-    printDate(dateadd(d,"month",1))
-    printDate(dateadd(d,"year",1))
-    printDate(dateadd(d,"hour",2))
-    printDate(dateadd(d,"min",2))
-    printDate(dateadd(d,"sec",2))
+    printDate(date.dateadd(d,"day",2))
+    printDate(date.dateadd(d,"month",1))
+    printDate(date.dateadd(d,"year",1))
+    printDate(date.dateadd(d,"hour",2))
+    printDate(date.dateadd(d,"min",2))
+    printDate(date.dateadd(d,"sec",2))
 }
 
 start()

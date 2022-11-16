@@ -23,11 +23,17 @@ bool openNative(int argCount, Value* args)
 
     if (fileCount >= MAX_FILES)
     {
-        //TODO: File a blank space in the array, if there are none then error
+        //TODO: Find a blank space in the array, if there are none then error
         NATIVE_ERROR("Too many open files");
     }
 
     FILE* file = fopen(AS_CSTRING(args[0]), AS_CSTRING(args[1]));
+    if (file == NULL)
+    {
+        args[-1] = NIL_VAL;
+        return true;
+    }
+
     files[fileCount] = file;
 
     args[-1] = NUMBER_VAL((double)fileCount);

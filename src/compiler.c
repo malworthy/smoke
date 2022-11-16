@@ -1374,7 +1374,9 @@ static void whileStatement()
 
 static void synchronize() 
 {
-    parser.panicMode = false;
+    //TODO: This function does not work.  until it does, we only report the one error
+
+    //parser.panicMode = false;
 
     while (parser.current.type != TOKEN_EOF) 
     {

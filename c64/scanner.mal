@@ -5,6 +5,7 @@ enum TokenType
     Open,
     Close,
     PrintHash,
+    InputHash,
     Input,
     Print,
     Goto,
@@ -73,7 +74,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["load", "open", "close", "print#", "input", "print", "goto", "gosub", "return", "read",
+        me.keywords = ["load", "open", "close", "print#", "input#", "input", "print", "goto", "gosub", "return", "read",
             "get#", "get", "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end",
             "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }

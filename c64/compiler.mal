@@ -27,7 +27,9 @@ enum OpCode
     OpNotEqual,
     OpConcat,
     OpInput,
+    OpInputHash,
     OpGet,
+    OpGetHash,
     OpCall,
     OpCallFn,
     OpAnd,
@@ -326,7 +328,7 @@ class Compiler
             me.chunk.writeBytes(OpCode.OpConstant, 1)
 
         me.chunk.writeBytes(OpCode.OpFor, name)
-        print "matching colon"
+        //print "matching colon"
         me.match(TokenType.Colon)
     }
 
@@ -371,8 +373,12 @@ class Compiler
             me.ifStatement()
         else if me.match(TokenType.Input) then
             me.inputStatement()
+        else if me.match(TokenType.InputHash) then
+            me.inputHashStatement()
         else if me.match(TokenType.Get) then
             me.getStatement()
+        else if me.match(TokenType.GetHash) then
+            me.getHashStatement()
         else if me.match(TokenType.For) then
             me.forStatement()
         else if me.match(TokenType.Next) then
@@ -441,6 +447,29 @@ class Compiler
             me.setVariable(OpCode.OpGet, nil)
         }
     }
+
+    getHashStatement()
+    {
+        me.expression(true)
+        me.consume(TokenType.Comma, "?SYNTAX ERROR MISSING COMMA")
+        me.setVariable(OpCode.OpGetHash, nil)
+        while me.match(TokenType.Comma) do
+        {
+            me.setVariable(OpCode.OpGetHash, nil)
+        }
+    }
+
+    inputHashStatement()
+    {
+        me.expression(true)
+        me.consume(TokenType.Comma, "?SYNTAX ERROR MISSING COMMA")
+        me.setVariable(OpCode.OpInputHash, nil)
+        while me.match(TokenType.Comma) do
+        {
+            me.setVariable(OpCode.OpInputHash, nil)
+        }
+    }
+
 
     readStatement()
     {       
@@ -560,7 +589,7 @@ class Compiler
     }
 
     peek(i)
-    {
+    {LeftParan
         if me.token_index + i >= len(me.tokens) then
             return me.tokens[-1]
         return me.tokens[me.token_index+i]
@@ -573,6 +602,7 @@ class Compiler
 
     expression(dontAssign)
     {
+        //print "in expression"
         me.parsePrecedence(Precedence.Assignment, dontAssign)
     }
 
@@ -588,6 +618,7 @@ class Compiler
             return
         }
         var canAssign = precedence <= Precedence.Assignment and !dontAssign
+        //print "Can Assign: %{canAssign} %{TokenType.name(me.previous().token_type)}"
         prefixRule(canAssign)
         //print "after prefix rule token: %{me.current.token_type}"
         while precedence <= me.getRule(me.current.token_type).precedence do
@@ -701,12 +732,14 @@ class Compiler
 
     grouping(canAssign)
     {
-        me.expression(false)
+        //print "in grouping %{canAssign}"
+        me.expression(!canAssign)
         me.consume(TokenType.RightParan,"?SYNTAX ERROR - grouping")
     }
 
     variable(canAssign)
     {
+        //print "In Variable"
         const name = me.previous().lexeme
         if canAssign and me.match(TokenType.Equals)  then
         {
