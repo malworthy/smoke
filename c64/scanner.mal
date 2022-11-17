@@ -3,6 +3,7 @@ enum TokenType
     None,
     Load,
     Open,
+    Poke,
     Close,
     PrintHash,
     InputHash,
@@ -12,6 +13,7 @@ enum TokenType
     Gosub,
     Return,
     Read,
+    Restore,
     GetHash,
     Get,
     If,
@@ -27,6 +29,7 @@ enum TokenType
     Def,
     Fn,
     End,
+    On,
     NotEqual,
     LessEqual,
     GreaterEqual,
@@ -74,8 +77,8 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["load", "open", "close", "print#", "input#", "input", "print", "goto", "gosub", "return", "read",
-            "get#", "get", "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end",
+        me.keywords = ["load", "open", "poke", "close", "print#", "input#", "input", "print", "goto", "gosub", "return", "read",
+            "restore", "get#", "get", "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end", "on",
             "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 

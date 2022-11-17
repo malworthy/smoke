@@ -85,6 +85,7 @@ fn repl()
     print "COMMODORE 64 BASIC V2 (c) Retro Software 2022"
     print "Version 0.01"
     print ""
+    print "READY."
     var program = []
     while true do
     {
@@ -98,11 +99,13 @@ fn repl()
         {
             //print "in run"
             runProgram(program, false, false)
+            print "READY."
         }
         else if line == "debug" then
         {
             //print "in debug"
             runProgram(program, true, false)
+            print "READY."
         }
         else if line == "list" then
         {
@@ -117,6 +120,7 @@ fn repl()
                 program = result
                 directVM.loadedProgram = nil
             }
+            print "READY."
         }
     }
 }

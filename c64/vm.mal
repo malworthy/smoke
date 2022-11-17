@@ -80,6 +80,7 @@ class Vm
         me.instr = chunk.instructions
         me.chunk = chunk
         me.ip = 0
+        me.memory = [0..65535] select x => 0
         me.stack = []
         me.filePointers = []
         me.variables = []
@@ -106,7 +107,8 @@ class Vm
             NativeFunction("mid$", me.midNative),
             NativeFunction("right$", me.rightNative),
             NativeFunction("len", me.lenNative),
-            NativeFunction("sgn", me.sgnNative)
+            NativeFunction("sgn", me.sgnNative),
+            NativeFunction("peek", me.peekNative)
             ]
         
         var i = 0
@@ -124,10 +126,29 @@ class Vm
 
         for x in [0..255]
             me.filePointers << 0
+        
+        me.defaultMemory()
+
     }
 
     floor(num) => math.floor(num)   
     log(num) => math.log(num)
+
+    peekNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        const index = params[0]
+        if index < 0 or index > 65535 
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        return [true, me.memory[index]]
+    }
 
     sgnNative(params)
     {
@@ -501,6 +522,52 @@ class Vm
         if bool then return -1 else return 0
     }
 
+    binary(operator)
+    {
+        const b = me.stack[>>]
+        const a = me.stack[>>]
+        if type(a) != type(b)
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return false
+        }
+        if operator == "+" then me.stack << (a + b)
+        if operator == "-" then me.stack << (a - b)
+        if operator == "/" then me.stack << (a / b)
+        if operator == "*" then me.stack << (a * b)
+
+        return true
+    }
+
+    poke()
+    {
+        const value = me.stack[>>]
+        const address = me.stack[>>]
+        if value < 0 or value > 255 or address < 0 or address > 65536
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return false
+        }
+        me.memory[address] = value
+
+        me.processMemory()
+    }
+
+    defaultMemory()
+    {
+        me.memory[53281] = 0
+        me.memory[646] = 1
+    }
+
+    processMemory()
+    {
+        const colours = ["black","gray","red","cyan","magenta","green","blue","yellow"]
+        const back = me.memory[53281] % 8
+        const text = me.memory[646] % 8
+        textcolor(colours[text])
+        backcolor(colours[back])
+    }
+
     run(debug)
     {
         while true do
@@ -522,9 +589,10 @@ class Vm
             }
             else if instr.op == OpCode.OpAdd then
             {
-                const b = me.stack[>>]
-                const a = me.stack[>>]
-                me.stack << (a + b)
+                if !me.binary("+") then return false
+                //const b = me.stack[>>]
+                //const a = me.stack[>>]
+                //me.stack << (a + b)
             }
             else if instr.op == OpCode.OpSubtract then
             {
@@ -615,7 +683,13 @@ class Vm
             else if instr.op == OpCode.OpSetVariable then
             {
                 const index = me.getVariableIndex(instr.operand)
-                const value = me.stack[-1]
+                var value = me.stack[-1]
+                if instr.operand[-1] != "$"
+                {
+                    //make number
+                    if type(value) == Type.String then value = num(value)
+                    if instr.operand[-1] == "\%" then value = math.floor(value)
+                }
                 me.variables[index] = value
             }
             else if instr.op == OpCode.OpSetArray then
@@ -634,6 +708,39 @@ class Vm
             else if instr.op == OpCode.OpGoto then
             {
                 if !me.gotoLine(instr.operand) then return false
+            }
+            else if instr.op == OpCode.OpOnGoto then
+            {
+                var index = me.stack[>>]
+                if type(index) == Type.String then index = num(index)
+                if type(index) != Type.Number 
+                {
+                    //print "type of index %{Type.name(type(index))}"
+                    me.runtimeError("?TYPE MISMATCH ERROR")
+                    return false
+                }
+                if index > 0 and index <= len(instr.operand)  
+                {
+                    if !me.gotoLine(instr.operand[index-1]) then return false
+                }
+            }
+            else if instr.op == OpCode.OpOnGosub then
+            {
+                var index = me.stack[>>]
+                if type(index) == Type.String then index = num(index)
+                if type(index) != Type.Number 
+                {
+                    //print "type of index %{Type.name(type(index))}"
+                    me.runtimeError("?TYPE MISMATCH ERROR")
+                    return false
+                }
+                //print "in onGosub: %{index}"
+                if index > 0 and index <= len(instr.operand)  
+                {
+                    //print "pushing return item"
+                    me.stack << ReturnItem("return", 0, 0, me.ip )
+                    if !me.gotoLine(instr.operand[index-1]) then return false
+                }
             }
             else if instr.op == OpCode.OpGosub then
                 me.stack << ReturnItem("return", 0, 0, (me.ip + 1))
@@ -844,6 +951,10 @@ class Vm
             {
                 const filename = me.stack[>>]
                 me.loadedProgram = file.readlines(filename)
+            }
+            else if instr.op == OpCode.OpPoke then
+            {
+                if !me.poke() then return false
             }
             else if instr.op == OpCode.OpNone then
             {

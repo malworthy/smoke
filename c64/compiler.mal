@@ -42,6 +42,9 @@ enum OpCode
     OpSetArray,
     OpRead,
     OpLoad,
+    OpOnGoto,
+    OpOnGosub,
+    OpPoke,
     OpReturn
 }
 
@@ -358,6 +361,43 @@ class Compiler
         //me.chunk.writeByte(OpCode.OpPop)
     }
 
+    onStatement()
+    {
+        var lineNumbers = []
+        var op = OpCode.OpOnGoto
+        me.expression(true)
+       
+        if me.match(TokenType.Gosub) then   
+        {
+            op = OpCode.OpOnGosub
+            //me.chunk.writeByte(OpCode.OpGosub)
+        }
+        else if !me.match(TokenType.Goto) then 
+        {
+            me.error("?SYNTAX ERROR")
+            return
+        }
+            
+        //loop get line numbers in array
+        me.consume(TokenType.Number,"?SYNTAX ERROR")
+        lineNumbers << num(me.previous().lexeme)
+        while me.match(TokenType.Comma)
+        {
+            me.consume(TokenType.Number,"?SYNTAX ERROR")
+            lineNumbers << num(me.previous().lexeme)
+        }
+
+        me.chunk.writeBytes(op, lineNumbers)
+    }
+
+    pokeStatement()
+    {
+        me.expression(true)
+        me.consume(TokenType.Comma, "?SYNTAX ERROR")
+        me.expression(true)
+        me.chunk.writeByte(OpCode.OpPoke)
+    }
+
     statement()
     {
         //print "in statement %{me.current.toString()}"
@@ -395,6 +435,10 @@ class Compiler
             me.chunk.writeByte(OpCode.OpReturn)
         else if me.match(TokenType.Load) then
             me.loadStatement()
+        else if me.match(TokenType.On) then
+            me.onStatement()
+        else if me.match(TokenType.Poke) then
+            me.pokeStatement()
         else if !me.match(TokenType.Colon) then {
             //print "current: %{me.current.toString()}"
             me.expressionStatement()

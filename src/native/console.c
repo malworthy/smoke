@@ -188,7 +188,9 @@ static int getColorCode(char* color, bool isBackground)
         code = FG_MAGENTA;
     if (strcmp(color, "gray") == 0 || strcmp(color, "grey") == 0 || strcmp(color, "lightgray") == 0)
         code = FG_LIGHT_GRAY;
-
+    if (strcmp(color, "white"))
+        code = FG_WHITE;
+        
     if (isBackground) code += 10;
 
     return code;
