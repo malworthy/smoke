@@ -1,3 +1,8 @@
+enum SystemVariables
+{
+    ST = 722
+}
+
 class NativeFunction
 {
     init(name, function)
@@ -108,7 +113,15 @@ class Vm
             NativeFunction("right$", me.rightNative),
             NativeFunction("len", me.lenNative),
             NativeFunction("sgn", me.sgnNative),
-            NativeFunction("peek", me.peekNative)
+            NativeFunction("peek", me.peekNative),
+            NativeFunction("rnd", fn(dummy) => [true, rand(32767)/32767]),
+            NativeFunction("sin", fn(params) => me.mathFn(params[0], me.sin)), 
+            NativeFunction("spc", me.spcNative), 
+            NativeFunction("sqr", fn(params) => me.mathFn(params[0], me.sqr)), 
+            NativeFunction("str$", me.strNative), 
+            NativeFunction("tab", me.tabNative),
+            NativeFunction("tan", fn(params) => me.mathFn(params[0], me.tan)), 
+            NativeFunction("val", me.valNative),
             ]
         
         var i = 0
@@ -133,6 +146,31 @@ class Vm
 
     floor(num) => math.floor(num)   
     log(num) => math.log(num)
+    sin(num) => math.sin(num)
+    sqr(num) => math.sqrt(num)
+    tan(num) => math.tan(num)
+
+    strNative(params)
+    {
+        if type(params[0]) == Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        
+        return [true, "%{params[0]}"]
+    }
+
+    valNative(params)
+    {
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        
+        return [true, num(params[0])]
+    }
 
     peekNative(params)
     {
@@ -148,6 +186,46 @@ class Vm
             return [false]
         }
         return [true, me.memory[index]]
+    }
+
+    spcNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        const n = params[0]
+        if n < 0 or n > 255 
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        if n ==0 then return [true, ""]
+
+        const result = string.join([1..n] select x => " ")
+
+        return [true, result]
+    }
+
+    tabNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        const n = params[0]
+        if n < 0 or n > 255 
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        if n ==0 then return [true, ""]
+
+        const result = string.join([1..n] select x => "\t")
+
+        return [true, result]
     }
 
     sgnNative(params)
@@ -467,6 +545,8 @@ class Vm
 
     inputHash()
     {
+        me.variables[SystemVariables.ST] = 0
+
         var quote = false
         var notSep = fn(c) => c != nil and c != "," and c != ";" and c != ":" and c != "\n" and c != "\r" 
         var result = ""
@@ -492,6 +572,8 @@ class Vm
         if notSep(char) then result = result + char
 
         if char == nil and result == "" then result = string.char(199)
+
+        if char == nil then me.variables[SystemVariables.ST] = 64
   
         me.stack << result
     }
@@ -682,7 +764,13 @@ class Vm
             }
             else if instr.op == OpCode.OpSetVariable then
             {
+                
                 const index = me.getVariableIndex(instr.operand)
+                if index == SystemVariables.ST 
+                {
+                    me.runtimeError("?SYNTAX ERROR")
+                    return false
+                }
                 var value = me.stack[-1]
                 if instr.operand[-1] != "$"
                 {
@@ -928,6 +1016,10 @@ class Vm
                 if me.chunk.canRead() then
                     me.stack << me.chunk.readData()
             }
+            else if instr.op == OpCode.OpRestore then
+            {
+                me.chunk.data_pointer = 0
+            }
             else if instr.op == OpCode.OpGet then
             {
                 const key = getch()
@@ -939,8 +1031,15 @@ class Vm
             {
                 const fp = me.filePointers[me.stack[-1]]
                 var char = file.readchar(fp)
-                if !char then char = string.char(199)
-                
+                if !char then 
+                {
+                    me.variables[SystemVariables.ST] = 64
+                    char = string.char(199)
+                }
+                else
+                {
+                    me.variables[SystemVariables.ST] = 0
+                }
                 me.stack << char
             }
             else if instr.op == OpCode.OpInputHash then

@@ -119,7 +119,9 @@ bool readlinesNative(int argCount, Value* args)
     FILE* file = fopen(fileName, "r");
     if (file == NULL)
     {
-        NATIVE_ERROR("Could not open file");
+        //NATIVE_ERROR("Could not open file");
+        args[-1] = NIL_VAL;
+        return true;
     }
 
     char buffer[BUFFER_SIZE];

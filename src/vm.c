@@ -237,6 +237,7 @@ void initVM()
     defineNativeMod("upper", "string", upperNative, 1);
     defineNativeMod("char", "string", charNative, 1);
     defineNativeMod("trim", "string", trimNative, 1);
+    defineNativeMod("join", "string", joinNative, 1);
 
     // Math
     defineNativeMod("bitand", "math", bitandNative, 2);
@@ -274,7 +275,7 @@ void initVM()
     //defineNative("add", addNative, 2);
     defineNative("len", lenNative, 1);
     defineNative("~range", rangeNative, 3);
-    defineNative("join", joinNative, 1);
+    
 
     // FILESYS
     defineNativeMod("dir", "sys", dirNative, 1);

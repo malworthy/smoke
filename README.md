@@ -232,11 +232,11 @@ Console
 - getch() // gets the key in the keyboard buffer. Non-blocking.  If no key is present returns an empty string.
 
 Dates
-- dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])
-- now() // returns the current date/time in current timezone
-- date(datestring) // creates a new date by converting datestring to a date.  Format for datestring is yyyy-mm-dd hh:MM:ss
-- dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy,  year, hour, min, sec
-- datediff(interval, startDate, endDate) // interval can be day, hour, minute, second
+- date.dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])
+- date.now() // returns the current date/time in current timezone
+- date.date(datestring) // creates a new date by converting datestring to a date.  Format for datestring is yyyy-mm-dd hh:MM:ss
+- date.dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy,  year, hour, min, sec
+- date.datediff(interval, startDate, endDate) // interval can be day, hour, minute, second
 
 System
 - sys.dir("path/to/folder") // returns a list of files
@@ -249,6 +249,7 @@ String Functions
 - string.splitlines(str) // split a string on newline.  a returns list
 - string.char(num) // converts an ascii value into a 1 character string
 - string.trim(string)
+- string.join(list) // makes a string by joining all elements of a list
 
 File IO
 - file.readlines(path) // reads a text file and returns a list of all the lines in file 

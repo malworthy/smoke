@@ -45,6 +45,7 @@ enum OpCode
     OpOnGoto,
     OpOnGosub,
     OpPoke,
+    OpRestore,
     OpReturn
 }
 
@@ -439,6 +440,8 @@ class Compiler
             me.onStatement()
         else if me.match(TokenType.Poke) then
             me.pokeStatement()
+        else if me.match(TokenType.Restore) then
+            me.chunk.writeByte(OpCode.OpRestore)
         else if !me.match(TokenType.Colon) then {
             //print "current: %{me.current.toString()}"
             me.expressionStatement()
@@ -536,45 +539,31 @@ class Compiler
 
     printStatement()
     {
-        //print "In print statement"
-        var trailing = "\n"
-
-        // this is to handle the case where just write PRINT with no arguments.
-        if me.endOfLine() 
+        var printed = nil
+        while !me.endOfLine()
         {
-            //print "printing nothing"
-            me.chunk.writeBytes(OpCode.OpConstant, "")
-            me.chunk.writeBytes(OpCode.OpPrint, trailing)
-            return
-        }
-
-        me.expression(true)
-        //print "current: %{me.current.toString()} %{me.endOfLine()} %{me.check(TokenType.SemiColon)}"
-
-        //const wtf = (me.check(TokenType.SemiColon) or me.check(TokenType.Comma)) and !me.endOfLine()
-        //print wtf
-
-        while (me.check(TokenType.SemiColon) or me.check(TokenType.Comma)) and !me.endOfLine()
-        {
-            me.advance()
-            //print "you should be here if you are a semi-colon"
-            //print "current: %{me.current.toString()}"
-            const isComma = me.previous().token_type == TokenType.Comma
-            if !me.endOfLine() then
+            if me.match(TokenType.Comma)
             {
-                //print "Not the end of line"
-                me.expression(true)
-                me.chunk.writeBytes(OpCode.OpConcat, isComma)
+                if printed == true or printed == nil then me.chunk.writeBytes(OpCode.OpConstant, "")
+                me.chunk.writeBytes(OpCode.OpPrint, "\t")
+                printed = true
             }
-            else
+            else if me.match(TokenType.SemiColon)
             {
-                //print "Yes it IS the end of line"
-                if isComma then trailing = "\t" else trailing = ""
+                if printed == true or printed == nil then me.chunk.writeBytes(OpCode.OpConstant, "")
+                me.chunk.writeBytes(OpCode.OpPrint, "")
+                printed = true
             }
-            
+            else if !me.endOfLine()
+            {
+                if printed == false then me.chunk.writeBytes(OpCode.OpPrint, "")
+                me.expression(true);
+                printed = false
+            }    
         }
-        me.chunk.writeBytes(OpCode.OpPrint, trailing)
-        //print "trailing is %{string.ascii(trailing)}"
+        if printed == nil then me.chunk.writeBytes(OpCode.OpConstant, "")
+
+        if !printed then me.chunk.writeBytes(OpCode.OpPrint, "\n")
     }
 
     printHashStatement()

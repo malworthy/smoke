@@ -3,7 +3,7 @@ print len("hello")
 print len([1,2,3,4,5,6,7])
 //expect:7
 
-print join(["hello",true,7,[1,2]])
+print string.join(["hello",true,7,[1,2]])
 //expect:hellotrue7[1, 2]
 
 const arg = args() // returns a list of command line arguments passed to the scripts
