@@ -1,3 +1,5 @@
+#inc functions.mal
+
 enum SystemVariables
 {
     ST = 722
@@ -12,6 +14,8 @@ class NativeFunction
         me.type = "native"
     }
 }
+
+
 
 class ReturnItem
 {
@@ -80,6 +84,8 @@ class Vm
 {
     init(chunk)
     {
+        const defs = Functions(me)
+        
         me.loadedProgram = nil
         me.placeName = ""
         me.instr = chunk.instructions
@@ -91,9 +97,9 @@ class Vm
         me.variables = []
         me.arrays = []
         me.functions = [
-            NativeFunction("abs", me.absNative), 
-            NativeFunction("asc",me.ascNative),
-            NativeFunction("atn",me.atnNative),
+            NativeFunction("abs", defs.absNative), 
+            NativeFunction("asc",defs.ascNative),
+            NativeFunction("atn",defs.atnNative),
             NativeFunction("chr$", fn(params) {
                 const num = params[0]
                 if type(num) != Type.Number 
@@ -103,25 +109,25 @@ class Vm
                 }
                 return [true, string.char(num)] 
             }),
-            NativeFunction("cos", me.cosNative),
-            NativeFunction("exp", me.expNative),
+            NativeFunction("cos", defs.cosNative),
+            NativeFunction("exp", defs.expNative),
             NativeFunction("fre", fn(dummy) => [true,65535]),
-            NativeFunction("int", fn(params) => me.mathFn(params[0], me.floor)),
-            NativeFunction("left$", me.leftNative),
-            NativeFunction("log", fn(params) => me.mathFn(params[0], me.log)),  
-            NativeFunction("mid$", me.midNative),
-            NativeFunction("right$", me.rightNative),
-            NativeFunction("len", me.lenNative),
-            NativeFunction("sgn", me.sgnNative),
-            NativeFunction("peek", me.peekNative),
+            NativeFunction("int", fn(params) => defs.mathFn(params[0], defs.floor)),
+            NativeFunction("left$", defs.leftNative),
+            NativeFunction("log", fn(params) => defs.mathFn(params[0], defs.log)),  
+            NativeFunction("mid$", defs.midNative),
+            NativeFunction("right$", defs.rightNative),
+            NativeFunction("len", defs.lenNative),
+            NativeFunction("sgn", defs.sgnNative),
+            NativeFunction("peek", defs.peekNative),
             NativeFunction("rnd", fn(dummy) => [true, rand(32767)/32767]),
-            NativeFunction("sin", fn(params) => me.mathFn(params[0], me.sin)), 
-            NativeFunction("spc", me.spcNative), 
-            NativeFunction("sqr", fn(params) => me.mathFn(params[0], me.sqr)), 
-            NativeFunction("str$", me.strNative), 
-            NativeFunction("tab", me.tabNative),
-            NativeFunction("tan", fn(params) => me.mathFn(params[0], me.tan)), 
-            NativeFunction("val", me.valNative),
+            NativeFunction("sin", fn(params) => defs.mathFn(params[0], defs.sin)), 
+            NativeFunction("spc", defs.spcNative), 
+            NativeFunction("sqr", fn(params) => defs.mathFn(params[0], defs.sqr)), 
+            NativeFunction("str$", defs.strNative), 
+            NativeFunction("tab", defs.tabNative),
+            NativeFunction("tan", fn(params) => defs.mathFn(params[0], defs.tan)), 
+            NativeFunction("val", defs.valNative),
             ]
         
         var i = 0
@@ -142,267 +148,6 @@ class Vm
         
         me.defaultMemory()
 
-    }
-
-    floor(num) => math.floor(num)   
-    log(num) => math.log(num)
-    sin(num) => math.sin(num)
-    sqr(num) => math.sqrt(num)
-    tan(num) => math.tan(num)
-
-    strNative(params)
-    {
-        if type(params[0]) == Type.String
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        
-        return [true, "%{params[0]}"]
-    }
-
-    valNative(params)
-    {
-        if type(params[0]) != Type.String
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        
-        return [true, num(params[0])]
-    }
-
-    peekNative(params)
-    {
-        if type(params[0]) != Type.Number
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        const index = params[0]
-        if index < 0 or index > 65535 
-        {
-            me.runtimeError("?ILLEGAL QUANTITY ERROR")
-            return [false]
-        }
-        return [true, me.memory[index]]
-    }
-
-    spcNative(params)
-    {
-        if type(params[0]) != Type.Number
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        const n = params[0]
-        if n < 0 or n > 255 
-        {
-            me.runtimeError("?ILLEGAL QUANTITY ERROR")
-            return [false]
-        }
-        if n ==0 then return [true, ""]
-
-        const result = string.join([1..n] select x => " ")
-
-        return [true, result]
-    }
-
-    tabNative(params)
-    {
-        if type(params[0]) != Type.Number
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        const n = params[0]
-        if n < 0 or n > 255 
-        {
-            me.runtimeError("?ILLEGAL QUANTITY ERROR")
-            return [false]
-        }
-        if n ==0 then return [true, ""]
-
-        const result = string.join([1..n] select x => "\t")
-
-        return [true, result]
-    }
-
-    sgnNative(params)
-    {
-        if type(params[0]) != Type.Number
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        var result = 0
-        if params[0] < 0 then result = -1
-        if params[0] > 0 then result = 1
-        return [true, result]
-    }
-
-    lenNative(params)
-    {
-        if type(params[0]) != Type.String
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-        return [true, len(params[0])]
-    } 
-
-    midNative(params)
-    {
-        if len(params) < 2 or len(params) > 3 
-        {
-            me.runtimeError("?SYNTAX ERROR")
-            return [false]
-        }
-        if type(params[0]) != Type.String or type(params[1]) != Type.Number 
-            or (len(params) == 3 and type(params[2]) != Type.Number)
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-
-        var str = params[0]
-        var start = params[1] - 1
-        var end = 0
-        if len(params) == 3 then end = start + params[2]
-
-        if start < 0 or (end < start and len(params) == 3) 
-        {
-             me.runtimeError("?ILLEGAL QUANTITY ERROR")
-            return [false]
-        }
-
-        if start >= len(str) then return [true, ""]
-
-        return [true, str[start:end]]
-    }
-
-    leftNative(params)
-    {
-        if len(params) != 2 
-        {
-            me.runtimeError("?SYNTAX ERROR")
-            return [false]
-        }
-
-        if type(params[0]) != Type.String
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-
-        if type(params[1]) != Type.Number
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-
-        const str = params[0]
-        const length = params[1]
-        if length <=0 then return [true, ""]
-        if len(str) < length then return [true, str]
-        return [true, str[0:length]]
-    }
-
-    rightNative(params)
-    {
-        if len(params) != 2 
-        {
-            me.runtimeError("?SYNTAX ERROR")
-            return [false]
-        }
-
-        if type(params[0]) != Type.String
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-
-        if type(params[1]) != Type.Number
-        {
-            me.runtimeError("?TYPE MISMATCH ERROR")
-            return [false]
-        }
-
-        const str = params[0]
-        const length = params[1]
-        if length <=0 then return [true, ""]
-        if len(str) < length then return [true, str]
-        return [true, str[-length:0]]
-    }
-
-    mathFn(num, func)
-    {
-        if type(num) != Type.Number then
-        {
-            me.runtimeError("?TYPE MISMATCH")
-            return [false]
-        }
-        return [true, func(num)]
-    }
-
-    atnNative(params)
-    {
-        const num = params[0]
-        if type(num) != Type.Number then
-        {
-            me.runtimeError("?TYPE MISMATCH")
-            return [false]
-        }
-        return [true, math.atan(num)] 
-    }
-
-    cosNative(params)
-    {
-        const num = params[0]
-        if type(num) != Type.Number then
-        {
-            me.runtimeError("?TYPE MISMATCH")
-            return [false]
-        }
-        return [true, math.cos(num)] 
-    }
-
-    expNative(params)
-    {
-        const num = params[0]
-        if type(num) != Type.Number then
-        {
-            me.runtimeError("?TYPE MISMATCH")
-            return [false]
-        }
-        return [true, math.exp(num)] 
-    }
-
-    absNative(params)
-    {
-        const num = params[0]
-        if type(num) != Type.Number then
-        {
-            me.runtimeError("?TYPE MISMATCH")
-            return [false]
-        }
-        if num >= 0 then return [true, num] else return [true, -num]
-    }
-
-    ascNative(params)
-    {
-        const s = params[0]
-        if type(s) != Type.String then
-        {
-            me.runtimeError("?TYPE MISMATCH")
-            return [false]
-        }
-        if s == "" then
-        {
-            me.runtimeError("?ILLEGAL QUANTITY ERROR")
-            return [false]
-        }
-        return [true, string.ascii(s)]
     }
 
     charToIndex(c)

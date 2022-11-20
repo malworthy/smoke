@@ -1,0 +1,270 @@
+class Functions
+{
+    init(vm)
+    {
+        me.runtimeError = vm.runtimeError
+        me.vm = vm
+    }
+
+    strNative(params)
+    {
+        if type(params[0]) == Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        
+        return [true, "%{params[0]}"]
+    }
+
+    floor(num) => math.floor(num)   
+    log(num) => math.log(num)
+    sin(num) => math.sin(num)
+    sqr(num) => math.sqrt(num)
+    tan(num) => math.tan(num)
+
+    valNative(params)
+    {
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        
+        return [true, num(params[0])]
+    }
+
+    peekNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        const index = params[0]
+        if index < 0 or index > 65535 
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        return [true, me.vm.memory[index]]
+    }
+
+    spcNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        const n = params[0]
+        if n < 0 or n > 255 
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        if n ==0 then return [true, ""]
+
+        const result = string.join([1..n] select x => " ")
+
+        return [true, result]
+    }
+
+    tabNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        const n = params[0]
+        if n < 0 or n > 255 
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        if n ==0 then return [true, ""]
+
+        const result = string.join([1..n] select x => "\t")
+
+        return [true, result]
+    }
+
+    sgnNative(params)
+    {
+        if type(params[0]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        var result = 0
+        if params[0] < 0 then result = -1
+        if params[0] > 0 then result = 1
+        return [true, result]
+    }
+
+    lenNative(params)
+    {
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+        return [true, len(params[0])]
+    } 
+
+    midNative(params)
+    {
+        if len(params) < 2 or len(params) > 3 
+        {
+            me.runtimeError("?SYNTAX ERROR")
+            return [false]
+        }
+        if type(params[0]) != Type.String or type(params[1]) != Type.Number 
+            or (len(params) == 3 and type(params[2]) != Type.Number)
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        var str = params[0]
+        var start = params[1] - 1
+        var end = 0
+        if len(params) == 3 then end = start + params[2]
+
+        if start < 0 or (end < start and len(params) == 3) 
+        {
+             me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+
+        if start >= len(str) then return [true, ""]
+
+        return [true, str[start:end]]
+    }
+
+    leftNative(params)
+    {
+        if len(params) != 2 
+        {
+            me.runtimeError("?SYNTAX ERROR")
+            return [false]
+        }
+
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        if type(params[1]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        const str = params[0]
+        const length = params[1]
+        if length <=0 then return [true, ""]
+        if len(str) < length then return [true, str]
+        return [true, str[0:length]]
+    }
+
+    rightNative(params)
+    {
+        if len(params) != 2 
+        {
+            me.runtimeError("?SYNTAX ERROR")
+            return [false]
+        }
+
+        if type(params[0]) != Type.String
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        if type(params[1]) != Type.Number
+        {
+            me.runtimeError("?TYPE MISMATCH ERROR")
+            return [false]
+        }
+
+        const str = params[0]
+        const length = params[1]
+        if length <=0 then return [true, ""]
+        if len(str) < length then return [true, str]
+        return [true, str[-length:0]]
+    }
+
+    mathFn(num, func)
+    {
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, func(num)]
+    }
+
+    atnNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, math.atan(num)] 
+    }
+
+    cosNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, math.cos(num)] 
+    }
+
+    expNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        return [true, math.exp(num)] 
+    }
+
+    absNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        if num >= 0 then return [true, num] else return [true, -num]
+    }
+
+    ascNative(params)
+    {
+        const s = params[0]
+        if type(s) != Type.String then
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        if s == "" then
+        {
+            me.runtimeError("?ILLEGAL QUANTITY ERROR")
+            return [false]
+        }
+        return [true, string.ascii(s)]
+    }
+
+}
