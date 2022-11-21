@@ -2,81 +2,13 @@
 #inc compiler.mal
 #inc vm.mal
 
-const directVM = Vm(Chunk())
-
-fn runProgram(program, debug, runDirect) 
-{
-    const scanner = Scanner(program)
-    const tokens = scanner.scanTokens()
-    // print tokens
-    if debug then 
-    {
-        print ""
-        print "--- TOKENS ---"
-        for t in tokens
-            print t.toString()
-    }
-    const compiler = Compiler(tokens)
-    const chunk = compiler.compile()
-
-    if compiler.hasError then return
-
-    if debug then
-    {
-        print ""
-        print "--- BYTECODE ---"
-        for ins in chunk.instructions
-            print ins.toString()
-
-        print ""
-        print "--- PROGRAM OUTPUT ---"
-    }
-    if runDirect 
-    {
-        directVM.runDirect(chunk)
-        if directVM.loadedProgram != nil
-        {
-            return directVM.loadedProgram
-        }
-    }
-    else
-    {
-        const vm = Vm(chunk)
-        vm.run(debug)
-    }
-}
+const vm = Vm(Chunk())
 
 fn list(program)
 {
+    if program == nil then return
+
     for line in program print string.trim(line)
-}
-
-fn addToProgram(program, line)
-{
-    const lineNumber = num(line)
-    if lineNumber > 65535 
-    {
-        print "LINE NUMBER TOO LARGE"
-        return
-    }
-    
-    const padding = "     "[-(5-len("%{lineNumber}")):0]
-    line = padding + line
-
-    if len(program) > 0 
-    {
-        for i in [0..len(program)-1]
-        {
-            if num(line) == num(program[i])
-            {
-                program[i] = line
-                return
-            }
-        }
-    }
-    
-    program << line
-    sort(program)
 }
 
 fn repl()
@@ -90,39 +22,43 @@ fn repl()
     while true do
     {
         const line = input()
-        //print "Line: %{line}"
         if line != "" and line[0] >= "0" and line[0] <= "9" then
         {
-            addToProgram(program, line)
+            vm.addToProgram(line)
         }
         else if line == "run" then
         {
-            //print "in run"
-            runProgram(program, false, false)
+            vm.interprete(false)
             print "READY."
         }
         else if line == "debug" then
         {
-            //print "in debug"
-            runProgram(program, true, false)
+            vm.interprete(true)
             print "READY."
         }
         else if line == "list" then
         {
-            //print "in debug"
-            list(program)
+            list(vm.loadedProgram)
         }
         else if line != ""
         {
-            const result = runProgram([line], false, true)
-            if result != nil
-            {
-                program = result
-                directVM.loadedProgram = nil
-            }
+            vm.runDirect([line])
             print "READY."
         }
     }
 }
 
-repl()
+if len(args()) > 1
+{   
+    const program = ["load \"%{args()[1]}\""]
+    const result = vm.runDirect(program)
+    
+    if result then
+        vm.interprete(false)
+}
+else
+{
+    repl()
+}
+
+

@@ -15,8 +15,6 @@ class NativeFunction
     }
 }
 
-
-
 class ReturnItem
 {
     init(loopVariable, stepSize, to, ip)
@@ -82,6 +80,38 @@ class Array
 
 class Vm
 {
+    clear()
+    {
+        //me.loadedProgram = nil
+        me.placeName = ""
+        //me.instr = chunk.instructions
+        //me.chunk = chunk
+        me.ip = 0
+        me.memory = [0..65535] select x => 0
+        me.stack = []
+        me.filePointers = []
+        me.variables = []
+        me.arrays = []
+                
+        var i = 0
+        while i++ <= me.getVariableIndex("Z9\%") 
+        { 
+            me.variables << 0
+            me.arrays << nil
+        }
+        
+        while i++ <= me.getVariableIndex("Z9$") 
+        {
+            me.variables << ""
+            me.arrays << nil
+        }
+
+        for x in [0..255]
+            me.filePointers << 0
+        
+        me.defaultMemory()
+    }
+
     init(chunk)
     {
         const defs = Functions(me)
@@ -147,7 +177,70 @@ class Vm
             me.filePointers << 0
         
         me.defaultMemory()
+    }
 
+    addToProgram(line)
+    {
+        if me.loadedProgram == nil then me.loadedProgram = []
+
+        const lineNumber = num(line)
+        if lineNumber > 65535 
+        {
+            print "LINE NUMBER TOO LARGE"
+            return
+        }
+        
+        const padding = "     "[-(5-len("%{lineNumber}")):0]
+        line = padding + line
+
+        if len(me.loadedProgram) > 0 
+        {
+            for i in [0..len(me.loadedProgram)-1]
+            {
+                if num(line) == num(me.loadedProgram[i])
+                {
+                    me.loadedProgram[i] = line
+                    return
+                }
+            }
+        }
+        
+        me.loadedProgram << line
+        sort(me.loadedProgram)
+    }
+
+    interprete(debug) 
+    { 
+        me.clear()
+        const scanner = Scanner(me.loadedProgram)
+        const tokens = scanner.scanTokens()
+        
+        if debug then 
+        {
+            print ""
+            print "--- TOKENS ---"
+            for t in tokens
+                print t.toString()
+        }
+        const compiler = Compiler(tokens)
+        const chunk = compiler.compile()
+
+        if compiler.hasError then return
+
+        if debug then
+        {
+            print ""
+            print "--- BYTECODE ---"
+            for ins in chunk.instructions
+                print ins.toString()
+
+            print ""
+            print "--- PROGRAM OUTPUT ---"
+        }
+        me.chunk = chunk
+        me.instr = chunk.instructions
+
+        return me.run(debug)
     }
 
     charToIndex(c)
@@ -335,13 +428,22 @@ class Vm
         return result
     }
 
-    runDirect(chunk)
+    runDirect(program)
     {
+        const scanner = Scanner(program)
+        const tokens = scanner.scanTokens()
+        const compiler = Compiler(tokens)
+        const chunk = compiler.compile()
+
+        if compiler.hasError then return 
+
         me.placeName = ""
         me.instr = chunk.instructions
         me.chunk = chunk
         me.ip = 0
-        me.run(false)
+        //me.loadedProgram = nil
+
+        return me.run(false)
     }
 
     c64Bool(bool)
@@ -417,27 +519,18 @@ class Vm
             else if instr.op == OpCode.OpAdd then
             {
                 if !me.binary("+") then return false
-                //const b = me.stack[>>]
-                //const a = me.stack[>>]
-                //me.stack << (a + b)
             }
             else if instr.op == OpCode.OpSubtract then
             {
-                const b = me.stack[>>]
-                const a = me.stack[>>]
-                me.stack << (a - b)
+                if !me.binary("-") then return false
             }
             else if instr.op == OpCode.OpMultiply then
             {
-                const b = me.stack[>>]
-                const a = me.stack[>>]
-                me.stack << (a * b)
+                if !me.binary("*") then return false
             }
             else if instr.op == OpCode.OpDivide then
             {
-                const b = me.stack[>>]
-                const a = me.stack[>>]
-                me.stack << (a / b)
+                if !me.binary("/") then return false
             }
             else if instr.op == OpCode.OpAnd then
             {
@@ -794,7 +887,13 @@ class Vm
             else if instr.op == OpCode.OpLoad then
             {
                 const filename = me.stack[>>]
-                me.loadedProgram = file.readlines(filename)
+                var prog = file.readlines(filename)
+                if prog == nil
+                {
+                    me.runtimeError("?FILE NOT FOUND ERROR")
+                    return false
+                }
+                me.loadedProgram = prog
             }
             else if instr.op == OpCode.OpPoke then
             {
