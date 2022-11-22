@@ -2,9 +2,13 @@ enum TokenType
 {
     None,
     Load,
+    Save,
+    Sys,
+    Wait,
     Open,
     Poke,
     Close,
+    Clr,
     PrintHash,
     InputHash,
     Input,
@@ -77,8 +81,9 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["load", "open", "poke", "close", "print#", "input#", "input", "print", "goto", "gosub", "return", "read",
-            "restore", "get#", "get", "if", "then", "dim", "and", "for", "or", "not", "next", "step", "to", "def", "fn", "end", "on",
+        me.keywords = ["load", "save", "sys", "wait", "open", "poke", "close", "clr", "print#", "input#", "input", 
+            "print", "goto", "gosub", "return", "read", "restore", "get#", "get", "if", "then", "dim", "and", "for", 
+            "or", "not", "next", "step", "to", "def", "fn", "end", "on",
             "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]
     }
 

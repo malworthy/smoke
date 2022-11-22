@@ -23,6 +23,38 @@ class Functions
     sqr(num) => math.sqrt(num)
     tan(num) => math.tan(num)
 
+    posNative(params)
+    {
+        write("%{string.char(27)}[6n")
+        var x = getch()
+        
+        var s = ""
+        if (x >= Keys.Zero and x <= Keys.Nine) or x == Keys.Semicolon then s = s + string.char(x)
+
+        while x != Keys.None
+        {
+            x = getch()
+            if (x >= Keys.Zero and x <= Keys.Nine) or x == Keys.Semicolon then s = s + string.char(x)
+        }
+        getch()
+        const parts = string.split(s, ";")
+        return [true, parts[-1]]
+    }
+
+    chrNative(params)
+    {
+        const num = params[0]
+        if type(num) != Type.Number 
+        {
+            me.runtimeError("?TYPE MISMATCH")
+            return [false]
+        }
+        var result = string.char(num)
+        if num == 13 then result = "\n"
+        if num == 147 then result = "%{string.char(27)}c"
+        return [true, result] 
+    }
+
     valNative(params)
     {
         if type(params[0]) != Type.String

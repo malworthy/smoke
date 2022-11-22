@@ -2,7 +2,7 @@
 #inc compiler.mal
 #inc vm.mal
 
-const vm = Vm(Chunk())
+
 
 fn list(program)
 {
@@ -13,6 +13,8 @@ fn list(program)
 
 fn repl()
 {
+    var vm = Vm()
+
     clear()
     print "COMMODORE 64 BASIC V2 (c) Retro Software 2022"
     print "Version 0.01"
@@ -22,6 +24,7 @@ fn repl()
     while true do
     {
         const line = input()
+        
         if line != "" and line[0] >= "0" and line[0] <= "9" then
         {
             vm.addToProgram(line)
@@ -40,16 +43,22 @@ fn repl()
         {
             list(vm.loadedProgram)
         }
+        else if string.upper(line) == "NEW"
+        {
+            vm = Vm()
+        }
         else if line != ""
         {
             vm.runDirect([line])
             print "READY."
         }
+        
     }
 }
 
 if len(args()) > 1
 {   
+    const vm = Vm()
     const program = ["load \"%{args()[1]}\""]
     const result = vm.runDirect(program)
     

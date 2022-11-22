@@ -46,6 +46,10 @@ enum OpCode
     OpOnGosub,
     OpPoke,
     OpRestore,
+    OpClr,
+    OpSave,
+    OpSys,
+    OpWait,
     OpReturn
 }
 
@@ -314,6 +318,24 @@ class Compiler
         me.chunk.writeByte(OpCode.OpLoad)
     }
 
+    saveStatement()
+    {
+        me.expression(true)
+        me.chunk.writeByte(OpCode.OpSave)
+    }
+
+    sysStatement()
+    {
+        me.expression(true)
+        me.chunk.writeByte(OpCode.OpSys)
+    }
+
+    waitStatement()
+    {
+        me.expression(true)
+        me.chunk.writeByte(OpCode.OpWait)
+    }
+
     forStatement()
     {
         if !me.check(TokenType.Identifier) then
@@ -442,6 +464,14 @@ class Compiler
             me.pokeStatement()
         else if me.match(TokenType.Restore) then
             me.chunk.writeByte(OpCode.OpRestore)
+        else if me.match(TokenType.Clr) then
+            me.chunk.writeByte(OpCode.OpClr)
+        else if me.match(TokenType.Save) then
+            me.saveStatement()
+        else if me.match(TokenType.Sys) then
+            me.sysStatement()
+        else if me.match(TokenType.Wait) then
+            me.waitStatement()
         else if !me.match(TokenType.Colon) then {
             //print "current: %{me.current.toString()}"
             me.expressionStatement()

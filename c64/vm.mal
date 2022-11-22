@@ -112,14 +112,14 @@ class Vm
         me.defaultMemory()
     }
 
-    init(chunk)
+    init()
     {
         const defs = Functions(me)
         
         me.loadedProgram = nil
         me.placeName = ""
-        me.instr = chunk.instructions
-        me.chunk = chunk
+        me.instr = []
+        me.chunk = Chunk()
         me.ip = 0
         me.memory = [0..65535] select x => 0
         me.stack = []
@@ -130,15 +130,7 @@ class Vm
             NativeFunction("abs", defs.absNative), 
             NativeFunction("asc",defs.ascNative),
             NativeFunction("atn",defs.atnNative),
-            NativeFunction("chr$", fn(params) {
-                const num = params[0]
-                if type(num) != Type.Number 
-                {
-                    me.runtimeError("?TYPE MISMATCH")
-                    return [false]
-                }
-                return [true, string.char(num)] 
-            }),
+            NativeFunction("chr$", defs.chrNative),
             NativeFunction("cos", defs.cosNative),
             NativeFunction("exp", defs.expNative),
             NativeFunction("fre", fn(dummy) => [true,65535]),
@@ -158,6 +150,7 @@ class Vm
             NativeFunction("tab", defs.tabNative),
             NativeFunction("tan", fn(params) => defs.mathFn(params[0], defs.tan)), 
             NativeFunction("val", defs.valNative),
+            NativeFunction("pos", defs.posNative),
             ]
         
         var i = 0
@@ -211,6 +204,8 @@ class Vm
 
     interprete(debug) 
     { 
+        if me.loadedProgram == nil then return false
+
         me.clear()
         const scanner = Scanner(me.loadedProgram)
         const tokens = scanner.scanTokens()
@@ -416,8 +411,10 @@ class Vm
         me.stack << result
     }
 
-    runFunction(enclosing, placeName, placeValue)
+    runFunction(enclosing, placeName, placeValue, chunk)
     {
+        me.chunk = chunk
+        me.instr = chunk.instructions
         me.variables = enclosing.variables
         me.functions = enclosing.functions
         me.placeName = placeName
@@ -725,8 +722,8 @@ class Vm
                 //print "function code: %{func[0].chunk}"
                 const chunk = Chunk()
                 chunk.instructions = func[0].chunk
-                const funcVm = Vm(chunk)
-                funcVm.runFunction(me, func[0].placeholder, me.stack[>>])
+                const funcVm = Vm()
+                funcVm.runFunction(me, func[0].placeholder, me.stack[>>], chunk)
                 //print "function '%{func[0].name}' gets called"
             }
             else if instr.op == OpCode.OpCall then
@@ -895,9 +892,44 @@ class Vm
                 }
                 me.loadedProgram = prog
             }
+            else if instr.op == OpCode.OpSave then
+            {
+                const filename = me.stack[>>]
+                const fp = file.open(filename, "w")
+                if fp == nil
+                {
+                    me.runtimeError("?COULD NOT WRITE TO FILE")
+                    return false
+                }
+                for line in me.loadedProgram
+                {
+                    file.write(fp, "%{line}\n")
+                }
+                file.close(fp)
+            }
             else if instr.op == OpCode.OpPoke then
             {
                 if !me.poke() then return false
+            }
+            else if instr.op == OpCode.OpClr then
+            {
+                me.clear()
+                return true
+            }
+            else if instr.op == OpCode.OpSys then
+            {
+                const filename = me.stack[>>]
+                sys.run(filename)
+            }
+            else if instr.op == OpCode.OpWait then
+            {
+                const ms = me.stack[>>]
+                if type(ms) != Type.Number 
+                {
+                    me.runtimeError("?TYPE MISMATCH ERROR")
+                    return false
+                }
+                sleep(ms)
             }
             else if instr.op == OpCode.OpNone then
             {
