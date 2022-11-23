@@ -25,18 +25,18 @@ class Functions
 
     posNative(params)
     {
-        write("%{string.char(27)}[6n")
-        var x = getch()
+        con.write("%{string.char(27)}[6n")
+        var x = con.getch()
         
         var s = ""
         if (x >= Keys.Zero and x <= Keys.Nine) or x == Keys.Semicolon then s = s + string.char(x)
 
         while x != Keys.None
         {
-            x = getch()
+            x = con.getch()
             if (x >= Keys.Zero and x <= Keys.Nine) or x == Keys.Semicolon then s = s + string.char(x)
         }
-        getch()
+        con.getch()
         const parts = string.split(s, ";")
         return [true, parts[-1]]
     }

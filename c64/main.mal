@@ -4,26 +4,59 @@
 
 
 
-fn list(program)
+fn list(program, params)
 {
+    //print "in list"
     if program == nil then return
+    var from = 0
+    var to = 65536
+    //print "still in list"
 
-    for line in program print string.trim(line)
+    params = string.trim(params)
+    const parts = string.split(params, "-")
+
+    if len(parts) == 1
+    {
+        var start = params[0] == "-"
+        var end = params[-1] == "-"
+        if start then 
+            to = num(parts[0])
+        else if end then
+            from = num(parts[0])
+        else
+        {
+            from = num(parts[0])
+            to = num(parts[0])
+        }
+    }
+    else if len(parts) > 1
+    {
+        from = num(parts[0])
+        to = num(parts[1])
+    }
+    //print from
+    //print to
+
+    for line in program 
+    {
+        if num(line) >= from and num(line) <= to then
+            print string.trim(line)
+    }
 }
 
 fn repl()
 {
     var vm = Vm()
 
-    clear()
-    print "COMMODORE 64 BASIC V2 (c) Retro Software 2022"
+    con.clear()
+    print "COMMODORE 64 BASIC V2 Interpreter for POSIX/WINDOWS"
     print "Version 0.01"
     print ""
     print "READY."
     var program = []
     while true do
     {
-        const line = input()
+        const line = con.input()
         
         if line != "" and line[0] >= "0" and line[0] <= "9" then
         {
@@ -39,9 +72,11 @@ fn repl()
             vm.interprete(true)
             print "READY."
         }
-        else if line == "list" then
+        else if len(line) >=4 and line[0:4] == "list" then
         {
-            list(vm.loadedProgram)
+            var params = ""
+            if len(line) > 4 then params = line[4:0]
+            list(vm.loadedProgram, params)
         }
         else if string.upper(line) == "NEW"
         {

@@ -221,7 +221,7 @@ void initVM()
     vm.selectString = NULL;
     vm.selectString = copyString("map", 3);
 
-    // Native Functions
+    // Native Functions (global namespace)
     defineNative("sleep", sleepNative, 1);
     defineNative("clock", clockNative, 0);
     defineNative("args", argsNative, 0);
@@ -229,6 +229,8 @@ void initVM()
     defineNative("num", numNative, 1);   
     defineNative("type", typeNative, 1);
     defineNative("sort", sortNative, 1);
+    defineNative("len", lenNative, 1);
+    defineNative("~range", rangeNative, 3);
 
     // STRING
     defineNativeMod("splitlines", "string", splitlinesNative, 1);
@@ -261,20 +263,19 @@ void initVM()
     defineNativeMod("datediff", "date", datediffNative, 3);
 
     // CONSOLE
-    defineNative("write", writeNative, 1);
-    defineNative("locate", locateNative, 2);
-    defineNative("clear", clearNative, 0);
-    defineNative("textcolor", textColorNative, 1);
-    defineNative("backcolor", backColorNative, 1);
-    defineNative("input", inputNative, 0);
-    defineNative("kbhit", kbhitNative, 0);
-    defineNative("getch", getchNative, 0);
-    defineNative("cursoff", cursoffNative, 1);
+    defineNativeMod("write", "con", writeNative, 1);
+    defineNativeMod("locate", "con",locateNative, 2);
+    defineNativeMod("clear", "con",clearNative, 0);
+    defineNativeMod("textcolor", "con",textColorNative, 1);
+    defineNativeMod("backcolor", "con",backColorNative, 1);
+    defineNativeMod("input", "con",inputNative, 0);
+    defineNativeMod("kbhit", "con",kbhitNative, 0);
+    defineNativeMod("getch", "con",getchNative, 0);
+    defineNativeMod("cursoff", "con",cursoffNative, 1);
 
     // LISTS
     //defineNative("add", addNative, 2);
-    defineNative("len", lenNative, 1);
-    defineNative("~range", rangeNative, 3);
+
     
 
     // FILESYS

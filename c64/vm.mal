@@ -490,8 +490,8 @@ class Vm
         const colours = ["black","gray","red","cyan","magenta","green","blue","yellow"]
         const back = me.memory[53281] % 8
         const text = me.memory[646] % 8
-        textcolor(colours[text])
-        backcolor(colours[back])
+        con.textcolor(colours[text])
+        con.backcolor(colours[back])
     }
 
     run(debug)
@@ -581,8 +581,8 @@ class Vm
             }
             else if instr.op == OpCode.OpPrint then
             {
-                write("%{me.stack[>>]}")
-                write("%{instr.operand}")
+                con.write("%{me.stack[>>]}")
+                con.write("%{instr.operand}")
             }
             else if instr.op == OpCode.OpPop then
             {
@@ -840,10 +840,10 @@ class Vm
             }
             else if instr.op == OpCode.OpInput then
             {
-                write("?")
-                if instr.operand then write("?")
-                write(" ")
-                const val = input()
+                con.write("?")
+                if instr.operand then con.write("?")
+                con.write(" ")
+                const val = con.input()
                 me.stack << val
             }
             else if instr.op == OpCode.OpRead then

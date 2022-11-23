@@ -4,6 +4,7 @@ enum TokenType
     Load,
     Save,
     Sys,
+    Let,
     Wait,
     Open,
     Poke,
@@ -81,7 +82,7 @@ class Scanner
         me.current = 0
         me.line_count = 0
         me.tokens = []
-        me.keywords = ["load", "save", "sys", "wait", "open", "poke", "close", "clr", "print#", "input#", "input", 
+        me.keywords = ["load", "save", "sys", "let", "wait", "open", "poke", "close", "clr", "print#", "input#", "input", 
             "print", "goto", "gosub", "return", "read", "restore", "get#", "get", "if", "then", "dim", "and", "for", 
             "or", "not", "next", "step", "to", "def", "fn", "end", "on",
             "<>", "<=", ">=","<",">", "=","+","-","*","/","(",")",";",":",","]

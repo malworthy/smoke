@@ -472,10 +472,19 @@ class Compiler
             me.sysStatement()
         else if me.match(TokenType.Wait) then
             me.waitStatement()
+        else if me.match(TokenType.Let) then
+        {
+            me.letStatement()
+        }
         else if !me.match(TokenType.Colon) then {
             //print "current: %{me.current.toString()}"
             me.expressionStatement()
         }
+    }
+
+    letStatement()
+    {
+        me.expressionStatement()
     }
 
     setVariable(op, operand)
@@ -652,7 +661,7 @@ class Compiler
     }
 
     peek(i)
-    {LeftParan
+    {
         if me.token_index + i >= len(me.tokens) then
             return me.tokens[-1]
         return me.tokens[me.token_index+i]
@@ -802,7 +811,7 @@ class Compiler
 
     variable(canAssign)
     {
-        //print "In Variable"
+        //print "variable: %{me.previous().toString()}"
         const name = me.previous().lexeme
         if canAssign and me.match(TokenType.Equals)  then
         {

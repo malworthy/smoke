@@ -27,7 +27,7 @@ print num("")
 //expect:0
 
 const r = rand(100) // gets a random number from 0 to max-1
-if r>=0 then write("random number generated\n")
+if r>=0 then con.write("random number generated\n")
 //expect:random number generated
 
 sleep(5) // suspend thread 
