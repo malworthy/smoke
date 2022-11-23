@@ -27,6 +27,8 @@
 
 char* includeFiles[MAX_INCS];
 char* fileContents[MAX_INCS];
+char* fileContentsName[MAX_INCS];
+
 int includeFileCount = 0;
 int fileContentsCount = 0;
 
@@ -184,7 +186,10 @@ static bool preProcessFile(const char* filename, const char* rootFilename)
             return false;
     }
     
-    fileContents[fileContentsCount++] = buffer;
+    fileContents[fileContentsCount] = buffer;
+    fileContentsName[fileContentsCount] = (char*)malloc(strlen(filename)+1);
+    memcpy(fileContentsName[fileContentsCount], filename, strlen(filename)+1);
+    fileContentsCount++;
 
     return true;
 }
@@ -195,8 +200,8 @@ static int runFile(const char* path)
 
     for (int i = 0;  i < fileContentsCount; i++ )
     {
-        //printf("Running file %d of %d: %s\n", i+1, fileContentsCount, fileContents[i]);
-        InterpretResult result = interpret(fileContents[i], includeFiles[i]);
+        //printf("Running file %d of %d: %s\n", i+1, fileContentsCount, fileContentsName[i]);
+        InterpretResult result = interpret(fileContents[i], fileContentsName[i]);
     
         if (result == INTERPRET_COMPILE_ERROR) return 65;
         if (result == INTERPRET_RUNTIME_ERROR) return 70;
@@ -205,6 +210,7 @@ static int runFile(const char* path)
     for (int i = 0;  i < fileContentsCount; i++ )
     {
          free(fileContents[i]); 
+         free(fileContentsName[i]);
     }
 
     return 0;
