@@ -170,6 +170,8 @@ bool clearNative(int argCount, Value* args)
 static int getColorCode(char* color, bool isBackground)
 {
     int code = FG_DEFAULT;
+
+
     if (strcmp(color, "red") == 0)
         code = FG_RED;
     if (strcmp(color, "blue") == 0)
@@ -188,7 +190,7 @@ static int getColorCode(char* color, bool isBackground)
         code = FG_MAGENTA;
     if (strcmp(color, "gray") == 0 || strcmp(color, "grey") == 0 || strcmp(color, "lightgray") == 0)
         code = FG_LIGHT_GRAY;
-    if (strcmp(color, "white"))
+    if (strcmp(color, "white") == 0)
         code = FG_WHITE;
         
     if (isBackground) code += 10;
@@ -201,6 +203,8 @@ bool textColorNative(int argCount, Value* args)
     CHECK_STRING(0, "Parameter to textcolor must be a string");
 
     char* color = AS_CSTRING(args[0]);
+
+    int c = getColorCode(color, false);
 
     printf("%c[%dm",0x1B, getColorCode(color, false));
 

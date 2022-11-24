@@ -1,0 +1,66 @@
+fn getchar()
+{
+    var c = ""
+    while (c=con.getch()) == Keys.None do sleep(10)
+    return c
+}
+
+fn findClosing(code, ip)
+{
+    var brace=1
+    for i in [ip+1..len(code)-1]
+    {
+        if code[i] == "[" then brace++
+        if code[i] == "]" then brace--
+        if brace == 0 then return i
+    }
+    print "Error: No matching ']' found"
+    return len(code)
+}
+
+fn findOpening(code, ip)
+{
+    var brace=1
+    for i in [ip-1..0]
+    {
+        if code[i] == "]" then brace++
+        if code[i] == "[" then brace--
+        if brace == 0 then return i
+    }
+    print "Error: No matching '[' found"
+    return len(code)
+}
+
+fn run(code)
+{
+    var ip = 0
+    var dataPtr = 0
+    var data = [0..30000] select x => 0
+
+    while(ip < len(code))
+    {
+        const instr = code[ip]
+        if instr == ">" then dataPtr++
+        if instr == "<" then dataPtr--
+        if instr == "+" then data[dataPtr]=data[dataPtr]+1 //data[dataPtr]++
+        if instr == "-" then data[dataPtr]=data[dataPtr]-1 //data[dataPtr]--
+        if instr == "." then con.write(string.char(data[dataPtr]))
+        if instr == "," then data[dataPtr]=getchar()
+        if instr == "*" and dataPtr > 0 then data[dataPtr] = data[dataPtr] * data[dataPtr-1] 
+        if instr == "/" and dataPtr > 0 then data[dataPtr] = data[dataPtr] / data[dataPtr-1]
+        if instr == "[" and data[dataPtr] == 0 
+        {
+            ip = findClosing(code, ip)
+        }
+        if instr == "]" and data[dataPtr] != 0 
+        {
+            ip = findOpening(code, ip)
+        }
+
+        ip++
+    }
+}
+
+con.write("Enter bf code: ")
+const code = con.input()
+run(code)

@@ -151,6 +151,7 @@ class Vm
             NativeFunction("tan", fn(params) => defs.mathFn(params[0], defs.tan)), 
             NativeFunction("val", defs.valNative),
             NativeFunction("pos", defs.posNative),
+            NativeFunction("usr", defs.usrNative),
             ]
         
         var i = 0
@@ -477,6 +478,8 @@ class Vm
         me.memory[address] = value
 
         me.processMemory()
+
+        return true
     }
 
     defaultMemory()
@@ -491,6 +494,7 @@ class Vm
         const back = me.memory[53281] % 8
         const text = me.memory[646] % 8
         con.textcolor(colours[text])
+
         con.backcolor(colours[back])
     }
 

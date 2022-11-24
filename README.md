@@ -1,8 +1,8 @@
-# MAL (Mal's Amazing Language)
+# Smoke 
 
 A scripting language based on the clox interpreter from Bob Nystrom's excellent book Crafting Interpreters (https://craftinginterpreters.com/ )
 
-Although the underlying code is based on clox, MAL is a very different language.
+Although the underlying code is based on clox, Smoke is a very different language.
 
 ## Compiling
 for a better repl experience on linux install the readline library
@@ -11,19 +11,21 @@ sudo apt-get install libreadline-dev
 
 ## Data types
 
-There a 5 different data types
+There a 6 different data types
 1) Numbers - numbers are double precision floating points
 2) String
 3) Boolean - either true or false
 4) Lists - a list is a collection of values
 5) Datetime
+6) nil
 
 ```
 var number = 0
 var string = "hello"
 var boolean = true
 var list = [1,"hello", true]
-var date = date("2022-02-01")
+var date = date.date("2022-02-01")
+var something = nil
 ```
 
 ## Variables
@@ -34,7 +36,8 @@ var date = date("2022-02-01")
 
 ```
 var x // not allowed
-var x = 1 // all good
+var x = 1 // all good (except at global scope)
+const x = 1 // x will be read only
 ```
 
 ## Conditions: if then else
@@ -223,13 +226,13 @@ runFunctionInAnotherFile(123)
 ## Native functions
 
 Console
-- backcolor("blue") // changes the console background colour
-- clear() // clears the screen
-- input() // gets input from the console
-- locate(x,y) // locates the cursor on the
-- textcolor("red") // changes the console text colour 
-- write("string") // write to the console without printing a newline afterwards (unlike print)
-- getch() // gets the key in the keyboard buffer. Non-blocking.  If no key is present returns an empty string.
+- con.backcolor("blue") // changes the console background colour
+- con.clear() // clears the screen
+- con.input() // gets input from the console
+- con.locate(x,y) // locates the cursor on the
+- con.textcolor("red") // changes the console text colour 
+- con.write("string") // write to the console without printing a newline afterwards (unlike print)
+- con.getch() // gets the key in the keyboard buffer. Non-blocking.  If no key is present returns an empty string.
 
 Dates
 - date.dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])

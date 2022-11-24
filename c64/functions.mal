@@ -299,4 +299,119 @@ class Functions
         return [true, string.ascii(s)]
     }
 
+    usrNative(params)
+    {
+        if len(params) != 1
+        {
+            me.runtimeError("?SYNTAX ERROR.")
+            return [false]
+        }
+
+        var code = ""
+        var start = me.vm.memory[785] * 256 + me.vm.memory[786]
+        //print "Start: %{start}"
+        while me.vm.memory[start]
+        {
+            code = code + string.char(me.vm.memory[start++])
+        }
+        const result = me.runbf(code, params[0])
+
+        return [true, result]
+    }
+
+    // brainfuck interpreter
+    findClosing(code, ip)
+    {
+        var brace=1
+        for i in [ip+1..len(code)-1]
+        {
+            if code[i] == "[" then brace++
+            if code[i] == "]" then brace--
+            if brace == 0 then return i
+        }
+        print "Error: No matching ']' found"
+        return len(code)
+    }
+
+    findOpening(code, ip)
+    {
+        var brace=1
+        for i in [ip-1..0]
+        {
+            if code[i] == "]" then brace++
+            if code[i] == "[" then brace--
+            if brace == 0 then return i
+        }
+        print "Error: No matching '[' found"
+        return len(code)
+    }
+
+    runbf(code, input)
+    {
+        var ip = 0
+        var dataPtr = 0
+        var data = [0..30000] select x => 0
+        var inBytes = []
+        var result = nil
+        var outString = false
+
+        if type(input) == Type.Number 
+        {
+            inBytes << input
+        }
+        else
+        {
+            for c in input
+                inBytes << string.ascii(c)
+        }
+
+        var inPtr = 0
+        fn getchar()
+        {
+            if inPtr < len(inBytes)
+            {
+                data[dataPtr] = inBytes[inPtr++]
+            }
+        }
+
+        while(ip < len(code))
+        {
+            const instr = code[ip]
+            if instr == "$" and ip == 0 then outString = true
+            if instr == ">" then dataPtr++
+            if instr == "<" then dataPtr--
+            if instr == "+" then data[dataPtr]=data[dataPtr]+1 //data[dataPtr]++
+            if instr == "-" then data[dataPtr]=data[dataPtr]-1 //data[dataPtr]--
+            if instr == "." then 
+            {
+                if outString then
+                {
+                    if result == nil then result = ""
+                    if data[dataPtr] >=0 and data[dataPtr] <= 255 then
+                        result = result + string.char(data[dataPtr])
+                }
+                else
+                {
+                    if result == nil then result = 0
+                    result = result + data[dataPtr]
+                }
+                    
+            }
+            if instr == "," then getchar()
+            if instr == "*" and dataPtr > 0 then data[dataPtr] = data[dataPtr-1] * data[dataPtr] 
+            if instr == "/" and dataPtr > 0 then data[dataPtr] = data[dataPtr-1] / data[dataPtr]
+            if instr == "[" and data[dataPtr] == 0 
+            {
+                ip = me.findClosing(code, ip)
+            }
+            if instr == "]" and data[dataPtr] != 0 
+            {
+                ip = me.findOpening(code, ip)
+            }
+
+            ip++
+        }
+        return result
+    }
+    //
 }
