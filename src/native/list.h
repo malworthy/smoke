@@ -1,5 +1,5 @@
-#ifndef mal_list_h
-#define mal_list_h
+#ifndef sm_list_h
+#define sm_list_h
 
 #include "../common.h"
 #include "../value.h"

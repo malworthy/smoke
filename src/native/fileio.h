@@ -1,5 +1,5 @@
-#ifndef mal_fileio_h
-#define mal_fileio_h
+#ifndef sm_fileio_h
+#define sm_fileio_h
 
 bool readlinesNative(int argCount, Value* args);
 bool openNative(int argCount, Value* args);

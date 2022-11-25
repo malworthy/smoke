@@ -1,5 +1,5 @@
-#ifndef clox_object_h
-#define clox_object_h
+#ifndef sm_object_h
+#define sm_object_h
 
 #include "common.h"
 #include "value.h"

@@ -1,5 +1,5 @@
-#ifndef mal_console_h
-#define mal_console_h
+#ifndef sm_console_h
+#define sm_console_h
 
 #include "../common.h"
 #include "../value.h"
