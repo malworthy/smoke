@@ -1,8 +1,6 @@
-#inc scanner.mal
-#inc compiler.mal
-#inc vm.mal
-
-
+#inc scanner.sm
+#inc compiler.sm
+#inc vm.sm
 
 fn list(program, params)
 {
@@ -65,12 +63,12 @@ fn repl()
         else if line == "run" then
         {
             vm.interprete(false)
-            print "READY."
+            print "\nREADY."
         }
         else if line == "debug" then
         {
             vm.interprete(true)
-            print "READY."
+            print "\nREADY."
         }
         else if len(line) >=4 and line[0:4] == "list" then
         {
@@ -85,7 +83,7 @@ fn repl()
         else if line != ""
         {
             vm.runDirect([line])
-            print "READY."
+            print "\nREADY."
         }
         
     }

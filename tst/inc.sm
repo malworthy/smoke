@@ -1,5 +1,5 @@
-#inc ../tst/inc1.mal 
-#inc ../tst/inc2.mal 
+#inc ../tst/inc1.sm
+#inc ../tst/inc2.sm 
 
 from_inc_one()
 from_inc_two()

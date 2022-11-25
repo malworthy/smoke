@@ -1,4 +1,4 @@
-#inc functions.mal
+#inc functions.sm
 
 enum SystemVariables
 {

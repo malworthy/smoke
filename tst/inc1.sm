@@ -1,4 +1,4 @@
-#inc ../tst/inc2.mal 
+#inc ../tst/inc2.sm 
 
 fn from_inc_one()
 {
