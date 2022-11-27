@@ -5,9 +5,17 @@ A scripting language based on the clox interpreter from Bob Nystrom's excellent 
 Although the underlying code is based on clox, Smoke is a very different language.
 
 ## Compiling
-for a better repl experience on linux install the readline library
-
+To compile for linux you need the readline library.  To install it on Debian-based systems, run:
+```
 sudo apt-get install libreadline-dev
+```
+To build using gcc you can use the makefile in the src folder:
+```
+cd src
+make
+```
+There is also a CMakeList.txt file included.
+
 
 ## Data types
 
@@ -232,7 +240,7 @@ Console
 - con.locate(x,y) // locates the cursor on the
 - con.textcolor("red") // changes the console text colour 
 - con.write("string") // write to the console without printing a newline afterwards (unlike print)
-- con.getch() // gets the key in the keyboard buffer. Non-blocking.  If no key is present returns an empty string.
+- con.getch() // gets the key in the keyboard buffer. Non-blocking.  If no key present it returns 0, else it will return an integer that correlates to the accii code, except for special keys like arrow keys.  Use Keys.name() to get the name of the key pressed.
 
 Dates
 - date.dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])

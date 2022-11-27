@@ -8,7 +8,7 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include <stropts.h>
+//#include <stropts.h>
 #include <stdbool.h>
 #include <unistd.h>
 
@@ -20,6 +20,7 @@ void restoreTerminal()
 {
     if(initialized)
         tcsetattr(STDIN,TCSANOW,&orig_settings);
+    initialized = false;
 }
 
 int _kbhit() {

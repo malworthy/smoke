@@ -4,6 +4,9 @@
     #include <conio.h>
 #else
     #include "conio.h"
+    #include <readline/readline.h>
+    #include <readline/history.h>
+    #include <stdlib.h>
 #endif
 
 #include "console.h"
@@ -87,28 +90,73 @@ int getchWin()
     return key;
 }
 
-bool getchNative(int argCount, Value* args)
+int getchPosix() 
 {
-    /*char keyString[11];
-    
+    /// 
     int hits = _kbhit();
+    int key = 0;
+    char keybuffer[10] = {0};
+
     for(int i=0; i < hits && i < 10; i++)
     {
-        int key = _getch();
-        if (key == 27) keyString[i] = '#'; else keyString[i] = key;
+        key = _getch();
+        keybuffer[i] = key;
+        //if (key == 27) keyString[i] = '#'; else keyString[i] = key;
     }
+    if (keybuffer[0] == 27 && keybuffer[1] == '[')
+    {
+        // escape sequence
+        //keybuffer[0] = '#';
+        //printf("keys: %s\n", keybuffer);
+        switch (keybuffer[2])
+        {
+            case 'A':
+                key = 130; //up
+                break;
+            case 'B':
+                key = 131; //down
+                break;
+            case 'D':
+                key = 128; //left
+                break;
+            case 'C':
+                key = 129; //right
+                break;
+            case '5': //~
+                key = 132; //pgup
+                break;
+            case '6':
+                key = 133; //pgdn
+                break;
+            case 'H':
+                key = 134; //home
+                break;
+            case 'F':
+                key = 135; //end
+                break; 
+            
+            default:
+                break;
+        }
+    }
+    //restoreTerminal();
 
-    keyString[hits] = '\0';
+    return key;
 
-    args[-1] = OBJ_VAL(copyStringRaw(keyString, hits));*/
+}
 
-    int key = getchWin();
+bool getchNative(int argCount, Value* args)
+{
+    #if defined(_WIN32)
+        int key = getchWin();
+    #else
+        int key = getchPosix();
+    #endif
+    
     args[-1] = NUMBER_VAL((double)key);
 
     return true;
 }
-
-
 
 bool getchNative_old(int argCount, Value* args) 
 {
@@ -236,9 +284,16 @@ bool cursoffNative(int argCount, Value* args)
 
 bool inputNative(int argCount, Value* args) 
 {
-    char line[1024];
+    char line[1024] = {0};
+#ifdef _WIN32
     fgets(line, sizeof(line), stdin);
-
+#else
+    char *buffer = readline("");
+    strncpy(line, buffer, 1024);
+    //line[1023] = '\0';
+    if(line[0] != '\0') add_history(line);
+    free(buffer);
+#endif
     // strip CR/LF from end of string
     if (line[0] == '\n' || line[0] == '\r')
         line[0] = '\0';

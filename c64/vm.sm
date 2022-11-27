@@ -133,7 +133,7 @@ class Vm
             NativeFunction("chr$", defs.chrNative),
             NativeFunction("cos", defs.cosNative),
             NativeFunction("exp", defs.expNative),
-            NativeFunction("fre", fn(dummy) => [true,65535]),
+            NativeFunction("fre", defs.freNative),
             NativeFunction("int", fn(params) => defs.mathFn(params[0], defs.floor)),
             NativeFunction("left$", defs.leftNative),
             NativeFunction("log", fn(params) => defs.mathFn(params[0], defs.log)),  
@@ -484,15 +484,15 @@ class Vm
 
     defaultMemory()
     {
-        me.memory[53281] = 0
-        me.memory[646] = 1
+        me.memory[53281] = 8
+        me.memory[646] = 8
     }
 
     processMemory()
     {
-        const colours = ["black","gray","red","cyan","magenta","green","blue","yellow"]
-        const back = me.memory[53281] % 8
-        const text = me.memory[646] % 8
+        const colours = ["black","white","red","cyan","magenta","green","blue","yellow","reset"]
+        const back = me.memory[53281] % 9
+        const text = me.memory[646] % 9
         con.textcolor(colours[text])
 
         con.backcolor(colours[back])

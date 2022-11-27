@@ -1,0 +1,3 @@
+10 XP = COS(0.9)
+20 XM = COS(-0.9)
+30 PRINT XP - XM

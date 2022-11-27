@@ -1,3 +1,9 @@
 /.vscode
 /build
 *.pdb
+*.cmake
+/CMakeFiles
+/CMakeCache.txt
+*.tcl
+/Makefile
+smoke

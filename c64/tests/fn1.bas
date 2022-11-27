@@ -1,0 +1,4 @@
+10 DEF FN FTEST1(X) = X*3
+20 INPUT "Type in a number:"; A
+30 PRINT FN FTEST1(A): PRINT
+40 IF A<>64 THEN 20

@@ -6,6 +6,11 @@ class Functions
         me.vm = vm
     }
 
+    freNative(params)
+    {
+        return [true, len(me.vm.memory where x=> x ==0)]
+    }
+
     strNative(params)
     {
         if type(params[0]) == Type.String

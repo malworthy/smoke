@@ -1,0 +1,2 @@
+smoke: main.c chunk.c memory.c debug.c value.c vm.c compiler.c scanner.c object.c table.c native/console.c native/list.c native/filesys.c native/fileio.c native/stringutil.c native/date.c native/conio.c format.c native/mathmod.c quicksort.c
+	gcc -o smoke main.c chunk.c memory.c debug.c value.c vm.c compiler.c scanner.c object.c table.c native/console.c native/list.c native/filesys.c native/fileio.c native/stringutil.c native/date.c native/conio.c format.c native/mathmod.c quicksort.c  -lm -lreadline

@@ -45,7 +45,9 @@ fn list(program, params)
 fn repl()
 {
     var vm = Vm()
-
+    con.clear()
+    con.backcolor("blue")
+    con.textcolor("white")
     con.clear()
     print "COMMODORE 64 BASIC V2 Interpreter for POSIX/WINDOWS"
     print "Version 0.01"

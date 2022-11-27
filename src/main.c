@@ -14,12 +14,6 @@
 #ifndef _WIN32
 
 #include "native/conio.h"
-#define USE_READLINE
-
-#endif
-
-#ifdef USE_READLINE
-
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -42,7 +36,7 @@ static void repl()
 
     for (;;) 
     {
-#ifdef USE_READLINE
+#ifndef _WIN32
         char *buffer = readline("> ");
         strncpy(line, buffer, 1024);
         line[1023] = '\0';
@@ -57,6 +51,9 @@ static void repl()
         }
 #endif
         interpret(line,"");
+#ifndef _WIN32
+        restoreTerminal();
+#endif
     }
 }
 
