@@ -38,6 +38,9 @@ Refer to the wiki here for an overview of all 71 Commodore 64 basic V2 commands:
 ### CLR
 This works in a similar way to the C64 version, but if executed during a program, program execution will stop.
 
+### FRE()
+This function returns the number of bytes in "memory" that are set to zero.  It will return 65534 initially, as the memory locations 646 and 53281 are used to set the console colours.
+
 ### LOAD {filename}
 
 This works very similar to the C64 Version, but the only argument it accepts is the full path and filename of the program you wish to load.  It will load the program into the shell, overwriting any existing loaded program.
@@ -84,7 +87,7 @@ A system variable that contains the current time, in the format HH:MM:SS.
 
 ### USR
 
-On the Commodore 64 this could be used to call a user-defined machine language routine, and return a resulting real number. In this version it does pretty much the same thing, expect instead of machine language, the user defined function is written in a version of Brainfuck.
+On the Commodore 64 this could be used to call a user-defined machine language routine, and return a resulting real number. In this version it does pretty much the same thing, expect instead of machine language, the user defined function is written in a version of Brainfuck.  It also allows you to return a string as the result.
 
 The addresses 785–786 form a pointer to the routine.  Initially this will be set to zero and it is fine to store the rountine at address zero.
 
