@@ -41,6 +41,7 @@ add_test(NAME set COMMAND python ../test_runner.py "smoke.exe" "../tst/set.sm" "
 add_test(NAME module COMMAND python ../test_runner.py "smoke.exe" "../tst/module.sm" "//expect:")
 add_test(NAME nil COMMAND python ../test_runner.py "smoke.exe" "../tst/nil.sm" "//expect:")
 add_test(NAME sort COMMAND python ../test_runner.py "smoke.exe" "../tst/sort.sm" "//expect:")
+add_test(NAME pluesequals COMMAND python ../test_runner.py "smoke.exe" "../tst/plusequals.sm" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/inc_string.sm" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/dec_string.sm" "//expect:")

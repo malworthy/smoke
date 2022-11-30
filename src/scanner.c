@@ -330,7 +330,7 @@ Token scanToken()
         case '-': 
             return makeToken(match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
         case '+': 
-            return makeToken(match('+') ? TOKEN_PLUS_PLUS : TOKEN_PLUS);
+            return makeToken(match('+') ? TOKEN_PLUS_PLUS : (match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS));
         case '!':
             return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
         case '=':

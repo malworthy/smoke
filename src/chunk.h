@@ -50,6 +50,8 @@ typedef enum {
     OP_DEC_LOCAL,
     OP_DEC_UPVALUE,
     OP_DEC_PROPERTY,
+    OP_ADD_LOCAL,
+    OP_ADD_UPVALUE,
     OP_CLASS,
     OP_MODULE,
     OP_GET_PROPERTY,

@@ -141,6 +141,12 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return byteInstruction("OP_INC_UPVALUE", chunk, offset);
         case OP_DEC_LOCAL:
             return byteInstruction("OP_DEC_LOCAL", chunk, offset);
+        case OP_ADD_LOCAL:
+            return byteInstruction("OP_ADD_LOCAL", chunk, offset);
+        case OP_ADD_UPVALUE:
+            return byteInstruction("OP_ADD_UPVALUE", chunk, offset);
+        case OP_SUBSCRIPT_INC:
+            return byteInstruction("OP_ADD_UPVALUE", chunk, offset);
         case OP_DEC_UPVALUE:
             return byteInstruction("OP_DEC_UPVALUE", chunk, offset);
         case OP_GET_UPVALUE:
@@ -199,6 +205,8 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return constantInstruction("OP_ENUM_FIELD", chunk, offset);
         case OP_SUBSCRIPT_SET:
             return simpleInstruction("OP_SUBSCRIPT_SET", offset);
+        case OP_ENUM_FIELD_SET:
+            return constantInstruction("OP_CONSTANT", chunk, offset);            
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;

@@ -835,6 +835,24 @@ static InterpretResult run()
             value = val; \
         } while (false)
 
+    #define ADD_OP(value) \
+        do { \
+            Value number = pop(); \
+            uint8_t slot = READ_BYTE(); \
+            if (!IS_NUMBER(value)) \
+            { \
+                runtimeError("Variable must be a number"); \
+                return INTERPRET_RUNTIME_ERROR; \
+            } \
+            if (!IS_NUMBER(number)) \
+            { \
+                runtimeError("Value must be a number"); \
+                return INTERPRET_RUNTIME_ERROR; \
+            } \
+            AS_NUMBER(value) += AS_NUMBER(number); \
+            push(value); \
+        } while (false)
+
     #define READ_STRING() AS_STRING(READ_CONSTANT())
 
     for (;;) 
@@ -1140,6 +1158,14 @@ static InterpretResult run()
             }
             case OP_DEC_UPVALUE: {
                 INC_DEC_OP(*frame->closure->upvalues[slot]->location,-1);
+                break;
+            }
+            case OP_ADD_LOCAL: {
+                ADD_OP(frame->slots[slot]);
+                break;
+            }
+            case OP_ADD_UPVALUE: {
+                ADD_OP(*frame->closure->upvalues[slot]->location);
                 break;
             }
             case OP_NEW_LIST: {
