@@ -721,6 +721,16 @@ static void subscript(bool canAssign)
                 expression();
                 emitByte(OP_SUBSCRIPT_SET);
             }
+            else if (match(TOKEN_PLUS_PLUS))
+            {
+                emitConstant(NUMBER_VAL(1));
+                emitByte(OP_SUBSCRIPT_INC);
+            }
+            else if (match(TOKEN_MINUS_MINUS))
+            {
+                emitConstant(NUMBER_VAL(-1));
+                emitByte(OP_SUBSCRIPT_INC);
+            }
             else
             {
                 emitByte(OP_SUBSCRIPT);

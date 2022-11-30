@@ -968,6 +968,28 @@ static InterpretResult run()
 
                 break;
             }
+            case OP_SUBSCRIPT_INC: {
+                bool hasError = false;
+                Value value;
+                Value incBy = pop();
+                Value index = pop();
+                Value list = peek(0);
+                value = get(list, index, &hasError);
+                if (!IS_NUMBER(value))
+                {
+                    runtimeError("Expect number value.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (hasError)
+                    return INTERPRET_RUNTIME_ERROR;
+                pop();
+                push(value);
+                AS_NUMBER(value) += AS_NUMBER(incBy);
+                if (!set(list, value, index))
+                    return INTERPRET_RUNTIME_ERROR;
+
+                break;
+            }
             case OP_SLICE: {
                 
                 Value end = pop();

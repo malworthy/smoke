@@ -36,6 +36,7 @@ class Foo
     {
         me.x = 10;
         me.y = 10;
+        me.list = [0,0]
     }
 
     inc()
@@ -64,3 +65,26 @@ print "%{f.x} %{f.y}"
 f.dec()
 print "%{f.x} %{f.y}"
 //expect:11 11
+
+f.list[0]++
+print f.list[0]
+//expect:1
+print f.list[1]--
+//expect:0
+print f.list
+//expect:[1, -1]
+
+const list = [0,0]
+
+print list[0]++
+print list[1]--
+//expect:0
+//expect:0
+
+print list[0]++
+print list[1]--
+//expect:1
+//expect:-1
+
+print list
+//expect:[2, -2]
