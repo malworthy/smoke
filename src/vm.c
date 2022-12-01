@@ -759,6 +759,67 @@ static bool incDecProperty(ObjString* propName, double amount)
     return true;
 }
 
+static bool addProperty(ObjString* propName)
+{
+    Value amount = pop();
+    if(!IS_NUMBER(amount))
+    {
+        runtimeError("Value must be a number.");
+        return false;
+    }
+
+
+    if (!IS_INSTANCE(peek(0))) 
+    {
+        runtimeError("Only instances have fields.");
+        return false;
+    }
+
+    ObjInstance* instance = AS_INSTANCE(peek(0));
+    Value val;
+
+    tableGet(&instance->fields, propName, &val);
+    if(!IS_NUMBER(val))
+    {
+        runtimeError("Property must be a number");
+        return false;
+    }
+
+    //Value value = val;
+    AS_NUMBER(val) += AS_NUMBER(amount);
+
+    tableSet(&instance->fields, propName, val);
+    pop();
+    push(val);
+
+    return true;
+}
+
+static bool addSubscript(bool isInc)
+{
+    bool hasError = false;
+    Value value;
+    Value incBy = pop();
+    Value index = pop();
+    Value list = peek(0);
+    value = get(list, index, &hasError);
+    if (!IS_NUMBER(value))
+    {
+        runtimeError("Expect number value.");
+        return false;
+    }
+    if (hasError)
+        return false;
+    pop();
+    if (isInc) push(value);
+    AS_NUMBER(value) += AS_NUMBER(incBy);
+    if (!isInc) push(value);
+    if (!set(list, value, index))
+        return false;
+    
+    return true;
+}
+
 static InterpretResult run() 
 {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
@@ -986,7 +1047,13 @@ static InterpretResult run()
 
                 break;
             }
-            case OP_SUBSCRIPT_INC: {
+            case OP_SUBSCRIPT_ADD:
+                addSubscript(false);
+                break;
+            case OP_SUBSCRIPT_INC: 
+                addSubscript(true);
+                break;
+                /*{
                 bool hasError = false;
                 Value value;
                 Value incBy = pop();
@@ -1007,7 +1074,7 @@ static InterpretResult run()
                     return INTERPRET_RUNTIME_ERROR;
 
                 break;
-            }
+            }*/
             case OP_SLICE: {
                 
                 Value end = pop();
@@ -1257,6 +1324,12 @@ static InterpretResult run()
             {
                 ObjString* propName = READ_STRING();
                 if (!incDecProperty(propName, -1)) return INTERPRET_RUNTIME_ERROR;
+                break;
+            }
+            case OP_ADD_PROPERTY: 
+            {
+                ObjString* propName = READ_STRING();
+                if (!addProperty(propName)) return INTERPRET_RUNTIME_ERROR;
                 break;
             }
             case OP_METHOD:

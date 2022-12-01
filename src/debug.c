@@ -146,7 +146,9 @@ int disassembleInstruction(Chunk* chunk, int offset)
         case OP_ADD_UPVALUE:
             return byteInstruction("OP_ADD_UPVALUE", chunk, offset);
         case OP_SUBSCRIPT_INC:
-            return byteInstruction("OP_ADD_UPVALUE", chunk, offset);
+            return byteInstruction("OP_SUBSCRIPT_INC", chunk, offset);
+        case OP_SUBSCRIPT_ADD:
+            return byteInstruction("OP_SUBSCRIPT_ADD", chunk, offset);
         case OP_DEC_UPVALUE:
             return byteInstruction("OP_DEC_UPVALUE", chunk, offset);
         case OP_GET_UPVALUE:
@@ -173,6 +175,8 @@ int disassembleInstruction(Chunk* chunk, int offset)
             return constantInstruction("OP_SET_PROPERTY", chunk, offset);
         case OP_INC_PROPERTY:
             return constantInstruction("OP_INC_PROPERTY", chunk, offset);
+        case OP_ADD_PROPERTY:
+            return constantInstruction("OP_ADD_PROPERTY", chunk, offset);
         case OP_DEC_PROPERTY:
             return constantInstruction("OP_DEC_PROPERTY", chunk, offset);
         case OP_METHOD:
