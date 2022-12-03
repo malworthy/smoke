@@ -5,4 +5,4 @@ fn test()
 }
 
 test()
-//expect:ERROR!
+//expect:ERROR!65

@@ -759,43 +759,127 @@ static bool incDecProperty(ObjString* propName, double amount)
     return true;
 }
 
+static Value addValues(Value val1, Value val2)
+{
+    if (IS_STRING(val1) && IS_STRING(val2)) 
+    {
+        ObjString* a = AS_STRING(val1);
+        ObjString* b = AS_STRING(val2);
+        int length = a->length + b->length;
+        char* chars = ALLOCATE(char, length + 1);
+        memcpy(chars, a->chars, a->length);
+        memcpy(chars + a->length, b->chars, b->length);
+        chars[length] = '\0';
+
+        return OBJ_VAL(takeString(chars, length));
+    } 
+    else if (IS_LIST(val1) && IS_LIST(val2)) 
+    {
+        //printf("attempting to add list\n");
+        ObjList* a = AS_LIST(val1);
+        ObjList* b = AS_LIST(val2);
+        ObjList* result = newList();
+
+        //printf("next line is val2\n--------\n");
+        //printValue(val2);
+        //printf("------\n");
+
+        push(OBJ_VAL(result));
+        //printf("added list to stack\n");
+
+        int length = a->elements.count + b->elements.count;
+        //printf("length a:%d length b:%d", a->elements.count, b->elements.count );
+        //printf("length: %d", length);
+        Value* values = ALLOCATE(Value, length);
+        result->elements.capacity = length;
+        result->elements.count = length;
+
+        //printf("got to here\n");
+
+        memcpy(values, a->elements.values, a->elements.count * sizeof(Value));
+        memcpy(values + a->elements.count, b->elements.values, b->elements.count * sizeof(Value));
+        result->elements.values = values;
+
+        pop();
+
+        //printf("i got to the end\n");
+
+        return OBJ_VAL(result);
+    }              
+    else if (IS_NUMBER(val1) && IS_NUMBER(val2)) 
+    {
+        double n1 = AS_NUMBER(val1);
+        double n2 = AS_NUMBER(val2);
+        //printf("number1 %f, number2 %f\n", n1, n2);
+        return NUMBER_VAL(n1 + n2);
+    } 
+    else 
+    {
+        runtimeError("Operands must be of the same type.");
+        return NIL_VAL;
+    }
+}
+
 static bool addProperty(ObjString* propName)
 {
-    Value amount = pop();
-    if(!IS_NUMBER(amount))
-    {
-        runtimeError("Value must be a number.");
-        return false;
-    }
+    Value amount = peek(0);
 
-
-    if (!IS_INSTANCE(peek(0))) 
+    if (!IS_INSTANCE(peek(1))) 
     {
         runtimeError("Only instances have fields.");
         return false;
     }
 
-    ObjInstance* instance = AS_INSTANCE(peek(0));
+    ObjInstance* instance = AS_INSTANCE(peek(1));
     Value val;
 
     tableGet(&instance->fields, propName, &val);
-    if(!IS_NUMBER(val))
-    {
-        runtimeError("Property must be a number");
+
+    Value newValue = addValues(val, amount);
+    if (IS_NIL(newValue))
         return false;
-    }
-
-    //Value value = val;
-    AS_NUMBER(val) += AS_NUMBER(amount);
-
-    tableSet(&instance->fields, propName, val);
     pop();
-    push(val);
+
+    tableSet(&instance->fields, propName, newValue);
+    pop();
+    push(newValue);
 
     return true;
 }
 
-static bool addSubscript(bool isInc)
+static bool addSubscript()
+{
+    bool hasError = false;
+    Value value;
+    Value incBy = peek(0);
+    Value index = peek(1);
+    Value list = peek(2);
+    value = get(list, index, &hasError);
+    /*if (!IS_NUMBER(value))
+    {
+        runtimeError("Expect number value.");
+        return false;
+    }*/
+    if (hasError)
+        return false;
+    
+    //AS_NUMBER(value) += AS_NUMBER(incBy);
+    value = addValues(value, incBy);
+    if (IS_NIL(value))
+        return false;
+
+    pop();
+    pop();
+    pop();
+
+    push(value);
+    if (!set(list, value, index))
+        return false;
+    
+    return true;
+}
+
+static bool incSubscript()
 {
     bool hasError = false;
     Value value;
@@ -811,9 +895,8 @@ static bool addSubscript(bool isInc)
     if (hasError)
         return false;
     pop();
-    if (isInc) push(value);
+    push(value);
     AS_NUMBER(value) += AS_NUMBER(incBy);
-    if (!isInc) push(value);
     if (!set(list, value, index))
         return false;
     
@@ -895,7 +978,7 @@ static InterpretResult run()
             AS_NUMBER(val) += (double)number; \
             value = val; \
         } while (false)
-
+/*
     #define ADD_OP(value) \
         do { \
             Value number = pop(); \
@@ -911,6 +994,17 @@ static InterpretResult run()
                 return INTERPRET_RUNTIME_ERROR; \
             } \
             AS_NUMBER(value) += AS_NUMBER(number); \
+            push(value); \
+        } while (false)
+*/
+    
+    #define ADD_OP(value) \
+        do { \
+            Value number = peek(0); \
+            uint8_t slot = READ_BYTE(); \
+            value = addValues(value, number); \
+            if(IS_NIL(value)) return INTERPRET_RUNTIME_ERROR; \
+            pop(); \
             push(value); \
         } while (false)
 
@@ -1048,10 +1142,10 @@ static InterpretResult run()
                 break;
             }
             case OP_SUBSCRIPT_ADD:
-                addSubscript(false);
+                addSubscript();
                 break;
             case OP_SUBSCRIPT_INC: 
-                addSubscript(true);
+                incSubscript();
                 break;
                 /*{
                 bool hasError = false;

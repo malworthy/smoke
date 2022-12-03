@@ -1,0 +1,50 @@
+class Foo
+{
+    init()
+    {
+        me.x = ""
+        me.list = [""]
+        me.x += "ten"
+        me.list[0] += "five"
+    }
+}
+
+fn test()
+{
+    var x = "one"
+    var l = ["","","die"]
+    var f = Foo()
+
+    f.list[0] += "three"
+    print f.list[0]
+//expect:fivethree
+
+    print x+="five"
+//expect:onefive
+
+    print x
+//expect:onefive
+
+    l[0]+="hello"
+    l[1]+="world"
+    print l 
+//expect:[hello, world, die]
+
+    print f.x
+//expect:ten
+
+    f.x += "x"
+    print f.x
+//expect:tenx
+}
+
+test()
+
+fn upvalue() { var x = ""; return fn(y) => x+=y } 
+
+const crashme = upvalue()
+print crashme("good")
+//expect:good
+
+print crashme("bye")
+//expect:goodbye

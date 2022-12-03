@@ -199,7 +199,7 @@ static int runFile(const char* path)
     {
         //printf("Running file %d of %d: %s\n", i+1, fileContentsCount, fileContentsName[i]);
         InterpretResult result = interpret(fileContents[i], fileContentsName[i]);
-    
+
         if (result == INTERPRET_COMPILE_ERROR) return 65;
         if (result == INTERPRET_RUNTIME_ERROR) return 70;
     }

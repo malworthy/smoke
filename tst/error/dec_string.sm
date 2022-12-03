@@ -1,3 +1,5 @@
-const s = "hello"
+{
+var s = "hello"
 s--
-//expect:ERROR!
+//expect:ERROR!70
+}

@@ -12,8 +12,13 @@ def test_file(interpreter, script_to_test, expect, err):
         return 1
 
     result = subprocess.run([interpreter, script_to_test], capture_output=True)
-    if result.returncode > 0 and expected[0] == "ERROR!":
-        return 0
+    if result.returncode > 0 and expected[0].startswith("ERROR!"):
+        expected_returncode = int(expected[0][6:])
+        if expected_returncode == result.returncode:
+            return 0
+        else:
+            print(f"Return code: {result.returncode}, expected: {expected_returncode}")
+            return 1
 
     actual = ""
     if err:

@@ -42,6 +42,8 @@ add_test(NAME module COMMAND python ../test_runner.py "smoke.exe" "../tst/module
 add_test(NAME nil COMMAND python ../test_runner.py "smoke.exe" "../tst/nil.sm" "//expect:")
 add_test(NAME sort COMMAND python ../test_runner.py "smoke.exe" "../tst/sort.sm" "//expect:")
 add_test(NAME pluesequals COMMAND python ../test_runner.py "smoke.exe" "../tst/plusequals.sm" "//expect:")
+add_test(NAME pluesequalsstr COMMAND python ../test_runner.py "smoke.exe" "../tst/plusequalsstr.sm" "//expect:")
+add_test(NAME pluesequalslist COMMAND python ../test_runner.py "smoke.exe" "../tst/plusequalslist.sm" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/inc_string.sm" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/dec_string.sm" "//expect:")
@@ -49,6 +51,7 @@ add_test(NAME const_global COMMAND python ../test_runner.py "smoke.exe" "../tst/
 add_test(NAME const_local COMMAND python ../test_runner.py "smoke.exe" "../tst/error/const_local.sm" "//expect:")
 add_test(NAME var_global COMMAND python ../test_runner.py "smoke.exe" "../tst/error/var_global.sm" "//expect:")
 add_test(NAME shovel_not_a_list COMMAND python ../test_runner.py "smoke.exe" "../tst/error/shovel_not_a_list.sm" "//expect:")
+add_test(NAME plus_equal_invalid_types COMMAND python ../test_runner.py "smoke.exe" "../tst/error/plus_equal_invalid_types.sm" "//expect:")
 
 
 add_executable(smoke src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c src/native/mathmod.c src/quicksort.c)

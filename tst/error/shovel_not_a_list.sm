@@ -1,2 +1,2 @@
 "not a list" << "x"
-//expect:ERROR!
+//expect:ERROR!70

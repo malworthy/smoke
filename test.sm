@@ -1,9 +1,0 @@
-while true
-{
-  var k = con.getch();
-  if k > 0
-  {
-    print "key: %{Keys.name(k)}"
-  }
-  sleep(10)
-}
