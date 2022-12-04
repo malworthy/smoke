@@ -36,6 +36,30 @@ var date = date.date("2022-02-01")
 var something = nil
 ```
 
+## Operators
+
+|Operator|Description|
+|--------|-----------|
+()|Grouping
+[]|Subscript
+!|Not
+*|Multiply
+/|Divide
+%|Modulo
++|Addition
+-|Subtraction/Negate
+==|Equals
+!=|Not Equals
+\>|Greater than
+\>=|Greater than or equals
+<|Less than
+<=|Less than or equals
+and|Logical and
+or|Logical or
+++|Increment by 1
+--|Decrement by 1
++=|Addition assignment
+
 ## Variables
 
 - Variables can be declared by using either var or const
