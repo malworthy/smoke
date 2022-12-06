@@ -77,6 +77,7 @@ typedef struct ObjUpvalue {
 typedef struct {
     Obj obj;
     int arity;
+    int optionals;
     int upvalueCount;
     Chunk chunk;
     ObjString* name;

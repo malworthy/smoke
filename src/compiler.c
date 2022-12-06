@@ -1057,6 +1057,17 @@ static void function(FunctionType type)
                 errorAtCurrent("Can't have more than 255 parameters.");
             
             uint16_t constant = parseVariable("Expect parameter name.", false);
+            
+            if (match(TOKEN_EQUAL)) 
+            {
+                current->function->optionals++;
+                expression(); 
+            }
+            else if (current->function->optionals > 0)
+            {
+                error("Optional parameter expected");
+            }
+
             defineVariable(constant);
         } while (match(TOKEN_COMMA));
     }

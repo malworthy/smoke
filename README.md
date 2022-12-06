@@ -155,6 +155,10 @@ const addNumbers = fn(a,b) => a + b
 
 // calling a function
 print addNumbers(1,1); // prints 2
+
+// optional parameters
+fn test(a,b,c=10) => a+b+c
+print test(1,2) // prints 13
 ```
 
 

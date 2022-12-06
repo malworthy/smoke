@@ -319,10 +319,18 @@ static Value peek(int distance)
 
 static bool call(ObjClosure* closure, int argCount) 
 {
-    if (argCount != closure->function->arity) 
+    
+    if (argCount > closure->function->arity) 
     {
         runtimeError("Expected %d arguments but got %d.",
             closure->function->arity, argCount);
+        return false;
+    }
+
+    if (argCount < (closure->function->arity - closure->function->optionals)) 
+    {
+        runtimeError("Expected at least %d arguments but got %d.",
+            (closure->function->arity - closure->function->optionals), argCount);
         return false;
     }
 

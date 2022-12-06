@@ -1,0 +1,26 @@
+fn test1(a,b=2)=>a+b
+fn test2(a=1,b="cat",c=false)
+{
+    return "%{a}%{b}%{c}"
+}
+fn candobutdont(a=test1(2))
+{
+    print a
+}
+
+print test1(5,5)
+//expect:10
+print test1(2)
+//expect:4
+print test2()
+//expect:1catfalse
+print test2("ha","ba","fa")
+//expect:habafa
+
+const a = fn(a="",b=1+1) => "%{a}%{b}"
+print a()
+//expect:2
+print a(6,4)
+//expect:64
+candobutdont()
+//expect:4
