@@ -92,9 +92,11 @@ static char* readFile(const char* path)
 // TODO: Need to add all the error handling!
 static bool preProcessFile(const char* filename, const char* rootFilename)
 {    
-    char adjustedFilename[256];
+    //printf("filename:%s rootFilename:%s\n", filename, rootFilename);
+    char adjustedFilename[256] = {0};
     if (strcmp(filename, rootFilename) != 0)
     {
+        bool hasPath = false;
         for(int i=strlen(rootFilename)-1; i>0; i--)
         {
             if (rootFilename[i] == '/' || rootFilename[i] == '\\')
@@ -102,9 +104,12 @@ static bool preProcessFile(const char* filename, const char* rootFilename)
                 memcpy(adjustedFilename, rootFilename, i+1);
                 memcpy(adjustedFilename + i+1, filename, strlen(filename)+1);
                 adjustedFilename[i+strlen(filename)+1] = '\0';
+                hasPath = true;
                 break;
             }
         }
+        if (!hasPath)
+            memcpy(adjustedFilename, filename, strlen(filename)+1);
     }
     else
     {
@@ -244,7 +249,7 @@ int main (int argc, const char* argv[])
     } 
     else 
     {
-        fprintf(stderr, "Usage: mal [path]\n");
+        fprintf(stderr, "Usage: smoke [path]\n");
         exit(64);
     }
 
