@@ -402,6 +402,12 @@ static void dot(bool canAssign)
         expression();
         emitBytes16(OP_ADD_PROPERTY, name);
     }
+    else if (canAssign && match(TOKEN_MINUS_EQUAL))
+    {
+        expression();
+        emitByte(OP_NEGATE);
+        emitBytes16(OP_ADD_PROPERTY, name);
+    }
     else if (match(TOKEN_LEFT_PAREN)) 
     {
         uint8_t argCount = argumentList();
@@ -641,6 +647,12 @@ static void namedVariable(Token name, bool canAssign)
         expression();
         emitBytes(addOp, (uint8_t)arg);
     } 
+    else if (canAssign && match(TOKEN_MINUS_EQUAL))
+    {
+        expression();
+        emitByte(OP_NEGATE);
+        emitBytes(addOp, (uint8_t)arg);
+    } 
     else 
     {
         if (getOp == OP_GET_GLOBAL)
@@ -746,6 +758,12 @@ static void subscript(bool canAssign)
             else if (match(TOKEN_PLUS_EQUAL))
             {
                 expression();
+                emitByte(OP_SUBSCRIPT_ADD);
+            }
+            else if (match(TOKEN_MINUS_EQUAL))
+            {
+                expression();
+                emitByte(OP_NEGATE);
                 emitByte(OP_SUBSCRIPT_ADD);
             }
             else

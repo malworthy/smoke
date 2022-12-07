@@ -328,7 +328,7 @@ Token scanToken()
             
         case '%': return makeToken(TOKEN_PERCENT);
         case '-': 
-            return makeToken(match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
+            return makeToken(match('-') ? TOKEN_MINUS_MINUS : (match('=') ? TOKEN_MINUS_EQUAL: TOKEN_MINUS));
         case '+': 
             return makeToken(match('+') ? TOKEN_PLUS_PLUS : (match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS));
         case '!':

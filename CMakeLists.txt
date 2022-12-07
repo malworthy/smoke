@@ -45,6 +45,7 @@ add_test(NAME pluesequals COMMAND python ../test_runner.py "smoke.exe" "../tst/p
 add_test(NAME pluesequalsstr COMMAND python ../test_runner.py "smoke.exe" "../tst/plusequalsstr.sm" "//expect:")
 add_test(NAME pluesequalslist COMMAND python ../test_runner.py "smoke.exe" "../tst/plusequalslist.sm" "//expect:")
 add_test(NAME optionalparams COMMAND python ../test_runner.py "smoke.exe" "../tst/optionalparams.sm" "//expect:")
+add_test(NAME minusequals COMMAND python ../test_runner.py "smoke.exe" "../tst/minusequals.sm" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/inc_string.sm" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/dec_string.sm" "//expect:")
