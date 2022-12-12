@@ -90,6 +90,20 @@ ObjList* newList()
     return list;
 }
 
+ObjTable* newTable()
+{
+    Table elements;
+    initTable(&elements);
+    ObjTable* table = ALLOCATE_OBJ(ObjTable, OBJ_TABLE);
+    table->elements = elements;
+
+    ValueArray keys;
+    initValueArray(&keys);
+    table->keys = keys;
+    
+    return table;
+}
+
 static ObjClass* createClass(ObjString* name, bool module) 
 {
     ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
@@ -274,6 +288,11 @@ static int stringifyList(ObjList* list, char* str)
     return (str - begin);
 }
 
+static int stringifyTable(ObjTable* table, char* str)
+{
+    return sprintf(str, "%s", "table");
+}
+
 int stringifyObject(Value value, char* str)
 {
     switch (OBJ_TYPE(value))
@@ -290,6 +309,8 @@ int stringifyObject(Value value, char* str)
             return sprintf(str, "%s", "upvalue");
         case OBJ_LIST:
             return stringifyList(AS_LIST(value), str);
+        case OBJ_TABLE:
+            return stringifyTable(AS_TABLE(value), str);
         case OBJ_CLASS:
             return sprintf(str, "%s", AS_CLASS(value)->name->chars);
         case OBJ_ENUM:
@@ -317,6 +338,11 @@ static int stringifyListLength(ObjList* list)
     return total;
 }
 
+static int stringifyTableLength(ObjTable* table)
+{
+    return 6; //table
+}
+
 int stringifyObjectLength(Value value)
 {
     switch (OBJ_TYPE(value))
@@ -333,6 +359,8 @@ int stringifyObjectLength(Value value)
             return 7;
         case OBJ_LIST:
             return stringifyListLength(AS_LIST(value));
+        case OBJ_TABLE:
+            return stringifyTableLength(AS_TABLE(value));
         case OBJ_CLASS:
             return AS_CLASS(value)->name->length;
         case OBJ_ENUM:

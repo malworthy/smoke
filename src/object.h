@@ -21,6 +21,9 @@
 #define IS_LIST(value)          isObjType(value, OBJ_LIST)
 #define AS_LIST(value)          ((ObjList*)AS_OBJ(value))
 
+#define IS_TABLE(value)          isObjType(value, OBJ_TABLE)
+#define AS_TABLE(value)          ((ObjTable*)AS_OBJ(value))
+
 #define IS_CLASS(value)         isObjType(value, OBJ_CLASS)
 #define AS_CLASS(value)         ((ObjClass*)AS_OBJ(value))
 
@@ -43,7 +46,8 @@ typedef enum {
     OBJ_CLASS,
     OBJ_INSTANCE,
     OBJ_BOUND_METHOD,
-    OBJ_ENUM
+    OBJ_ENUM,
+    OBJ_TABLE
 } ObjType;
 
 struct Obj {
@@ -66,6 +70,13 @@ typedef struct
   // The elements in the list.
   ValueArray elements;
 } ObjList;
+
+typedef struct
+{
+  Obj obj;
+  Table elements;
+  ValueArray keys;
+} ObjTable;
 
 typedef struct ObjUpvalue {
     Obj obj;
@@ -136,6 +147,7 @@ ObjString* copyString(const char* chars, int length);
 ObjString* copyStringRaw(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
 ObjList* newList();
+ObjTable* newTable();
 ObjEnum* newEnum(ObjString* name);
 ObjClass* newMod(ObjString* name);
 

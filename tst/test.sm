@@ -1,6 +1,18 @@
-while true
-[
-    const ch = getch()
-    if ch != "" then print ch
-    sleep(100)
-]
+class foo
+{
+
+    method()
+    {
+        while true
+        {
+            const ch = getch()
+            if ch != "" then print ch
+            sleep(100)
+        }
+    }
+
+    method2()
+    {
+        var x =1
+    }
+}

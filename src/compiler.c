@@ -694,6 +694,28 @@ static void unary(bool canAssign)
     }
 }
 
+static void hashTable(bool canAssign)
+{
+    emitByte(OP_NEW_TABLE);
+    do
+    {
+        // Stop if we hit the end of the list.
+        if (check(TOKEN_RIGHT_BRACE)) 
+        {
+            consume(TOKEN_RIGHT_BRACE,"");
+            return;
+        }
+
+        // parameter 2 - value adding to the list
+        expression();
+        consume(TOKEN_COLON, "Missing ':'");
+        expression();
+        emitByte(OP_TABLE_ADD);
+    } while (match(TOKEN_COMMA));
+    
+    consume(TOKEN_RIGHT_BRACE,"Expect '}'");
+}
+
 static void list(bool canAssign)
 {
     emitByte(OP_NEW_LIST);
@@ -916,7 +938,7 @@ ParseRule rules[] =
     [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,        PREC_NONE},
     [TOKEN_LEFT_BRACKET]  = {list,     subscript,   PREC_CALL},
     [TOKEN_RIGHT_BRACKET] = {NULL,     NULL,        PREC_NONE},
-    [TOKEN_LEFT_BRACE]    = {NULL,     NULL,        PREC_NONE}, 
+    [TOKEN_LEFT_BRACE]    = {hashTable,NULL,        PREC_NONE}, 
     [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,        PREC_NONE},
     [TOKEN_COMMA]         = {NULL,     NULL,        PREC_NONE},
     [TOKEN_DOT]           = {NULL,     dot,         PREC_CALL},
