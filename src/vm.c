@@ -655,7 +655,7 @@ static bool setList(Value listVal, Value item, Value index)
     return true;
 }
 
-static bool setTable(Value listVal, Value item, Value index)
+static bool setTable(Value tableVal, Value item, Value index)
 {
     if (!IS_STRING(index))
     {
@@ -663,7 +663,7 @@ static bool setTable(Value listVal, Value item, Value index)
         return false;
     }
 
-    if (IS_TABLE(item) && AS_TABLE(item) == AS_TABLE(listVal))
+    if (IS_TABLE(item) && AS_TABLE(item) == AS_TABLE(tableVal))
     {
         runtimeError("You can't do that");
         return false;
@@ -671,8 +671,10 @@ static bool setTable(Value listVal, Value item, Value index)
 
     ObjString* key = AS_STRING(index);
 
-    ObjTable* table = AS_TABLE(listVal);    
-    tableSet(&table->elements, key, item);
+    ObjTable* table = AS_TABLE(tableVal);   
+
+    if (tableSet(&table->elements, key, item))
+        writeValueArray(&table->keys, index); // only add to list of keys if it's a new entry
 
     return true;
 }
@@ -1301,25 +1303,11 @@ static InterpretResult run()
                 break;
             }
             case OP_TABLE_ADD: {
-                Value val = peek(0);
-                if (!IS_STRING(peek(1)))
-                {
-                    runtimeError("A Hash Table Key must be a string");
+                if (!setTable(peek(2), peek(0), peek(1)))
                     return INTERPRET_RUNTIME_ERROR;
-                }
-                ObjString* key = AS_STRING(peek(1));
-                if (!IS_TABLE(peek(2)))
-                {
-                    runtimeError("Expect hash table");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                ObjTable* tbl = AS_TABLE(peek(2));
-                tableSet(&tbl->elements, key, val);
-                writeValueArray(&tbl->keys, peek(1));
-                
-                pop();
-                pop();
 
+                pop();
+                pop();
                 break;
             }
             case OP_POP_LIST: {

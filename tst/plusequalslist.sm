@@ -37,7 +37,7 @@ fn upvalue() { var x = []; return fn(y) => x+=y }
 
 const crashme = upvalue()
 print crashme(["good"])
-//expect:[good]
+//expect:["good"]
 
 print crashme(["bye"])
-//expect:[good, bye]
+//expect:["good", "bye"]

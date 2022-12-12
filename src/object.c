@@ -280,7 +280,10 @@ static int stringifyList(ObjList* list, char* str)
             sprintf(str, "%s", ", ");
             str +=2 ;
         }
+        bool quote = IS_STRING(list->elements.values[i]) || IS_DATETIME(list->elements.values[i]);
+        if (quote) str += sprintf(str, "%s", "\"");
         str += stringifyValue(list->elements.values[i], str);
+        if (quote) str += sprintf(str, "%s", "\"");
     }
     sprintf(str, "%s", "]");
     str++;
@@ -290,7 +293,34 @@ static int stringifyList(ObjList* list, char* str)
 
 static int stringifyTable(ObjTable* table, char* str)
 {
-    return sprintf(str, "%s", "table");
+    char* begin = str;
+    str += sprintf(str, "%s", "{");
+    //str++;
+    for(int i = 0; i < table->keys.count; i++)
+    {
+        if(i > 0)
+        {
+            str += sprintf(str, "%s", ", ");
+            //str +=2 ;
+        }
+        str += sprintf(str, "%s", "\"");
+        str += stringifyValue(table->keys.values[i], str);
+        str += sprintf(str, "%s", "\" : ");
+
+        Value val;
+       
+        tableGet(&table->elements, AS_STRING(table->keys.values[i]), &val);
+        bool quote = IS_STRING(val) || IS_DATETIME(val);
+        
+        if (quote) str += sprintf(str, "%s", "\"");
+        str += stringifyValue(val, str);
+        if (quote) str += sprintf(str, "%s", "\"");
+    }
+    str += sprintf(str, "%s", "}");
+    //str++;
+
+    return (str - begin);
+    //return sprintf(str, "%s", "table");
 }
 
 int stringifyObject(Value value, char* str)
@@ -332,6 +362,9 @@ static int stringifyListLength(ObjList* list)
         {
             total +=2; // ', '
         }
+        bool quote = IS_STRING(list->elements.values[i]) || IS_DATETIME(list->elements.values[i]);
+        
+        if (quote) total += 2; // "
         total += stringifyValueLength(list->elements.values[i]);
     }
 
@@ -340,7 +373,29 @@ static int stringifyListLength(ObjList* list)
 
 static int stringifyTableLength(ObjTable* table)
 {
-    return 6; //table
+    int total = 2; // count '{' at start and '}' at end
+    for(int i = 0; i < table->keys.count; i++)
+    {
+        if(i > 0)
+        {
+            total += 2; // ,(space)
+        }
+        total += 1; // "
+        total += stringifyValueLength(table->keys.values[i]);
+        total += 4; // " : (note trailing space)
+
+        Value val;
+       
+        tableGet(&table->elements, AS_STRING(table->keys.values[i]), &val);
+        bool quote = IS_STRING(val) || IS_DATETIME(val);
+        
+        if (quote) total++; // "
+        total += stringifyValueLength(val);
+        if (quote) total++; // "
+    }
+    
+    return total;
+    //return sprintf(str, "%s", "table");
 }
 
 int stringifyObjectLength(Value value)

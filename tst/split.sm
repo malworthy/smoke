@@ -1,31 +1,31 @@
 print string.split("1,2,3",",");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]
 
 print string.split("1,2,,3,,",",");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]
 
 print string.split(",,1,2,3",",");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]
 
 print string.split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",",");
-//expect:[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]
+//expect:["dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"]
 
 print string.split("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd,xxxx",",");
-//expect:[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd, xxxx]
+//expect:["dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "xxxx"]
 
 print string.split("one**two**three**four","**");
-//expect:[one, two, three, four]
+//expect:["one", "two", "three", "four"]
 
 
 print string.splitlines("1\n2\n3");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]
 
 print string.splitlines("1\n2\n\n3\n\n");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]
 
 print string.splitlines("\n\n1\n2\n3");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]
 
 
 print string.splitlines("1\r\n2\r\n3");
-//expect:[1, 2, 3]
+//expect:["1", "2", "3"]

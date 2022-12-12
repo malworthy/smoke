@@ -1,13 +1,13 @@
 const x = [1,2,3]
 x[0] = "hello"
 print x
-//expect:[hello, 2, 3]
+//expect:["hello", 2, 3]
 x[1]=x[2]
 print x
-//expect:[hello, 3, 3]
+//expect:["hello", 3, 3]
 x[1+1]=2+2
 print x
-//expect:[hello, 3, 4]
+//expect:["hello", 3, 4]
 
 const bigList = [1..1000]
 
