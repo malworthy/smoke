@@ -136,6 +136,27 @@ print [1..5]; // prints [1, 2, 3, 4, 5]
 list[5] = "I've been updated!"
 
 ```
+
+## Hash Tables
+
+Hash tables are a set of key/pair values.  The key must be a string, while the value can be any valid expression, including functions, classes, lists or another hash table.
+Converting a hash table to a string (via print or string interpolation) will produce valid JSON. 
+
+```
+// Create an empty hash table
+const t = {}
+
+// Create a hash table with values
+const t = {"a" : 1, "b" : 2}
+
+// Set a value
+t["c"] = "test"
+
+// Get a value
+print t["a"]
+```
+
+
 ## Functions
 Functions are first class citizens.  They can be assigned to variables and passed in as parameters to functions.
 

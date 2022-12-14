@@ -41,6 +41,8 @@ typedef enum {
     OP_CLOSE_UPVALUE,
     OP_NEW_LIST,
     OP_LIST_ADD,
+    OP_NEW_TABLE,
+    OP_TABLE_ADD,
     OP_FORMAT,
     OP_RANGE,
     OP_JOIN,

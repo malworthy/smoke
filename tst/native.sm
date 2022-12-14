@@ -45,8 +45,8 @@ print string.splitlines("a\nb\nc") // split a string on newline.  a returns list
 print string.char(65)
 //expect:65
 //expect:STRING
-//expect:[a, b, c]
-//expect:[a, b, c]
+//expect:["a", "b", "c"]
+//expect:["a", "b", "c"]
 //expect:A
 
 print string.trim(" aa  ") + "*"
@@ -63,9 +63,6 @@ print string.trim("abc")
 
 print string.trim("a  bb  c")
 //expect:a  bb  c
-
-
-
 
 print math.sin(1)
 //expect:0.841471

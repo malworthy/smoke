@@ -621,7 +621,7 @@ static void concatenateList()
     push(OBJ_VAL(result));
 }
 
-bool set(Value listVal, Value item, Value index)
+static bool setList(Value listVal, Value item, Value index)
 {
     if (!IS_LIST(listVal))
     {
@@ -655,18 +655,48 @@ bool set(Value listVal, Value item, Value index)
     return true;
 }
 
+static bool setTable(Value tableVal, Value item, Value index)
+{
+    if (!IS_STRING(index))
+    {
+        runtimeError("Index must be a string");
+        return false;
+    }
+
+    if (IS_TABLE(item) && AS_TABLE(item) == AS_TABLE(tableVal))
+    {
+        runtimeError("You can't do that");
+        return false;
+    }
+
+    ObjString* key = AS_STRING(index);
+
+    ObjTable* table = AS_TABLE(tableVal);   
+
+    if (tableSet(&table->elements, key, item))
+        writeValueArray(&table->keys, index); // only add to list of keys if it's a new entry
+
+    return true;
+}
+
 Value get(Value item, Value index, bool* hasError)
 {
-    if (!(IS_LIST(item) || IS_STRING(item)))
+    if (!(IS_LIST(item) || IS_STRING(item) || IS_TABLE(item)))
     {
         runtimeError("Subscript invalid for type");
         *hasError = true;
         return NIL_VAL;
     }
-    int i = (int)AS_NUMBER(index);
-
+    
     if (IS_LIST(item))
     {
+        if (!IS_NUMBER(index))
+        {
+            runtimeError("Index of a list must be a number");
+            *hasError = true;
+            return NIL_VAL;
+        }
+        int i = (int)AS_NUMBER(index);
         ObjList* list = AS_LIST(item);   
         if (i < 0 ) i = list->elements.count + i;
         if (i >= list->elements.count  || i < 0)
@@ -677,8 +707,36 @@ Value get(Value item, Value index, bool* hasError)
         }
         return list->elements.values[i];
     }
+    else if (IS_TABLE(item))
+    {
+        Value result;
+        ObjTable* table = AS_TABLE(item);
+        if (!IS_STRING(index))
+        {
+            runtimeError("Index of a table must be a string");
+            *hasError = true;
+            return NIL_VAL;
+        }
+        ObjString* key = AS_STRING(index);
+        bool keyFound = tableGet(&table->elements, key, &result);
+        if (!keyFound)
+        {
+            runtimeError("Key '%s' not found in table", AS_CSTRING(index));
+            *hasError = true;
+            return NIL_VAL;
+        }
+
+        return result;
+    }
     else
     {
+        if (!IS_NUMBER(index))
+        {
+            runtimeError("Index of a string must be a number");
+            *hasError = true;
+            return NIL_VAL;
+        }
+        int i = (int)AS_NUMBER(index);
         ObjString* string = AS_STRING(item);    
         if (i < 0 ) i = string->length + i;
         if (i >= string->length || i < 0)
@@ -881,9 +939,21 @@ static bool addSubscript()
     pop();
 
     push(value);
-    if (!set(list, value, index))
+    if(IS_LIST(list))
+    {
+        if (!setList(list, value, index))
+            return false;
+    }
+    else if (IS_TABLE(list))
+    {
+        if (!setTable(list, value, index))
+            return false;
+    }
+    else 
+    {
+        runtimeError("Invalid subscript type");
         return false;
-    
+    }
     return true;
 }
 
@@ -905,8 +975,24 @@ static bool incSubscript()
     pop();
     push(value);
     AS_NUMBER(value) += AS_NUMBER(incBy);
-    if (!set(list, value, index))
+    //if (!set(list, value, index))
+    //    return false;
+
+    if(IS_LIST(list))
+    {
+        if (!setList(list, value, index))
+            return false;
+    }
+    else if (IS_TABLE(list))
+    {
+        if (!setTable(list, value, index))
+            return false;
+    }
+    else 
+    {
+        runtimeError("Invalid subscript type");
         return false;
+    }
     
     return true;
 }
@@ -1142,9 +1228,22 @@ static InterpretResult run()
                 
                 Value value = pop();
                 Value index = pop();
-                Value list = peek(0);
-                if (!set(list, value, index))
+                Value target = peek(0);
+                if (IS_LIST(target))
+                {
+                    if (!setList(target, value, index))
+                        return INTERPRET_RUNTIME_ERROR;
+                }
+                else if (IS_TABLE(target))
+                {
+                    if (!setTable(target, value, index))
+                        return INTERPRET_RUNTIME_ERROR;
+                }
+                else
+                {
+                    runtimeError("Invalid subscript target");
                     return INTERPRET_RUNTIME_ERROR;
+                }
                 //pop();
 
                 break;
@@ -1201,6 +1300,14 @@ static InterpretResult run()
                 writeValueArray(&list->elements, val);
                 pop();
 
+                break;
+            }
+            case OP_TABLE_ADD: {
+                if (!setTable(peek(2), peek(0), peek(1)))
+                    return INTERPRET_RUNTIME_ERROR;
+
+                pop();
+                pop();
                 break;
             }
             case OP_POP_LIST: {
@@ -1339,6 +1446,10 @@ static InterpretResult run()
             }
             case OP_NEW_LIST: {
                 push(OBJ_VAL(newList()));
+                break;
+            }
+            case OP_NEW_TABLE: {
+                push(OBJ_VAL(newTable()));
                 break;
             }
             case OP_ENUM:

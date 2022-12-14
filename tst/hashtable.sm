@@ -1,0 +1,51 @@
+const ht = 
+{
+    "one" : 1,
+    "two" : true,
+    "three" : "third",
+    "four" : [1,2,3],
+    "five" : { "a" : 1, "b" : 2}
+}
+print ht["one"]
+print ht["two"]
+print ht["three"]
+print ht["four"]
+print ht["five"]["a"]
+print ht["five"]["b"]
+//expect:1
+//expect:true
+//expect:third
+//expect:[1, 2, 3]
+//expect:1
+//expect:2
+
+ht["one"] = "different"
+print ht["one"]
+//expect:different
+ht["new"] = "something new"
+print ht["new"]
+//expect:something new
+
+const list = [{"one" : "it works!"}, {"one" : "another"}]
+print list[0]["one"]
+//expect:it works!
+print list[1]["one"]
+//expect:another
+
+const newht = {}
+newht["a"] = 1234
+print newht["a"]
+//expect:1234
+
+const withfn = 
+{
+    "a" : 1234,
+    "b" : fn(a) => a* 10
+}
+
+print withfn["b"](20)
+//expect:200
+
+withfn["a"]++
+print withfn["a"]
+//expect:1235

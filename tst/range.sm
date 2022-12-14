@@ -11,7 +11,7 @@ print [3..1];
 //expect:[3, 2, 1]
 
 print [1..2,"hello"];
-//expect:[1, 2, hello]
+//expect:[1, 2, "hello"]
 
 print [1..2, 10..11];
 //expect:[1, 2, 10, 11]

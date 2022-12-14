@@ -28,7 +28,7 @@ fn test()
     l[0]+="hello"
     l[1]+="world"
     print l 
-//expect:[hello, world, die]
+//expect:["hello", "world", "die"]
 
     print f.x
 //expect:ten

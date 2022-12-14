@@ -90,6 +90,20 @@ ObjList* newList()
     return list;
 }
 
+ObjTable* newTable()
+{
+    Table elements;
+    initTable(&elements);
+    ObjTable* table = ALLOCATE_OBJ(ObjTable, OBJ_TABLE);
+    table->elements = elements;
+
+    ValueArray keys;
+    initValueArray(&keys);
+    table->keys = keys;
+    
+    return table;
+}
+
 static ObjClass* createClass(ObjString* name, bool module) 
 {
     ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
@@ -266,12 +280,47 @@ static int stringifyList(ObjList* list, char* str)
             sprintf(str, "%s", ", ");
             str +=2 ;
         }
+        bool quote = IS_STRING(list->elements.values[i]) || IS_DATETIME(list->elements.values[i]);
+        if (quote) str += sprintf(str, "%s", "\"");
         str += stringifyValue(list->elements.values[i], str);
+        if (quote) str += sprintf(str, "%s", "\"");
     }
     sprintf(str, "%s", "]");
     str++;
 
     return (str - begin);
+}
+
+static int stringifyTable(ObjTable* table, char* str)
+{
+    char* begin = str;
+    str += sprintf(str, "%s", "{");
+    //str++;
+    for(int i = 0; i < table->keys.count; i++)
+    {
+        if(i > 0)
+        {
+            str += sprintf(str, "%s", ", ");
+            //str +=2 ;
+        }
+        str += sprintf(str, "%s", "\"");
+        str += stringifyValue(table->keys.values[i], str);
+        str += sprintf(str, "%s", "\" : ");
+
+        Value val;
+       
+        tableGet(&table->elements, AS_STRING(table->keys.values[i]), &val);
+        bool quote = IS_STRING(val) || IS_DATETIME(val);
+        
+        if (quote) str += sprintf(str, "%s", "\"");
+        str += stringifyValue(val, str);
+        if (quote) str += sprintf(str, "%s", "\"");
+    }
+    str += sprintf(str, "%s", "}");
+    //str++;
+
+    return (str - begin);
+    //return sprintf(str, "%s", "table");
 }
 
 int stringifyObject(Value value, char* str)
@@ -290,6 +339,8 @@ int stringifyObject(Value value, char* str)
             return sprintf(str, "%s", "upvalue");
         case OBJ_LIST:
             return stringifyList(AS_LIST(value), str);
+        case OBJ_TABLE:
+            return stringifyTable(AS_TABLE(value), str);
         case OBJ_CLASS:
             return sprintf(str, "%s", AS_CLASS(value)->name->chars);
         case OBJ_ENUM:
@@ -311,10 +362,40 @@ static int stringifyListLength(ObjList* list)
         {
             total +=2; // ', '
         }
+        bool quote = IS_STRING(list->elements.values[i]) || IS_DATETIME(list->elements.values[i]);
+        
+        if (quote) total += 2; // "
         total += stringifyValueLength(list->elements.values[i]);
     }
 
     return total;
+}
+
+static int stringifyTableLength(ObjTable* table)
+{
+    int total = 2; // count '{' at start and '}' at end
+    for(int i = 0; i < table->keys.count; i++)
+    {
+        if(i > 0)
+        {
+            total += 2; // ,(space)
+        }
+        total += 1; // "
+        total += stringifyValueLength(table->keys.values[i]);
+        total += 4; // " : (note trailing space)
+
+        Value val;
+       
+        tableGet(&table->elements, AS_STRING(table->keys.values[i]), &val);
+        bool quote = IS_STRING(val) || IS_DATETIME(val);
+        
+        if (quote) total++; // "
+        total += stringifyValueLength(val);
+        if (quote) total++; // "
+    }
+    
+    return total;
+    //return sprintf(str, "%s", "table");
 }
 
 int stringifyObjectLength(Value value)
@@ -333,6 +414,8 @@ int stringifyObjectLength(Value value)
             return 7;
         case OBJ_LIST:
             return stringifyListLength(AS_LIST(value));
+        case OBJ_TABLE:
+            return stringifyTableLength(AS_TABLE(value));
         case OBJ_CLASS:
             return AS_CLASS(value)->name->length;
         case OBJ_ENUM:
