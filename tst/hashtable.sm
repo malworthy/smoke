@@ -31,3 +31,21 @@ print list[0]["one"]
 //expect:it works!
 print list[1]["one"]
 //expect:another
+
+const newht = {}
+newht["a"] = 1234
+print newht["a"]
+//expect:1234
+
+const withfn = 
+{
+    "a" : 1234,
+    "b" : fn(a) => a* 10
+}
+
+print withfn["b"](20)
+//expect:200
+
+withfn["a"]++
+print withfn["a"]
+//expect:1235
