@@ -47,5 +47,6 @@ void freeVM();
 InterpretResult interpret(const char* source, char* filename);
 void push(Value value);
 Value pop();
+bool setTable(Value tableVal, Value item, Value index);
 
 #endif

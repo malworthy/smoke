@@ -21,6 +21,7 @@
 #include "native/date.h"
 #include "native/native.h"
 #include "native/mathmod.h"
+#include "native/jsonparse.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -231,6 +232,7 @@ void initVM()
     defineNative("sort", sortNative, 1);
     defineNative("len", lenNative, 1);
     defineNative("~range", rangeNative, 3);
+    defineNative("json", jsonNative, 1);
 
     // STRING
     defineNativeMod("splitlines", "string", splitlinesNative, 1);
@@ -655,7 +657,7 @@ static bool setList(Value listVal, Value item, Value index)
     return true;
 }
 
-static bool setTable(Value tableVal, Value item, Value index)
+bool setTable(Value tableVal, Value item, Value index)
 {
     if (!IS_STRING(index))
     {
