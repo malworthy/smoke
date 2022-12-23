@@ -1,0 +1,6 @@
+// TODO: hardcode for now
+const filename = "c:\\Users\\malwo\\code\\min\\tst\\jsonparse\\test2.json"
+
+const j = string.join(file.readlines(filename))
+
+print json(j)

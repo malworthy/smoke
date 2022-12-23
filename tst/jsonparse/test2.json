@@ -1,0 +1,11 @@
+{
+    "one" : 10,
+    "two" : -10,
+    "three" : true,
+    "four" : false,
+    "five" : null,
+    "fix" : "string",
+    "seven" : { "innerone" : 1, "innertwo" : 2},
+    "eight" : [10,-10,true,false,null, {"inlist1" : 1}],
+    "9" : "5"
+}
