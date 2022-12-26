@@ -1,0 +1,19 @@
+const escaped = "\n\r\t\\\"\%\b\f\/\u0041\u0D0A" 
+
+//"
+
+for c in escaped
+    print string.ascii(c)
+
+//expect:10
+//expect:13
+//expect:9
+//expect:92
+//expect:34
+//expect:37
+//expect:8
+//expect:12
+//expect:47
+//expect:65
+//expect:13
+//expect:10

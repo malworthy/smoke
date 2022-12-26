@@ -26,6 +26,9 @@ bool addNodesToTable(Value table, char* json, jsmntok_t* tokens, bool children)
     }
     tokenCounter++;
 
+    if (children && numberOfChildren == 0)
+        return true;
+
     while (tokenCounter < numberOfTokens)
     {
         // Get Key
@@ -35,14 +38,14 @@ bool addNodesToTable(Value table, char* json, jsmntok_t* tokens, bool children)
             {
                 return false; // invalid json
             }
-            key = OBJ_VAL(copyStringRaw(json + tokens[tokenCounter].start, tokens[tokenCounter].end - tokens[tokenCounter].start));
+            key = OBJ_VAL(copyString(json + tokens[tokenCounter].start, tokens[tokenCounter].end - tokens[tokenCounter].start));
             tokenCounter++;
             push(key);
         }
 
         if(tokens[tokenCounter].type == JSMN_STRING)
         {
-            val = OBJ_VAL(copyStringRaw(json + tokens[tokenCounter].start, tokens[tokenCounter].end - tokens[tokenCounter].start));
+            val = OBJ_VAL(copyString(json + tokens[tokenCounter].start, tokens[tokenCounter].end - tokens[tokenCounter].start));
             push(val);
             tokenCounter++;
         }
@@ -67,23 +70,31 @@ bool addNodesToTable(Value table, char* json, jsmntok_t* tokens, bool children)
             val = OBJ_VAL(newTable());
             push(val);
             if(!addNodesToTable(val, json, tokens, true))
+            {  
+                printf("failed on object\n");
                 return false;
+            }
         }
         else if (tokens[tokenCounter].type == JSMN_ARRAY)
         {
             val = OBJ_VAL(newList());
             push(val);
             if(!addNodesToTable(val, json, tokens, true))
+            {
+                printf("failed on array\n");
                 return false;
+            }
         }
         else
         {
+            printf("unknown token\n");
             return false;
         }
 
         if(type == JSMN_ARRAY)
         {
             ObjList* list = AS_LIST(table);
+            //printf("add to array\n");
             writeValueArray(&list->elements, val);
         }
         else if (type == JSMN_OBJECT)
@@ -108,22 +119,28 @@ bool addNodesToTable(Value table, char* json, jsmntok_t* tokens, bool children)
 bool jsonNative(int argCount, Value* args)
 {
     CHECK_STRING(0, "json expects a string");
+    args[-1] = NIL_VAL; // If we can't parse the json, return null
+
+    tokenCounter = 0;
+    numberOfTokens = 0;
 
     ObjString* json = AS_STRING(args[0]);
     jsmn_parser parser;
-    jsmntok_t tokens[128]; /* We expect no more than 128 tokens */
 
     jsmn_init(&parser);
-    numberOfTokens = jsmn_parse(&parser, json->chars, json->length, tokens, 128);
+    numberOfTokens = jsmn_parse(&parser, json->chars, json->length, NULL, 0);
+    
+    jsmntok_t* tokens = (jsmntok_t*)malloc((numberOfTokens) * sizeof(jsmntok_t));
+    jsmn_init(&parser);
+    numberOfTokens = jsmn_parse(&parser, json->chars, json->length, tokens, numberOfTokens);
    
-
     //for (int i = 0; i < numberOfTokens; i++)
     //    printf("type: %d, count: %d\n", tokens[i].type, tokens[i].size);
 
-    /* Assume the top-level element is an object */
     if (numberOfTokens < 1 ) 
     {
-        NATIVE_ERROR("Invalid JSON");
+        free(tokens);
+        return true;
     }
     Value topLevelObject;
     if (tokens[0].type == JSMN_OBJECT)
@@ -136,14 +153,18 @@ bool jsonNative(int argCount, Value* args)
     }
     else
     {
-        NATIVE_ERROR("Invalid JSON");
+        free(tokens);
+        return true;
     }
     push(topLevelObject);
 
     if (!addNodesToTable(topLevelObject, json->chars, tokens, false))
     {
-        NATIVE_ERROR("Invalid JSON");
+        free(tokens);
+        return true;
     }
+    free(tokens);
+
     args[-1] = topLevelObject;
     pop();
 

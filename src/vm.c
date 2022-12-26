@@ -232,7 +232,7 @@ void initVM()
     defineNative("sort", sortNative, 1);
     defineNative("len", lenNative, 1);
     defineNative("~range", rangeNative, 3);
-    defineNative("json", jsonNative, 1);
+    defineNative("fromjson", jsonNative, 1);
 
     // STRING
     defineNativeMod("splitlines", "string", splitlinesNative, 1);

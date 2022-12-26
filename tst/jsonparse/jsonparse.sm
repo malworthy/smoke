@@ -1,6 +1,12 @@
 // TODO: hardcode for now
-const filename = "c:\\Users\\malwo\\code\\min\\tst\\jsonparse\\test2.json"
+const path = args()[0]
+//print path
+const filename = "..\\tst\\jsonparse\\test.json"
 
 const j = string.join(file.readlines(filename))
 
-print json(j)
+const obj = fromjson(j)
+print obj[8]["alpha"]
+//expect:abcdefghijklmnopqrstuvwyz
+print obj[8]["url"]
+//expect:http://www.JSON.org/

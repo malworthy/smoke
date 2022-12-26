@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "memory.h"
 #include "object.h"
@@ -202,6 +203,15 @@ ObjString* copyString(const char* chars, int length)
             case 't':
                 processedString[charCount++] = '\t';
                 break;
+            case 'f':
+                processedString[charCount++] = '\f';
+                break;
+            case 'b':
+                processedString[charCount++] = '\b';
+                break;
+            case '/':
+                processedString[charCount++] = '/';
+                break;
             case '\\':
                 processedString[charCount++] = '\\';
                 break;
@@ -210,7 +220,21 @@ ObjString* copyString(const char* chars, int length)
                 break;   
             case '%':
                 processedString[charCount++] = '%';
-                break;            
+                break;   
+            case 'u':
+                     if (i+4 < length)
+                     {
+                        char hex[5];
+                        memcpy(hex, chars+i+1, 4);
+                        hex[4] = 0;
+                        int number = strtol(hex, NULL, 16);
+                        //printf("number is %d, hex is %s %d %d, i=%d, length=%d\n", 
+                        //    number, hex, number & 0xFF,(number >> 8) & 0xFF, i, length);
+                        if (number > 255) processedString[charCount++] = (number >> 8) & 0xFF;
+                        processedString[charCount++] = number & 0xFF;  
+                        i += 4;
+                     }
+                     break;
             default: // no valid escape sequence, so just treat as backslash
                 i--;
                 processedString[charCount++] = '\\';

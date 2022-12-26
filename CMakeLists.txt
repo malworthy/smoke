@@ -48,6 +48,9 @@ add_test(NAME optionalparams COMMAND python ../test_runner.py "smoke.exe" "../ts
 add_test(NAME minusequals COMMAND python ../test_runner.py "smoke.exe" "../tst/minusequals.sm" "//expect:")
 add_test(NAME hashtable COMMAND python ../test_runner.py "smoke.exe" "../tst/hashtable.sm" "//expect:")
 
+add_test(NAME escapechar COMMAND python ../test_runner.py "smoke.exe" "../tst/escapechar.sm" "//expect:")
+add_test(NAME jsonparse COMMAND python ../test_runner.py "smoke.exe" "../tst/jsonparse/jsonparse.sm" "//expect:")
+
 add_test(NAME inc_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/inc_string.sm" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/dec_string.sm" "//expect:")
 add_test(NAME const_global COMMAND python ../test_runner.py "smoke.exe" "../tst/error/const_global.sm" "//expect:")
