@@ -193,6 +193,34 @@ See FormatStrings.md for details
 var interpolated = "Value: %{1+1}" // "Value: 2"
 var withFormatting = "%{100.1234|0.2f}" // "100.12"
 ```
+## Raw strings
+Anything between """  and """ will be interpreted as a string constant. Escape sequences and string interpolation will not be evaluated.
+
+```
+const raw = """"a string with quotes around it""""
+const json = """
+{
+  "one" : 1,
+  "two" : 2
+}
+"""
+```
+
+## Escape sequences
+
+Smoke implements the following escape sequences
+- \n - Newline
+- \r - Carriage return
+- \\\ - Backslash
+- \\% - Percent
+- \t - Tab
+- \\" - Quote
+- \b - Backspace
+- \f - Form feed
+- \\/ - Forward slash
+- \uXXXX - Unicode point
+
+
 
 ## Classes
 
@@ -321,12 +349,14 @@ File IO
 Utils
 - args() // returns a list of command line arguments passed to the scripts
 - clock() // number of seconds since program started
+- fromjson(string)  // converts json text to a hash table or list
 - len(list) // gets the length of a list or string
 - num(string) // converts a string to a number
 - rand(max) // gets a random number from 0 to max-1
 - sleep(milliseconds) // suspend thread 
 - type(variable) // gets the type of a variable.  Returns "Type" enum
   Types: Bool, Number, DateTime, String, Upvalue, Function, Native, Closure, List, Class, Instance, Method, Enum 
+
 
 Math/Bitwise Operations
 - math.bitand(value1, value2) // performs a bitwise and

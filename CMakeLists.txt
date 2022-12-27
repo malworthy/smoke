@@ -30,7 +30,6 @@ add_test(NAME anon COMMAND python ../test_runner.py "smoke.exe" "../tst/anon.sm"
 add_test(NAME binary COMMAND python ../test_runner.py "smoke.exe" "../tst/binary.sm" "//expect:")
 add_test(NAME where COMMAND python ../test_runner.py "smoke.exe" "../tst/where.sm" "//expect:")
 add_test(NAME format COMMAND python ../test_runner.py "smoke.exe" "../tst/format.sm" "//expect:")
-
 add_test(NAME assignment COMMAND python ../test_runner.py "smoke.exe" "../tst/assignment.sm" "//expect:")
 add_test(NAME pop COMMAND python ../test_runner.py "smoke.exe" "../tst/pop.sm" "//expect:")
 add_test(NAME comparison COMMAND python ../test_runner.py "smoke.exe" "../tst/comparison.sm" "//expect:")
@@ -47,9 +46,9 @@ add_test(NAME pluesequalslist COMMAND python ../test_runner.py "smoke.exe" "../t
 add_test(NAME optionalparams COMMAND python ../test_runner.py "smoke.exe" "../tst/optionalparams.sm" "//expect:")
 add_test(NAME minusequals COMMAND python ../test_runner.py "smoke.exe" "../tst/minusequals.sm" "//expect:")
 add_test(NAME hashtable COMMAND python ../test_runner.py "smoke.exe" "../tst/hashtable.sm" "//expect:")
-
 add_test(NAME escapechar COMMAND python ../test_runner.py "smoke.exe" "../tst/escapechar.sm" "//expect:")
 add_test(NAME jsonparse COMMAND python ../test_runner.py "smoke.exe" "../tst/jsonparse/jsonparse.sm" "//expect:")
+add_test(NAME rawstring COMMAND python ../test_runner.py "smoke.exe" "../tst/rawstring.sm" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/inc_string.sm" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/dec_string.sm" "//expect:")

@@ -471,6 +471,13 @@ static void string(bool canAssign)
                                     parser.previous.length - 2)));
 }
 
+static void rawString(bool canAssign) 
+{
+    //printf("in raw string %d %d",parser.previous.start,parser.previous.length);
+    emitConstant(OBJ_VAL(copyStringRaw(parser.previous.start + 3,
+                                       parser.previous.length - 4)));
+}
+
 static void formatString(bool canAssign) 
 {
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1,
@@ -958,6 +965,7 @@ ParseRule rules[] =
     [TOKEN_LESS_EQUAL]    = {NULL,     binary,      PREC_COMPARISON},
     [TOKEN_IDENTIFIER]    = {variable, NULL,        PREC_NONE},
     [TOKEN_STRING]        = {string,   NULL,        PREC_NONE},
+    [TOKEN_RAW_STRING]    = {rawString,NULL,        PREC_NONE},
     [TOKEN_NUMBER]        = {number,   NULL,        PREC_NONE},
     [TOKEN_AND]           = {NULL,     and_,        PREC_AND},
     [TOKEN_THEN]          = {NULL,     NULL,        PREC_NONE},

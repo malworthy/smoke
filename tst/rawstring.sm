@@ -1,0 +1,21 @@
+print """"this is some quoted text""""
+//expect:"this is some quoted text"
+
+print """ %{1+1+1} %{"no string interpolation"} \n \b \\ """
+//expect: %{1+1+1} %{"no string interpolation"} \n \b \\ 
+
+const json = 
+"""
+{
+    "one" : 1,
+    "two" : 2
+}
+"""
+
+print json
+//expect:
+//expect:{
+//expect:   "one" : 1,
+//expect:   "two" : 2
+//expect:}
+//expect:

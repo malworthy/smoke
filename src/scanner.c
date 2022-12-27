@@ -76,6 +76,24 @@ static bool match(char expected)
     return true;
 }
 
+static bool matchRawString()
+{
+    if (isAtEnd()) return false;
+    if (*scanner.current == '"' && scanner.current[1] == '"')
+    {
+        scanner.current += 2;
+        return true;
+    }
+    return false;
+}
+
+static bool checkRawString()
+{
+    if (isAtEnd()) return false;
+    // note need to handle 4 or more quotes ("""") at end of a string, that's why i'm doing the last check...
+    return (*scanner.current == '"' && scanner.current[1] == '"' && scanner.current[2] == '"' && scanner.current[3] != '"'); 
+}
+
 static char peekNext() 
 {
     if (isAtEnd()) return '\0';
@@ -232,6 +250,27 @@ static Token string()
     return makeToken(TOKEN_STRING);
 }
 
+static Token rawString() 
+{
+    while (!isAtEnd() && !checkRawString()) 
+    {
+        if (peek() == '\n') scanner.line++;
+        advance();
+    }
+
+    if (isAtEnd()) return errorToken("Unterminated raw string.");
+
+    // First closing quote.
+    advance();
+    Token result = makeToken(TOKEN_RAW_STRING);
+    // Seconds and third closing quotes
+    advance();
+    advance();
+
+    return result;
+}
+
+
 static Token formatString() 
 {
     while (peek() != '}' && !isAtEnd()) 
@@ -339,7 +378,11 @@ Token scanToken()
             return makeToken(match('=') ? TOKEN_LESS_EQUAL : (match('<') ? TOKEN_LESS_LESS : TOKEN_LESS));
         case '>':
             return makeToken(match('=') ? TOKEN_GREATER_EQUAL : (match('>') ? TOKEN_GREATER_GREATER : TOKEN_GREATER));
-        case '"': return string();
+        case '"':
+            if(matchRawString())
+                return rawString();
+            else 
+                return string();
     }
 
     return errorToken("Unexpected character.");

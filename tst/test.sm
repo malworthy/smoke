@@ -1,1 +1,1 @@
-print "\u0041*"
+print """hello"""
