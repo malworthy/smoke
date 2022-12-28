@@ -264,11 +264,6 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
-static void patchFunctionName(int location, uint8_t constant)
-{
-    currentChunk()->code[location] = constant;
-}
-
 static void initCompiler(Compiler* compiler, FunctionType type) 
 {
     compiler->enclosing = current;
@@ -473,7 +468,6 @@ static void string(bool canAssign)
 
 static void rawString(bool canAssign) 
 {
-    //printf("in raw string %d %d",parser.previous.start,parser.previous.length);
     emitConstant(OBJ_VAL(copyStringRaw(parser.previous.start + 3,
                                        parser.previous.length - 4)));
 }
@@ -1304,13 +1298,6 @@ static void varDeclaration(bool isConst)
     defineVariable(global);
 }
 
-static void varDeclaration2(bool isConst) 
-{
-    uint16_t global = parseVariable("Expect variable name.", isConst);
-    emitConstant(NUMBER_VAL(0));
-    defineVariable(global);
-}
-
 static void expressionStatement() 
 {
     expression();
@@ -1339,7 +1326,9 @@ static void forStatement()
     loopVarDeclaration("~enumerable");
     uint8_t list = current->localCount - 1;
   
-    varDeclaration2(false);
+    uint16_t global = parseVariable("Expect variable name.", false);
+    emitConstant(NUMBER_VAL(0));
+    defineVariable(global);
     uint8_t var = current->localCount - 1;
 
     consume(TOKEN_IN,"missing in");
