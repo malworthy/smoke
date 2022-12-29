@@ -33,6 +33,7 @@ int _argc;
 static void repl() 
 {
     char line[1024];
+    printf("Smoke Version %s  (Press ctrl-c to exit)\n", SM_VERSION);
 
     for (;;) 
     {

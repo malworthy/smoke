@@ -1,6 +1,6 @@
 #ifndef min_common_h
 #define min_common_h
-#define _CRT_SECURE_NO_WARNINGS
+#define SM_VERSION "0.1.0"
 
 //#define DEBUG_TRACE_EXECUTION
 //#define DEBUG_PRINT_CODE
