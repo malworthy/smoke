@@ -53,7 +53,7 @@ void writeValueArray(ValueArray* array, Value value);
 void freeValueArray(ValueArray* array);
 void printValue(Value value);
 bool valuesEqual(Value a, Value b);
-int stringifyValue(Value value, char* str);
-int stringifyValueLength(Value value);
+int stringifyValue(Value value, char* str, bool escape);
+int stringifyValueLength(Value value, bool escape);
 
 #endif

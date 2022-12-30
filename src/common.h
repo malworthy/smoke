@@ -1,5 +1,5 @@
-#ifndef min_common_h
-#define min_common_h
+#ifndef sm_common_h
+#define sm_common_h
 #define SM_VERSION "0.1.0"
 
 //#define DEBUG_TRACE_EXECUTION

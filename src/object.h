@@ -153,8 +153,8 @@ ObjClass* newMod(ObjString* name);
 
 bool compareStrings(char* chars, int length, ObjString* compareString);
 //void printObject(Value value);
-int stringifyObject(Value value, char* str);
-int stringifyObjectLength(Value value);
+int stringifyObject(Value value, char* str, bool escape);
+int stringifyObjectLength(Value value, bool escape);
 
 static inline bool isObjType(Value value, ObjType type) 
 {

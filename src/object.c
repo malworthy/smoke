@@ -283,6 +283,93 @@ ObjUpvalue* newUpvalue(Value* slot)
     return upvalue;
 }
 
+int escapeString(char* buffer, char* string)
+{
+    char* start = buffer;
+    while(*string)
+    {
+        switch (*string)
+        {
+        case '\\':
+            *buffer = '\\';
+            buffer++;
+            *buffer = '\\';
+            buffer++;
+            break;
+        case '"':
+            *buffer = '\\';
+            buffer++;
+            *buffer = '"';
+            buffer++;
+            break;
+        case '\n':
+            *buffer = '\\';
+            buffer++;
+            *buffer = 'n';
+            buffer++;
+            break;
+        case '\r':
+            *buffer = '\\';
+            buffer++;
+            *buffer = 'r';
+            buffer++;
+            break;
+        case '\b':
+            *buffer = '\\';
+            buffer++;
+            *buffer = 'b';
+            buffer++;
+            break;
+        case '\f':
+            *buffer = '\\';
+            buffer++;
+            *buffer = 'f';
+            buffer++;
+            break;
+        case '\t':
+            *buffer = '\\';
+            buffer++;
+            *buffer = 't';
+            buffer++;
+            break;
+        
+        default:
+            *buffer = *string;
+            buffer++;
+            break;
+        }
+        string++;
+    }
+
+    return buffer - start;
+}
+
+int escapeStringLength(char* string)
+{
+    int length = 0;
+    while(*string)
+    {
+        switch (*string)
+        {
+        case '\\':
+        case '"':
+        case '\n':
+        case '\r':
+        case '\b':
+        case '\f':
+        case '\t':
+            length += 2;
+            break;
+        
+        default:
+            length++;
+            break;
+        }
+        string++;
+    }
+    return length;
+}
+
 static int stringifyFunction(ObjFunction* function, char* str)
 {
     if (function->name == NULL)
@@ -306,7 +393,7 @@ static int stringifyList(ObjList* list, char* str)
         }
         bool quote = IS_STRING(list->elements.values[i]) || IS_DATETIME(list->elements.values[i]);
         if (quote) str += sprintf(str, "%s", "\"");
-        str += stringifyValue(list->elements.values[i], str);
+        str += stringifyValue(list->elements.values[i], str, true);
         if (quote) str += sprintf(str, "%s", "\"");
     }
     sprintf(str, "%s", "]");
@@ -328,7 +415,7 @@ static int stringifyTable(ObjTable* table, char* str)
             //str +=2 ;
         }
         str += sprintf(str, "%s", "\"");
-        str += stringifyValue(table->keys.values[i], str);
+        str += stringifyValue(table->keys.values[i], str, true);
         str += sprintf(str, "%s", "\" : ");
 
         Value val;
@@ -337,7 +424,7 @@ static int stringifyTable(ObjTable* table, char* str)
         bool quote = IS_STRING(val) || IS_DATETIME(val);
         
         if (quote) str += sprintf(str, "%s", "\"");
-        str += stringifyValue(val, str);
+        str += stringifyValue(val, str, true);
         if (quote) str += sprintf(str, "%s", "\"");
     }
     str += sprintf(str, "%s", "}");
@@ -347,12 +434,17 @@ static int stringifyTable(ObjTable* table, char* str)
     //return sprintf(str, "%s", "table");
 }
 
-int stringifyObject(Value value, char* str)
+int stringifyObject(Value value, char* str, bool escape)
 {
     switch (OBJ_TYPE(value))
     {
         case OBJ_STRING:
-            return sprintf(str, "%s", AS_CSTRING(value));
+        {
+            if (escape)
+                return escapeString(str, AS_CSTRING(value));
+            else
+                return sprintf(str, "%s", AS_CSTRING(value));
+        }
         case OBJ_FUNCTION:
             return stringifyFunction(AS_FUNCTION(value), str);
         case OBJ_NATIVE:
@@ -389,7 +481,7 @@ static int stringifyListLength(ObjList* list)
         bool quote = IS_STRING(list->elements.values[i]) || IS_DATETIME(list->elements.values[i]);
         
         if (quote) total += 2; // "
-        total += stringifyValueLength(list->elements.values[i]);
+        total += stringifyValueLength(list->elements.values[i], true);
     }
 
     return total;
@@ -405,7 +497,7 @@ static int stringifyTableLength(ObjTable* table)
             total += 2; // ,(space)
         }
         total += 1; // "
-        total += stringifyValueLength(table->keys.values[i]);
+        total += stringifyValueLength(table->keys.values[i], true);
         total += 4; // " : (note trailing space)
 
         Value val;
@@ -414,7 +506,7 @@ static int stringifyTableLength(ObjTable* table)
         bool quote = IS_STRING(val) || IS_DATETIME(val);
         
         if (quote) total++; // "
-        total += stringifyValueLength(val);
+        total += stringifyValueLength(val, true);
         if (quote) total++; // "
     }
     
@@ -422,12 +514,15 @@ static int stringifyTableLength(ObjTable* table)
     //return sprintf(str, "%s", "table");
 }
 
-int stringifyObjectLength(Value value)
+int stringifyObjectLength(Value value, bool escape)
 {
     switch (OBJ_TYPE(value))
     {
         case OBJ_STRING:
+        {
+            if (escape) return escapeStringLength(AS_CSTRING(value));
             return AS_STRING(value)->length;
+        }        
         case OBJ_FUNCTION:
             return AS_FUNCTION(value)->name == NULL ? 8 : AS_FUNCTION(value)->name->length + 5;
         case OBJ_NATIVE:

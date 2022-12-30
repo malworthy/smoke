@@ -68,7 +68,7 @@ Value join(ObjList* list)
     // work out how much memory we need for the joined string
     int resultLength = 0;
     for(int i=0; i < list->elements.count; i++)
-        resultLength += stringifyValueLength(list->elements.values[i]);
+        resultLength += stringifyValueLength(list->elements.values[i], false);
 
     char* result = ALLOCATE(char, resultLength + 1); 
     result[0] = '\0';
@@ -76,10 +76,10 @@ Value join(ObjList* list)
     for(int i=0; i < list->elements.count; i++)
     {
         Value val = list->elements.values[i];
-        length += stringifyValue(val, result + length /* strlen(result)*/);
+        length += stringifyValue(val, result + length, false);
     }   
 
-    Value joined = OBJ_VAL(takeString(result, resultLength /*(int)strlen(result)*/));
+    Value joined = OBJ_VAL(takeString(result, resultLength));
 
     return joined;
 }

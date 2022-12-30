@@ -1,6 +1,6 @@
 const x = nil
 print x
-//expect:NIL
+//expect:null
 
 print x == nil
 //expect:true
@@ -10,13 +10,13 @@ print x!=nil
 
 const l = [nil, nil, nil]
 print l
-//expect:[NIL, NIL, NIL]
+//expect:[null, null, null]
 
 print l[0]
-//expect:NIL
+//expect:null
 
 print "*%{l[0]}*"
-//expect:*NIL*
+//expect:*null*
 
 fn test() 
 {
@@ -27,4 +27,4 @@ const result = test()
 //expect:statement
 
 print result
-//expect:NIL
+//expect:null

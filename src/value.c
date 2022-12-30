@@ -37,8 +37,8 @@ void freeValueArray(ValueArray* array)
 void printValue(Value value) 
 {
     //char* buffer = ALLOCATE(char, stringifyValueLength(value) + 1);
-    char* buffer = (char*)malloc(stringifyValueLength(value) + 1);
-    stringifyValue(value, buffer);
+    char* buffer = (char*)malloc(stringifyValueLength(value, false) + 1);
+    stringifyValue(value, buffer, false);
     printf("%s", buffer);
     free(buffer);
     //FREE(char, buffer);
@@ -59,7 +59,7 @@ bool valuesEqual(Value a, Value b)
     }
 }
 
-int stringifyValue(Value value, char* str)
+int stringifyValue(Value value, char* str, bool escape)
 {
     switch (value.type)
     {
@@ -68,9 +68,9 @@ int stringifyValue(Value value, char* str)
         case VAL_NUMBER:
             return sprintf(str, "%g", AS_NUMBER(value));
         case VAL_OBJ:
-            return stringifyObject(value, str);
+            return stringifyObject(value, str, escape);
         case VAL_NIL:
-            return sprintf(str, "%s", "NIL");
+            return sprintf(str, "%s", "null");
         case VAL_DATETIME: {
             time_t t = AS_DATETIME(value);
             struct tm *tm = localtime(&t);
@@ -81,7 +81,7 @@ int stringifyValue(Value value, char* str)
     }
 }
 
-int stringifyValueLength(Value value)
+int stringifyValueLength(Value value, bool escape)
 {
     switch (value.type)
     {
@@ -92,9 +92,9 @@ int stringifyValueLength(Value value)
             return sprintf(str, "%g", AS_NUMBER(value));
         }
         case VAL_OBJ:
-            return stringifyObjectLength(value);
+            return stringifyObjectLength(value, escape);
         case VAL_NIL:
-            return 3;
+            return 4;
         case VAL_DATETIME: {
             time_t t = AS_DATETIME(value);
             struct tm *tm = localtime(&t);
