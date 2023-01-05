@@ -22,6 +22,7 @@
 #include "native/native.h"
 #include "native/mathmod.h"
 #include "native/jsonparse.h"
+#include "sqlite3/sql.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -233,6 +234,7 @@ void initVM()
     defineNative("len", lenNative, 1);
     defineNative("~range", rangeNative, 3);
     defineNative("fromjson", jsonNative, 1);
+    defineNative("query", queryNative, -1);
 
     // STRING
     defineNativeMod("splitlines", "string", splitlinesNative, 1);
@@ -388,7 +390,7 @@ static bool callValue(Value callee, int argCount)
                 return call(AS_CLOSURE(callee), argCount);
             case OBJ_NATIVE: {
                 ObjNative* native = AS_NATIVE(callee);
-                if (native->arity != argCount)
+                if (native->arity >= 0 && native->arity != argCount)
                 {
                     runtimeError("Expected %d arguments but got %d. (N)", native->arity, argCount);
                     return false;

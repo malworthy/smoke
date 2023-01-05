@@ -9,6 +9,7 @@ typedef struct {
   const char* current;
   int line;
   int interpolation;
+  int sqlParam;
 } Scanner;
 
 Scanner scanner;
@@ -19,6 +20,7 @@ void initScanner(const char* source)
     scanner.current = source;
     scanner.line = 1;
     scanner.interpolation = 0;
+    scanner.sqlParam = 0;
 }
 
 static bool isAtEnd() 
@@ -222,6 +224,36 @@ static TokenType identifierType()
     return TOKEN_IDENTIFIER;
 }
 
+static Token embeddedSql()
+{
+    printf("scanner in embeddedSql\n");
+    bool escaped = false;
+    while ((peek() != '"' || escaped) && !isAtEnd()) 
+    {
+        if (peek() == '\n') scanner.line++;
+        escaped = (peek() == '\\' && !escaped);
+        // Interpolation %{hello}
+        if (peek() == ':' && peekPrev() != '\\')
+        {
+            if (peekNext() != '{') return errorToken("Expect '{' after ':' for parameters in SQL.");
+            advance();
+            scanner.sqlParam++;
+            Token t = makeToken(TOKEN_SQL_PARAM); 
+            advance();
+            
+            return t;   
+        }
+        advance();
+    }
+
+    if (isAtEnd()) return errorToken("Unterminated string.");
+
+    // The closing quote.
+    advance();
+    
+    return makeToken(TOKEN_SQL);
+}
+
 static Token string() 
 {
     bool escaped = false;
@@ -340,6 +372,15 @@ Token scanToken()
 
     switch (c) 
     {
+        case '$': 
+        {
+            if (match('"'))
+            {
+                scanner.start++;
+                return embeddedSql();
+            }
+            return makeToken(TOKEN_ERROR);
+        }//return match('"') ? embeddedSql() : makeToken(TOKEN_ERROR);
         case '(': return makeToken(TOKEN_LEFT_PAREN);
         case ')': return makeToken(TOKEN_RIGHT_PAREN);
         case '{': return makeToken(TOKEN_LEFT_BRACE);
@@ -348,6 +389,12 @@ Token scanToken()
             {
                 scanner.interpolation--;
                 return string();
+            }
+            if (scanner.sqlParam > 0)
+            {
+                if (scanner.sqlParam > 1) return makeToken(TOKEN_ERROR);
+                scanner.sqlParam--;
+                return embeddedSql();
             }
             return makeToken(TOKEN_RIGHT_BRACE);
         case ';': return makeToken(TOKEN_SEMICOLON);

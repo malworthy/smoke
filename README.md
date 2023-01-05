@@ -220,8 +220,6 @@ Smoke implements the following escape sequences
 - \\/ - Forward slash
 - \uXXXX - Unicode point
 
-
-
 ## Classes
 
 Examples of use:
@@ -306,6 +304,11 @@ Example of how to import code from other files:
 
 runFunctionInAnotherFile(123)
 ```
+
+## sql
+#db c:\tmp\test.db
+
+var x = $"select * from customer where id = {id}"
 
 
 ## Native functions
