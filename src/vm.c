@@ -235,6 +235,7 @@ void initVM()
     defineNative("~range", rangeNative, 3);
     defineNative("fromjson", jsonNative, 1);
     defineNative("query", queryNative, -1);
+    defineNative("setdb", setdbNative, 1);
 
     // STRING
     defineNativeMod("splitlines", "string", splitlinesNative, 1);

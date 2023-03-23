@@ -9,69 +9,34 @@
 #include "../vm.h"
 #include "../memory.h"
 
-static ObjList* list = NULL;
+#define MAX_CACHE_QUERY 8192
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName)
-{
-    ObjTable* table = newTable();
-    push(OBJ_VAL(table));
-    
-    for(int i=0; i<argc; i++)
-    {
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-        ObjString* key = copyStringRaw(azColName[i], strlen(azColName[i]));
-        push(OBJ_VAL(key));
-        Value value = argv[i] ?  OBJ_VAL(copyStringRaw(argv[i], strlen(argv[i]))) : NIL_VAL;
-        push(value);
-        printf("key is %s\n", key->chars);
-        //tableSet(&table->elements, key, value);
-        setTable(OBJ_VAL(table), value, OBJ_VAL(key));
-        
-        printf("---items in table %d\n",table->elements.count);
-        printValue(OBJ_VAL(table));
-        printf("\n---\n");
-        pop();
-        pop();
-    }
-    
-    
-    writeValueArray(&list->elements, OBJ_VAL(table));
-   
-    pop();
-    printf("\n");
-    return 0;
-}
-
-Value executeSql(Value sql)
-{
-    sqlite3 *db;
-    char* errorMessage = NULL;
-    int rc = sqlite3_open("c:\\tmp\\test.db", &db);
-    if (rc)
-    {
-        printf("%s\n",sqlite3_errmsg(db)); //for debugging
-        return NIL_VAL;
-    }
-  
-    rc = sqlite3_exec(db, AS_CSTRING(sql), callback, 0, &errorMessage);
-
-    if(rc != SQLITE_OK)
-    {
-        printf("SQL error: %s\n", errorMessage);
-        sqlite3_free(errorMessage);
-    }
-
-    return OBJ_VAL(list);
-}
+static char dbname[1025] = {0};
+static sqlite3* db = NULL;
+static char lastQuery[MAX_CACHE_QUERY] = {0};
+static sqlite3_stmt *stmt = NULL;
 
 int queryNative(int argCount, Value* args) 
 {   
-
-    sqlite3 *db;
-    char *err_msg = NULL;
-    sqlite3_stmt *stmt;
+    ObjList* list;
+    //char *err_msg = NULL;
+    int rc;
     
-    int rc = sqlite3_open("c:\\tmp\\test.db", &db);
+    if (db == NULL)
+    {
+        if (dbname[0] == '\0')
+            rc = sqlite3_open(":memory:", &db);
+        else
+            rc = sqlite3_open(dbname, &db);
+
+        if (rc != SQLITE_OK) 
+        {
+            char buffer[100];
+
+            sprintf(buffer, "Failed to open database: %s", dbname);
+            NATIVE_ERROR(buffer);
+        }
+    }
 
     // get sql string
     // step 1 - work out how much memory to allocate
@@ -106,23 +71,30 @@ int queryNative(int argCount, Value* args)
 
     }
     *sql = '\0';
-    printf("the sql is: %s\n", start);
 
-    rc = sqlite3_prepare_v2(db, start, -1, &stmt, NULL);
-    
-    if (rc != SQLITE_OK) 
+    //step 3 cashe the query 
+    if (!(lastQuery[0] != '\0' && strcmp(lastQuery, start) == 0))
     {
-        NATIVE_ERROR("Failed to execute statement");
-        //fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));     
+        //printf("execute new query\n");
+        if (length < MAX_CACHE_QUERY)
+            memcpy(lastQuery, start, length);
+
+        sqlite3_finalize(stmt);
+        rc = sqlite3_prepare_v2(db, start, -1, &stmt, NULL);
+        if (rc != SQLITE_OK) 
+        {
+            NATIVE_ERROR("Failed to execute statement");
+            //fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));     
+        }
     }
 
     // bind the parameters
+    sqlite3_reset(stmt);
     int paramNum = 1;
     for(int i = 1; i < argCount; i++)
     {
         if(i % 2 != 0)
         {
-            printf("binding arg %d\n",i);
             if (IS_NUMBER(args[i]))
                 sqlite3_bind_double(stmt, paramNum++, AS_NUMBER(args[i]));
             else if (IS_STRING(args[i]))
@@ -144,7 +116,7 @@ int queryNative(int argCount, Value* args)
     do
     {
         step = sqlite3_step(stmt);
-        printf("executed statement %d\n", step);
+        //printf("executed statement %d\n", step);
     
         if (step == SQLITE_ROW) 
         {
@@ -174,8 +146,8 @@ int queryNative(int argCount, Value* args)
         } 
     } while (step == SQLITE_ROW);
     
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
+    //sqlite3_finalize(stmt);
+    //sqlite3_close(db);
 
     free(start);
 
@@ -183,19 +155,40 @@ int queryNative(int argCount, Value* args)
     pop();
 
     return true;
-    
 }
 
-bool queryNative2(int argCount, Value* args)
+bool setdbNative(int argCount, Value* args)
 {
-    CHECK_STRING(0, "json expects a string");
+    CHECK_STRING(0, "setdb expects a string");
 
-    list = newList();
-    push(OBJ_VAL(list));
+    int length = AS_STRING(args[0])->length;
 
-    args[-1] = executeSql(args[0]);
+    if (length > 1024)
+    {
+        NATIVE_ERROR("File path too large.  Max is 1024 characters.");
+    }
 
-    pop();
-    list = NULL;
+    if (length > 0)
+    {
+        //dbname = AS_CSTRING(args[0]);
+        memcpy(dbname, AS_CSTRING(args[0]), length);
+        dbname[length] = '\0';
+        sqlite3_close_v2(db);
+        db = NULL;
+    }
+
+    args[-1] = OBJ_VAL(copyStringRaw(dbname, strlen(dbname)));
+
+    return true;
+}
+
+bool closedbNative(int argCount, Value* args)
+{
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    stmt = NULL;
+    db = NULL;
+    lastQuery[0] = '\0';
+
     return true;
 }

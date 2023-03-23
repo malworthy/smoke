@@ -428,7 +428,6 @@ static void literal(bool canAssign)
 
 static void grouping(bool canAssign) 
 {
-    printf("why in grouping???\n");
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
@@ -807,7 +806,6 @@ static void subscript(bool canAssign)
 
 static void sql(bool canAssign)
 {
-    printf("In sql()\n");
     // emit function 
     char* fnName = "query";
     int arg = stringConstant(fnName);
@@ -818,7 +816,6 @@ static void sql(bool canAssign)
 
 static void sqlParam(bool canAssign)
 {
-    printf("In sqlParam()\n");
     // emit function 
     char* fnName = "query";
     int arg = stringConstant(fnName);
@@ -1035,7 +1032,7 @@ static void parsePrecedence(Precedence precedence)
 {
     advance();
     ParseFn prefixRule = getRule(parser.previous.type)->prefix;
-    printf("looking at token: %d\n", parser.previous.type);
+    //printf("looking at token: %d\n", parser.previous.type);
     if (prefixRule == NULL) 
     {
         error("Expect expression.");

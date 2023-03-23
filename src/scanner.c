@@ -226,16 +226,15 @@ static TokenType identifierType()
 
 static Token embeddedSql()
 {
-    printf("scanner in embeddedSql\n");
     bool escaped = false;
     while ((peek() != '"' || escaped) && !isAtEnd()) 
     {
         if (peek() == '\n') scanner.line++;
         escaped = (peek() == '\\' && !escaped);
-        // Interpolation %{hello}
-        if (peek() == ':' && peekPrev() != '\\')
+
+        if (peek() == ':' && peekPrev() != '\\' && peekNext() == '{')
         {
-            if (peekNext() != '{') return errorToken("Expect '{' after ':' for parameters in SQL.");
+            //if (peekNext() != '{') return errorToken("Expect '{' after ':' for parameters in SQL.");
             advance();
             scanner.sqlParam++;
             Token t = makeToken(TOKEN_SQL_PARAM); 

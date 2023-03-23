@@ -1,31 +1,36 @@
-# Smoke 
+# Smoke
 
 A scripting language based on the clox interpreter from Bob Nystrom's excellent book Crafting Interpreters (https://craftinginterpreters.com/ )
 
 Although the underlying code is based on clox, Smoke is a very different language.
 
 ## Compiling
-To compile for linux you need the readline library.  To install it on Debian-based systems, run:
+
+To compile for linux you need the readline library. To install it on Debian-based systems, run:
+
 ```
 sudo apt-get install libreadline-dev
 ```
+
 To build using gcc you can use the makefile in the src folder:
+
 ```
 cd src
 make
 ```
-There is also a CMakeList.txt file included.
 
+There is also a CMakeList.txt file included.
 
 ## Data types
 
 There a 6 different data types
-1) Numbers - numbers are double precision floating points
-2) String
-3) Boolean - either true or false
-4) Lists - a list is a collection of values
-5) Datetime
-6) nil
+
+1. Numbers - numbers are double precision floating points
+2. String
+3. Boolean - either true or false
+4. Lists - a list is a collection of values
+5. Datetime
+6. nil
 
 ```
 var number = 0
@@ -38,27 +43,27 @@ var something = nil
 
 ## Operators
 
-|Operator|Description|
-|--------|-----------|
-()|Grouping
-[]|Subscript
-!|Not
-*|Multiply
-/|Divide
-%|Modulo
-+|Addition
--|Subtraction/Negate
-==|Equals
-!=|Not Equals
-\>|Greater than
-\>=|Greater than or equals
-<|Less than
-<=|Less than or equals
-and|Logical and
-or|Logical or
-++|Increment by 1
---|Decrement by 1
-+=|Addition assignment
+| Operator | Description            |
+| -------- | ---------------------- |
+| ()       | Grouping               |
+| []       | Subscript              |
+| !        | Not                    |
+| \*       | Multiply               |
+| /        | Divide                 |
+| %        | Modulo                 |
+| +        | Addition               |
+| -        | Subtraction/Negate     |
+| ==       | Equals                 |
+| !=       | Not Equals             |
+| \>       | Greater than           |
+| \>=      | Greater than or equals |
+| <        | Less than              |
+| <=       | Less than or equals    |
+| and      | Logical and            |
+| or       | Logical or             |
+| ++       | Increment by 1         |
+| --       | Decrement by 1         |
+| +=       | Addition assignment    |
 
 ## Variables
 
@@ -79,7 +84,7 @@ const x = 1 // x will be read only
 if x == true then print "it's true"
 
 // then not required if using block
-if a == 1 and (b == 2 or c == 7) 
+if a == 1 and (b == 2 or c == 7)
 {
   print "do something
 }
@@ -92,6 +97,7 @@ else
 ## Looping
 
 while
+
 ```
 while a == 1 do print "doing stuff"
 
@@ -103,11 +109,12 @@ while a < 10
 ```
 
 for
+
 ```
 for x in [1..100] print x // prints 1-100
 
 // use for to enumerate lists or strings
-for x in [1,2,3] print x; 
+for x in [1,2,3] print x;
 for c in "this is a string" print c;
 ```
 
@@ -117,7 +124,7 @@ for c in "this is a string" print c;
 const list = [];
 list << "hello" // adds "hello" to the end of the list
 
-var item = list[>>] // 'pop' item of end of list. 
+var item = list[>>] // 'pop' item of end of list.
 
 // Slicing
 const list [1,2,3,4,5,6];
@@ -139,8 +146,8 @@ list[5] = "I've been updated!"
 
 ## Hash Tables
 
-Hash tables are a set of key/pair values.  The key must be a string, while the value can be any valid expression, including functions, classes, lists or another hash table.
-Converting a hash table to a string (via print or string interpolation) will produce valid JSON. 
+Hash tables are a set of key/pair values. The key must be a string, while the value can be any valid expression, including functions, classes, lists or another hash table.
+Converting a hash table to a string (via print or string interpolation) will produce valid JSON.
 
 ```
 // Create an empty hash table
@@ -156,16 +163,17 @@ t["c"] = "test"
 print t["a"]
 ```
 
-
 ## Functions
-Functions are first class citizens.  They can be assigned to variables and passed in as parameters to functions.
+
+Functions are first class citizens. They can be assigned to variables and passed in as parameters to functions.
 
 Examples of usage:
+
 ```
 // Declare a function
-fn addNumbers(a,b) 
-{ 
-  return a + b; 
+fn addNumbers(a,b)
+{
+  return a + b;
 }
 
 // Using 'arrow' notation
@@ -182,10 +190,10 @@ fn test(a,b,c=10) => a+b+c
 print test(1,2) // prints 13
 ```
 
-
 ## String interpolation
+
 Anything between '%{' and '}' is evaluated and embedded into the string.
-You can also include a format string to format the evaluated value.  Format strings only work on numbers and dates. For other data types the format string will be ignored. Use a pipe '|' after the expression to add a format string.  The format string is anything between the '|' and the closing '}'.
+You can also include a format string to format the evaluated value. Format strings only work on numbers and dates. For other data types the format string will be ignored. Use a pipe '|' after the expression to add a format string. The format string is anything between the '|' and the closing '}'.
 
 See FormatStrings.md for details
 
@@ -193,8 +201,10 @@ See FormatStrings.md for details
 var interpolated = "Value: %{1+1}" // "Value: 2"
 var withFormatting = "%{100.1234|0.2f}" // "100.12"
 ```
+
 ## Raw strings
-Anything between """  and """ will be interpreted as a string constant. Escape sequences and string interpolation will not be evaluated.
+
+Anything between """ and """ will be interpreted as a string constant. Escape sequences and string interpolation will not be evaluated.
 
 ```
 const raw = """"a string with quotes around it""""
@@ -209,6 +219,7 @@ const json = """
 ## Escape sequences
 
 Smoke implements the following escape sequences
+
 - \n - Newline
 - \r - Carriage return
 - \\\ - Backslash
@@ -223,6 +234,7 @@ Smoke implements the following escape sequences
 ## Classes
 
 Examples of use:
+
 ```
 // declaring a class
 class Foo
@@ -232,13 +244,13 @@ class Foo
   {
     me.name = name
   }
-  
+
   //Methods
   doSomething()
   {
     print "hello"
   }
-  
+
   doSomethingElse()
   {
     print "goodbye"
@@ -258,9 +270,10 @@ print foo.doesNotExists // error as property does not exist yet
 
 ```
 
-
 ## Enums
+
 You can define enums as below:
+
 ```
 enum Animal
 {
@@ -273,9 +286,10 @@ enum Animal
 Animal.name(Animal.Dog) //returns "Dog"
 ```
 
-
 ## Modules
+
 Modules are a grouping of functions. See example below.
+
 ```
 mod foo
 {
@@ -291,10 +305,9 @@ mod foo
 }
 ```
 
-
 ## Using multiple files
 
-You can split your code over multiple files.  
+You can split your code over multiple files.
 
 Example of how to import code from other files:
 
@@ -305,63 +318,77 @@ Example of how to import code from other files:
 runFunctionInAnotherFile(123)
 ```
 
-## sql
-#db c:\tmp\test.db
+## embedded sql
 
-var x = $"select * from customer where id = {id}"
+Smoke has support for sqlite3 and embedded sql. Use setdb() to open a connection
 
+Any string prefixed with a $ is treated as an sql statement. To use parameters for sql queries, the format is similar to string interpolation, except use :{}. Below example selects customers with the id 123.
+NOTE: String interpolation is not supported in embedded sql
+
+```
+setdb("./test.db")
+var id = 123
+var x = $"select * from customer where id = :{id}"
+```
 
 ## Native functions
 
 Console
+
 - con.backcolor("blue") // changes the console background colour
 - con.clear() // clears the screen
 - con.input() // gets input from the console
 - con.locate(x,y) // locates the cursor on the
-- con.textcolor("red") // changes the console text colour 
+- con.textcolor("red") // changes the console text colour
 - con.write("string") // write to the console without printing a newline afterwards (unlike print)
-- con.getch() // gets the key in the keyboard buffer. Non-blocking.  If no key present it returns 0, else it will return an integer that correlates to the accii code, except for special keys like arrow keys.  Use Keys.name() to get the name of the key pressed.
+- con.getch() // gets the key in the keyboard buffer. Non-blocking. If no key present it returns 0, else it will return an integer that correlates to the accii code, except for special keys like arrow keys. Use Keys.name() to get the name of the key pressed.
 
 Dates
+
 - date.dartparts(date) // returns a list of all parts that make up the date ([year, month, day, hour, minute, second])
 - date.now() // returns the current date/time in current timezone
-- date.date(datestring) // creates a new date by converting datestring to a date.  Format for datestring is yyyy-mm-dd hh:MM:ss
-- date.dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy,  year, hour, min, sec
+- date.date(datestring) // creates a new date by converting datestring to a date. Format for datestring is yyyy-mm-dd hh:MM:ss
+- date.dateadd(date, interval, value) // adds/subtracts time interval from the date. Intervals: day, monthy, year, hour, min, sec
 - date.datediff(interval, startDate, endDate) // interval can be day, hour, minute, second
 
 System
+
 - sys.dir("path/to/folder") // returns a list of files
 - sys.run(path)
 
 String Functions
+
 - string.ascii(string) // gets the ascii value of the first character of a string
 - string.upper(string) // converts a string to upper case
-- string.split(str, delim) // split a string on delimeter.  a returns list
-- string.splitlines(str) // split a string on newline.  a returns list
+- string.split(str, delim) // split a string on delimeter. a returns list
+- string.splitlines(str) // split a string on newline. a returns list
 - string.char(num) // converts an ascii value into a 1 character string
 - string.trim(string)
 - string.join(list) // makes a string by joining all elements of a list
 
 File IO
-- file.readlines(path) // reads a text file and returns a list of all the lines in file 
+
+- file.readlines(path) // reads a text file and returns a list of all the lines in file
 - file.open(filename, mode) // opens a file using mode ('r','w', etc). return reference to file (a number 0-255)
 - file.write(fileref, text) // write to file opend by file.open
 - file.close(fileref) // close file
 - file.readchar(fileref) // reads 1 charater from a file. Returns nil if at end of file, or if can't read.
 
 Utils
+
 - args() // returns a list of command line arguments passed to the scripts
 - clock() // number of seconds since program started
-- fromjson(string)  // converts json text to a hash table or list
+- fromjson(string) // converts json text to a hash table or list
 - len(list) // gets the length of a list or string
 - num(string) // converts a string to a number
 - rand(max) // gets a random number from 0 to max-1
-- sleep(milliseconds) // suspend thread 
-- type(variable) // gets the type of a variable.  Returns "Type" enum
-  Types: Bool, Number, DateTime, String, Upvalue, Function, Native, Closure, List, Class, Instance, Method, Enum 
-
+- setdb(database_name) // sets the sqlite database
+- sleep(milliseconds) // suspend thread
+- type(variable) // gets the type of a variable. Returns "Type" enum
+  Types: Bool, Number, DateTime, String, Upvalue, Function, Native, Closure, List, Class, Instance, Method, Enum
 
 Math/Bitwise Operations
+
 - math.bitand(value1, value2) // performs a bitwise and
 - math.bitor(value1, value2) // bitwise or
 - math.atan(value)
@@ -373,6 +400,3 @@ Math/Bitwise Operations
 - math.sqrt(value)
 - math.floor(value)
 - math.ceil(value)
-
-
-
