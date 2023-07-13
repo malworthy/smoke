@@ -1,1 +1,12 @@
-$"select * from test where id = :{1}"
+
+
+if (true)
+{
+    cons.write("hello")
+    cons.write("world")
+}
+else
+{
+     cons.write("goodbye")
+     cons.write("world")
+}

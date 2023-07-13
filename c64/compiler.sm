@@ -182,11 +182,13 @@ class Compiler
             ParseRule(TokenType.Fn, me.function, false, Precedence.None),
             ParseRule(TokenType.And, false, me.binary, Precedence.And),
             ParseRule(TokenType.Or, false, me.binary, Precedence.Or),
+
             ParseRule(TokenType.LessEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.GreaterEqual, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Less, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.Greater, false, me.binary, Precedence.Comparison),
             ParseRule(TokenType.NotEqual, false, me.binary, Precedence.Comparison),
+            
             ParseRule(TokenType.Equals, false, me.binary, Precedence.Equality),
             ParseRule(TokenType.Plus, false, me.binary, Precedence.Term),
             ParseRule(TokenType.Minus, me.unary, me.binary, Precedence.Term),
