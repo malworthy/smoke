@@ -802,9 +802,49 @@ static void subscript(bool canAssign)
             emitByte(OP_SLICE);           
         }
     }
-    
-    
 }
+
+static void sql(bool canAssign)
+{
+    // emit function 
+    char* fnName = "query";
+    int arg = stringConstant(fnName);
+    emitBytes16(OP_GET_GLOBAL, (uint16_t)arg);
+    string(false);
+    emitBytes(OP_CALL, 1);
+}
+
+static void sqlParam(bool canAssign)
+{
+    // emit function 
+    char* fnName = "query";
+    int arg = stringConstant(fnName);
+    emitBytes16(OP_GET_GLOBAL, (uint16_t)arg);
+
+    int params = 1;
+    do
+    {
+        // add string part
+        string(false);
+
+        // evaluate parameter
+        expression();
+        params += 2;
+    } while (match(TOKEN_SQL_PARAM));
+
+    
+    if (!match(TOKEN_SQL))
+    {
+        errorAtCurrent("unable to parse sql");
+        return;
+    }        
+    
+    // add final part of string
+    string(false);
+
+    emitBytes(OP_CALL, params);
+}
+
 
 // Interpolation is syntactic sugar for calling "join()" on a list. So the
 // string:
@@ -935,6 +975,8 @@ static void addList(bool canAssign)
 ParseRule rules[] = 
 {
     [TOKEN_INTERPOLATION] = {interpolation, NULL,   PREC_NONE},
+    [TOKEN_SQL_PARAM]     = {sqlParam, NULL,        PREC_NONE},
+    [TOKEN_SQL]           = {sql,      NULL,        PREC_NONE},
     [TOKEN_LEFT_PAREN]    = {grouping, call,        PREC_CALL},
     [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,        PREC_NONE},
     [TOKEN_LEFT_BRACKET]  = {list,     subscript,   PREC_CALL},
@@ -990,7 +1032,7 @@ static void parsePrecedence(Precedence precedence)
 {
     advance();
     ParseFn prefixRule = getRule(parser.previous.type)->prefix;
-    
+    //printf("looking at token: %d\n", parser.previous.type);
     if (prefixRule == NULL) 
     {
         error("Expect expression.");

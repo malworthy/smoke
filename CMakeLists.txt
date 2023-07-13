@@ -49,6 +49,7 @@ add_test(NAME hashtable COMMAND python ../test_runner.py "smoke.exe" "../tst/has
 add_test(NAME escapechar COMMAND python ../test_runner.py "smoke.exe" "../tst/escapechar.sm" "//expect:")
 add_test(NAME jsonparse COMMAND python ../test_runner.py "smoke.exe" "../tst/jsonparse/jsonparse.sm" "//expect:")
 add_test(NAME rawstring COMMAND python ../test_runner.py "smoke.exe" "../tst/rawstring.sm" "//expect:")
+add_test(NAME sql COMMAND python ../test_runner.py "smoke.exe" "../tst/sql.sm" "//expect:")
 
 add_test(NAME inc_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/inc_string.sm" "//expect:")
 add_test(NAME dec_string COMMAND python ../test_runner.py "smoke.exe" "../tst/error/dec_string.sm" "//expect:")
@@ -59,7 +60,7 @@ add_test(NAME shovel_not_a_list COMMAND python ../test_runner.py "smoke.exe" "..
 add_test(NAME plus_equal_invalid_types COMMAND python ../test_runner.py "smoke.exe" "../tst/error/plus_equal_invalid_types.sm" "//expect:")
 
 
-add_executable(smoke src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c src/native/mathmod.c src/quicksort.c src/native/jsonparse.c)
+add_executable(smoke src/main.c src/chunk.c src/memory.c src/debug.c src/value.c src/vm.c src/compiler.c src/scanner.c src/object.c src/table.c src/native/console.c src/native/list.c src/native/filesys.c src/native/fileio.c src/native/stringutil.c src/native/date.c src/native/conio.c src/format.c src/native/mathmod.c src/quicksort.c src/native/jsonparse.c src/sqlite3/sqlite3.c src/sqlite3/sqlNative.c)
 #target_link_options(smoke PRIVATE -lm -lreadline)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

@@ -1,0 +1,9 @@
+setdb(":memory:")
+$"create table test(id int, name text)"
+const id = 1
+const text1 = "testing 123"
+$"insert into test values(:{id}, :{text1})"
+$"insert into test values(2,'one more test')"
+
+print $"select * from test"
+//expect:[{"id" : "1", "name" : "testing 123"}, {"id" : "2", "name" : "one more test"}]

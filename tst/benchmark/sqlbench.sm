@@ -1,0 +1,5 @@
+$"create table test (id integer primary key, name text)"
+const start = clock()
+for i in [0..1000000] $"insert into test (name) values(:{"Test %{i}"})"
+print "Time Taken: %{clock()-start} seconds"
+print $"select * from test order by id desc limit 5"
